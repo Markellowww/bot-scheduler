@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.service;
 
+import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.model.UserRepository;
@@ -30,12 +31,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     final BotConfig config;
 
-    static final String TEXT_ABOUT =
-            "Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:\n" +
-            "Telegram: @fsbrossii\n" +
-            "GitHub: https://github.com/Markelloww\n" +
-            "Почта: markelloww@internet.ru";
-    static final String TEXT_IN_DEVELOP = "В разработке :(";
+    static final String TEXT_ABOUT = EmojiParser.parseToUnicode(
+            "Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:\n\n" +
+            ":arrow_backward:Telegram: @fsbrossii\n\n" +
+            ":pushpin:GitHub: https://github.com/Markelloww\n\n" +
+            ":e-mail:Почта: markelloww@internet.ru");
+    static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -80,7 +81,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 }
                 default: {
-                    sendMessage(chatId, "Я такое не знаю :(");
+                    sendMessage(chatId, EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"));
                 }
             }
         }
@@ -104,8 +105,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void startCommandReceived(long chatId, String firstName) {
-        String answer = "Привет, " + firstName + ", это Матобес-Helper!\n" +
-                "Для начала работы ознакомьтесь с руководством (/help).";
+        String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
+                "Для начала работы ознакомьтесь с руководством:closed_book: (/help).");
         sendMessage(chatId, answer);
     }
 
