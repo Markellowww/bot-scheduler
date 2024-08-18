@@ -9,11 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-
+/**
+ * @Author: @YDKrivoshey
+ */
 public class ExcelParser {
     public static void main(String[] args) throws IOException {
-        readExcel("src/main/java/io/tgbot/moaishelper/parser/Schedule.xlsx"); // тут нужен нормальный путь
-        // можно через String.format
+        readExcel("src/main/resources/groups/1/Schedule.xlsx"); // тут нужен нормальный путь
     }
 
     public static void readExcel(String fileName) throws IOException {
@@ -33,6 +34,7 @@ public class ExcelParser {
 
 //                        System.out.println(subject + " " + teacher + " " + auditorium);
                         if (!Stream.of(subject, teacher, auditorium).allMatch(String::isEmpty)) {
+                            System.out.println(subject + " " + teacher + " " + auditorium);
                             /* добавляем в json данные
                             [четность недели -> [номер дня -> [номер пары, предмет, преподаватель, аудитория]]]*/
                         }
