@@ -1,0 +1,35 @@
+package io.tgbot.moaishelper.model;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+
+/**
+ * @Author: YDKrivoshey
+ */
+
+@Entity
+@Getter
+public class GroupUser {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "groupID", referencedColumnName = "id", nullable = false)
+    private Groupe group;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "userID", referencedColumnName = "id", nullable = false)
+    private User user;
+
+    private boolean admin;
+
+    public GroupUser() {
+    }
+
+    public GroupUser(Groupe group, User user, boolean admin) {
+        this.group = group;
+        this.user = user;
+        this.admin = admin;
+    }
+}

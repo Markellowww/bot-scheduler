@@ -1,65 +1,44 @@
 package io.tgbot.moaishelper.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @Author: Markelloww
+ * @Author: Markelloww, YDKrivoshey
  */
 
-@Entity(name = "usersDataTable")
+@Entity
+@Getter
+@NoArgsConstructor
 public class User {
-
     @Id
-    private Long chatId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @OneToMany(mappedBy = "user")
+    private List<GroupUser> groupUsers = new ArrayList<>();
+
+    @OneToOne(mappedBy = "creator")
+    private Groupe createdGroup;
+
+    @Column(unique = true, nullable = false)
+    private long chatId;
 
     private String firstName;
-
-    private String lastName;
 
     private String userName;
 
     private Timestamp registeredAt;
 
-    public Long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(Long chatId) {
+    public User(long chatId, String firstName, String userName, Timestamp registeredAt) {
         this.chatId = chatId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public Timestamp getRegisteredAt() {
-        return registeredAt;
-    }
-
-    public void setRegisteredAt(Timestamp registeredAt) {
         this.registeredAt = registeredAt;
     }
 }
