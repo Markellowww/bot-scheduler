@@ -88,7 +88,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void registerUser(Message msg) {
-        if (userRepository.findById(msg.getChatId()).isEmpty()) {
+        if (userRepository.findByChatId(msg.getChatId()) == null) {
             var chatId = msg.getChatId();
             var chat = msg.getChat();
 
