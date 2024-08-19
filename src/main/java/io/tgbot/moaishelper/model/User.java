@@ -31,6 +31,7 @@ public class User {
 
     private String firstName;
 
+    @Column(unique = true, nullable = false) // уникально в Telegram
     private String userName;
 
     private Timestamp registeredAt;
@@ -40,5 +41,13 @@ public class User {
         this.firstName = firstName;
         this.userName = userName;
         this.registeredAt = registeredAt;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 }

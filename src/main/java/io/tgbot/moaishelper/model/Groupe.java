@@ -44,7 +44,7 @@ public class Groupe { // французское слово, group[s] - ключ�
     public void removeMember(User user) {
         for (Iterator<GroupUser> it = groupUsers.iterator(); it.hasNext(); ) {
             GroupUser groupUser = it.next();
-            if (groupUser.getId() == this.id && groupUser.getUser().getId() == user.getId()) {
+            if (groupUser.getGroup().getId() == this.id && groupUser.getUser().getId() == user.getId()) {
                 it.remove();
                 return;
             }

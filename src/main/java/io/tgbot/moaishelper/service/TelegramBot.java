@@ -88,15 +88,18 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void registerUser(Message msg) {
-        if (userRepository.findByChatId(msg.getChatId()) == null) {
-            var chatId = msg.getChatId();
-            var chat = msg.getChat();
-
+        var chatId = msg.getChatId();
+        var chat = msg.getChat();
+        if (userRepository.findByChatId(chatId) == null) { // пользователь не зарегистрирован
             User user = new User(chatId, chat.getFirstName(), chat.getUserName(),
-                    new Timestamp(System.currentTimeMillis()));
-
+                    new Timestamp(System.currentTimeMillis())); // создание нового пользователя
             userRepository.save(user);
+            return;
         }
+        User user = userRepository.findByChatId(chatId); // иначе обновление данных об имеющемся пользователе
+        user.setUserName(chat.getUserName());
+        user.setFirstName(chat.getFirstName());
+        userRepository.save(user);
     }
 
     private void startCommandReceived(long chatId, String firstName) {
