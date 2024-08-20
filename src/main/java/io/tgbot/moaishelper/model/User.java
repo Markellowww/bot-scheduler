@@ -23,9 +23,6 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<GroupUser> groupUsers = new ArrayList<>();
 
-    @OneToOne(mappedBy = "creator")
-    private Groupe createdGroup;
-
     @Column(unique = true, nullable = false)
     private long chatId;
 
