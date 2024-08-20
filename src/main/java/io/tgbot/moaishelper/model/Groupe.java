@@ -28,10 +28,15 @@ public class Groupe { // французское слово, group[s] - ключ�
     @JoinColumn(name = "creatorID", referencedColumnName = "id", nullable = false)
     private User creator;
 
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private Timestamp createdAt;
 
-    public Groupe(User creator, Timestamp createdAt) {
+    public Groupe(User creator, String name, Timestamp createdAt) {
         this.creator = creator;
+        this.name = name;
         this.createdAt = createdAt;
         addMember(creator, true);
     }
