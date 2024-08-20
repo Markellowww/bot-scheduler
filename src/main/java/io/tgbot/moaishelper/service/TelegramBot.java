@@ -2,8 +2,7 @@ package io.tgbot.moaishelper.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
-import io.tgbot.moaishelper.model.User;
-import io.tgbot.moaishelper.model.UserRepository;
+import io.tgbot.moaishelper.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -17,7 +16,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: Markelloww
@@ -28,6 +29,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private GroupRepository groupRepository;
+
+    private Map<Long, String> userStates = new HashMap<>();
 
     final BotConfig config;
 
@@ -37,6 +42,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             ":pushpin:GitHub: https://github.com/Markelloww\n\n" +
             ":e-mail:Почта: markelloww@internet.ru");
     static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
+    static final String TEXT_GROUP_EXISTS = EmojiParser.parseToUnicode("Вы уже создавали ранее группу");
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -44,6 +50,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         listOfCommands.add(new BotCommand("/start", "Начало работы"));
         listOfCommands.add(new BotCommand("/support", "Контактная информация"));
         listOfCommands.add(new BotCommand("/help", "Руководство по использованию бота"));
+        listOfCommands.add(new BotCommand("/creategroup", "Создать группу"));
         try {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
         } catch (TelegramApiException _) {
@@ -66,25 +73,54 @@ public class TelegramBot extends TelegramLongPollingBot {
             String messageText = update.getMessage().getText();
             long chatId = update.getMessage().getChatId();
 
-            switch (messageText) {
-                case "/start": {
-                    registerUser(update.getMessage());
-                    startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                    break;
-                }
-                case "/support": {
-                    sendMessage(chatId, TEXT_ABOUT);
-                    break;
-                }
-                case "/help": {
-                    sendMessage(chatId, TEXT_IN_DEVELOP);
-                    break;
-                }
-                default: {
-                    sendMessage(chatId, EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"));
+            if (userStates.containsKey(chatId) && "waiting_for_group_name".equals(userStates.get(chatId))) {
+                handleGroupNameInput(chatId, messageText);
+            }
+            else {
+                switch (messageText) {
+                    case "/start": {
+                        registerUser(update.getMessage());
+                        startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                        break;
+                    }
+                    case "/creategroup": {
+                        handleCreateGroupCommand(chatId);
+                        break;
+                    }
+                    case "/support": {
+                        sendMessage(chatId, TEXT_ABOUT);
+                        break;
+                    }
+                    case "/help": {
+                        sendMessage(chatId, TEXT_IN_DEVELOP);
+                        break;
+                    }
+                    default: {
+                        sendMessage(chatId, EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"));
+                    }
                 }
             }
         }
+    }
+
+    private void handleCreateGroupCommand(long chatId) {
+        long userId = userRepository.findByChatId(chatId).getId();
+
+        if (groupRepository.findByCreatorId(userId) == null) {
+            sendMessage(chatId, "Введите название группы");
+            userStates.put(chatId, "waiting_for_group_name");
+        }
+        else {
+            sendMessage(chatId, TEXT_GROUP_EXISTS);
+        }
+    }
+
+    private void handleGroupNameInput(long chatId, String groupName) {
+        User creator = userRepository.findByChatId(chatId);
+        Groupe groupe = new Groupe(creator, groupName, new Timestamp(System.currentTimeMillis()));
+        groupRepository.save(groupe);
+        sendMessage(chatId, "Вы успешно создали группу с названием: " + groupe.getName());
+        userStates.remove(chatId);
     }
 
     private void registerUser(Message msg) {
