@@ -21,10 +21,10 @@ public class Groupe { // французское слово, group[s] - ключ�
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GroupUser> groupUsers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "creatorID", referencedColumnName = "id", nullable = false)
     private User creator;
 
@@ -46,13 +46,22 @@ public class Groupe { // французское слово, group[s] - ключ�
         groupUsers.add(groupUser);
     }
 
-    public void removeMember(User user) {
+    public boolean removeMember(User user) {
         for (Iterator<GroupUser> it = groupUsers.iterator(); it.hasNext(); ) {
             GroupUser groupUser = it.next();
             if (groupUser.getGroup().getId() == this.id && groupUser.getUser().getId() == user.getId()) {
                 it.remove();
-                return;
+                return true;
             }
         }
+        return false;
+    }
+
+    public List<User> getAdmins() {
+        return groupUsers.stream().filter(GroupUser::isAdmin).map(GroupUser::getUser).toList();
+    }
+
+    public List<User> getMembers() {
+        return groupUsers.stream().map(GroupUser::getUser).toList();
     }
 }
