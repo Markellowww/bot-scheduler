@@ -26,6 +26,10 @@ public class User {
     @Column(unique = true, nullable = false)
     private long chatId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "selectedGroupId", referencedColumnName = "id")
+    private Groupe selectedGroup;
+
     private String firstName;
 
     @Column(unique = true, nullable = false) // уникально в Telegram
@@ -46,5 +50,9 @@ public class User {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public void setSelectedGroup(Groupe selectedGroup) {
+        this.selectedGroup = selectedGroup;
     }
 }
