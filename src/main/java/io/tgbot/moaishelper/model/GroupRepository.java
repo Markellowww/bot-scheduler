@@ -3,7 +3,7 @@ package io.tgbot.moaishelper.model;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * @Author: YDKrivoshey
+ * @Authors: Markelloww & YDK
  */
 
 public interface GroupRepository extends CrudRepository<Groupe, Long> {

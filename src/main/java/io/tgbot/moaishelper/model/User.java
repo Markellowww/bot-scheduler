@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author: Markelloww, YDKrivoshey
+ * @Authors: Markelloww & YDK
  */
 
 @Entity

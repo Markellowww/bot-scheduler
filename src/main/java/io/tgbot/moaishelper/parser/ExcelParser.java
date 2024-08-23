@@ -1,9 +1,6 @@
 package io.tgbot.moaishelper.parser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import io.tgbot.moaishelper.schedule.Schedule;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,17 +10,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 /**
- * @Author: @YDKrivoshey
+ * @Authors: Markelloww & YDK
  */
+
 public class ExcelParser {
     public static void main(String[] args) throws IOException {
-        createSchedule(1, readExcel("src/main/resources/groups2/1/Schedule.xlsx")); // тут нужен нормальный путь
+        createSchedule(1, readExcel("src/main/resources/groups/1/Schedule.xlsx")); // тут нужен нормальный путь
     }
 
     public static List<List<Object>> readExcel(String fileName) {

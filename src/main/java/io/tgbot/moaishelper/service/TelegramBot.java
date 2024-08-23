@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.sql.Timestamp;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Author: Markelloww
+ * @Authors: Markelloww & YDK
  */
 
 @Component
@@ -31,6 +30,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private GroupRepository groupRepository;
 
@@ -38,31 +38,14 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     final BotConfig config;
 
-    static final String TEXT_ABOUT = EmojiParser.parseToUnicode(
-            "Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:\n\n" +
-            ":arrow_backward:Telegram: @fsbrossii\n\n" +
-            ":pushpin:GitHub: https://github.com/Markelloww\n\n" +
-            ":e-mail:Почта: markelloww@internet.ru");
-    static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
-    static final String TEXT_GROUP_EXISTS = EmojiParser.parseToUnicode("Вы уже создавали ранее группу");
-    static final String NO_GROUPS = EmojiParser.parseToUnicode("Вы не состоите ни в одной группе");
-    static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("Не выбрана текущая группа");
-    static final String NOT_ADMIN = EmojiParser.parseToUnicode("Вы не являетесь администратором данной группы");
-
     public TelegramBot(BotConfig config) {
         this.config = config;
         List<BotCommand> listOfCommands = new ArrayList<>();
-        listOfCommands.add(new BotCommand("/start", "Начало работы"));
-        listOfCommands.add(new BotCommand("/support", "Контактная информация"));
-        listOfCommands.add(new BotCommand("/help", "Руководство по использованию бота"));
-        listOfCommands.add(new BotCommand("/creategroup", "Создать группу"));
-        listOfCommands.add(new BotCommand("/selectgroup", "Выбрать группу"));
-        listOfCommands.add(new BotCommand("/leavegroup", "Покинуть группу"));
-        listOfCommands.add(new BotCommand("/deletegroup", "Покинуть группу"));
+        CommandInitializer.init(listOfCommands);
         try {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
-        } catch (TelegramApiException _) {
         }
+        catch (TelegramApiException _) {}
     }
 
     @Override
@@ -83,6 +66,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             if (userStates.containsKey(chatId) && "waiting_for_group_name".equals(userStates.get(chatId))) {
                 handleGroupNameInput(chatId, messageText);
+            }
+            else if (userStates.containsKey(chatId) && "waiting_for_username".equals(userStates.get(chatId))) {
+                handleInviteUserInput(chatId, messageText);
             }
             else if (userStates.containsKey(chatId) && userStates.get(chatId).equals("waiting_for_group_selection")) {
                 handleGroupSelectInput(chatId, messageText);
@@ -106,16 +92,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                         leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                         break;
                     }
+                    case "/invite": {
+                        handleInviteCommand(chatId);
+                        break;
+                    }
                     case "/deletegroup": {
                         deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                         break;
                     }
                     case "/support": {
-                        sendMessage(chatId, TEXT_ABOUT);
+                        sendMessage(chatId, Info.TEXT_ABOUT());
                         break;
                     }
                     case "/help": {
-                        sendMessage(chatId, TEXT_IN_DEVELOP);
+                        sendMessage(chatId, Info.TEXT_IN_DEVELOP());
                         break;
                     }
                     default: {
@@ -126,6 +116,40 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    private void handleInviteCommand(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        if (user.getSelectedGroup() != null) {
+            Groupe selectedGroup = user.getSelectedGroup();
+            if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
+                sendMessage(chatId, "Введите @UserName приглашаемого человека");
+                userStates.put(chatId, "waiting_for_username");
+            }
+            else
+                sendMessage(chatId, Info.NOT_ADMIN());
+        }
+        else
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED());
+    }
+
+    private void handleInviteUserInput(long chatId, String invitedUserName) {
+        userStates.remove(chatId);
+
+        User user = userRepository.findByChatId(chatId);
+        if (userRepository.findByUserName(invitedUserName) != null) {
+            User invitedUser = userRepository.findByUserName(invitedUserName);
+            Groupe group = user.getSelectedGroup();
+            if (group.getMembers().stream().anyMatch(u -> u.getId() == invitedUser.getId())) {
+                sendMessage(chatId, "Пользователь уже состоит в группе");
+                return;
+            }
+            group.addMember(invitedUser, false);
+            groupRepository.save(group);
+            sendMessage(chatId, "Пользователь успешно добавлен!");
+        }
+        else
+            sendMessage(chatId, Info.USER_NOT_EXISTS());
+    }
+
     private void handleCreateGroupCommand(long chatId) {
         long userId = userRepository.findByChatId(chatId).getId();
 
@@ -134,7 +158,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             userStates.put(chatId, "waiting_for_group_name");
         }
         else {
-            sendMessage(chatId, TEXT_GROUP_EXISTS);
+            sendMessage(chatId, Info.TEXT_GROUP_EXISTS());
         }
     }
 
@@ -146,8 +170,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             addGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
             return;
         }
-        sendMessage(chatId, NO_GROUPS);
-
+        sendMessage(chatId, Info.NO_GROUPS());
     }
 
     private void handleGroupNameInput(long chatId, String groupName) {
@@ -233,11 +256,10 @@ public class TelegramBot extends TelegramLongPollingBot {
      *
      * @param chatId идентификатор чата
      * @param selectedGroup группа для выхода
-     * @author: YDKrivoshey
      */
     private void leaveGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup == null) {
-            sendMessage(chatId, GROUP_NOT_SELECTED);
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED());
             return;
         }
         User user = userRepository.findByChatId(chatId);
@@ -260,7 +282,6 @@ public class TelegramBot extends TelegramLongPollingBot {
      * Необходимо быть админом группы
      * @param chatId идентификатор чата
      * @param selectedGroup группа, которую надо удалить
-     * @author: YDKrivoshey
      */
     private void deleteGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup != null) {
@@ -275,10 +296,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 groupRepository.deleteById(selectedGroup.getId()); // полное удаление группы
             }
             else
-                sendMessage(chatId, NOT_ADMIN);
+                sendMessage(chatId, Info.NOT_ADMIN());
         }
         else
-            sendMessage(chatId, GROUP_NOT_SELECTED);
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED());
     }
 
 }

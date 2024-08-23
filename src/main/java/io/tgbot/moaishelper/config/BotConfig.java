@@ -7,7 +7,7 @@ import org.springframework.context.annotation.PropertySource;
 import java.util.Objects;
 
 /**
- * @Author: Markelloww
+ * @Authors: Markelloww & YDK
  */
 
 @Configuration

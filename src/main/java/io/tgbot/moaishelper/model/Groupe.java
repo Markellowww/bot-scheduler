@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @Author: YDKrivoshey
+ * @Authors: Markelloww & YDK
  */
 
 @Entity

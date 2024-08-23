@@ -1,12 +1,14 @@
 package io.tgbot.moaishelper.schedule;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * @Author: Markelloww
+ * @Authors: Markelloww & YDK
  */
 
 public class Schedule {
@@ -110,14 +112,11 @@ public class Schedule {
     }
 
     private static class Lesson {
+        @Getter
         private final String lessonName;
         private final String startTime;
         private final String endTime;
         private final String cabinet;
-
-        public String getLessonName() {
-            return lessonName;
-        }
 
         public Lesson(String lessonName, String startTime, String endTime, String cabinet) {
             this.lessonName = lessonName;

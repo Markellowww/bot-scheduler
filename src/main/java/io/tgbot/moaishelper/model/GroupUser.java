@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 /**
- * @Author: YDKrivoshey
+ * @Authors: Markelloww & YDK
  */
 
 @Entity

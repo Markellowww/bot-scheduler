@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 /**
- * @Author: Markelloww
+ * @Authors: Markelloww & YDK
  */
 
 @Component
