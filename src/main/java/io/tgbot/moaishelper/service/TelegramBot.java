@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.sql.Timestamp;
@@ -141,8 +142,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         User user = userRepository.findByChatId(chatId);
 
         if (!user.getGroupUsers().isEmpty()) {
-
             userStates.put(chatId, "waiting_for_group_selection");
+            addGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
             return;
         }
         sendMessage(chatId, NO_GROUPS);
@@ -199,20 +200,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void addGroupAnswers(long chatId, List<Groupe> groupes) {
+    private void addGroupAnswers(long chatId, List<Groupe> groups) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        for (int i = 0; i < Math.ceil(groupes.size() / 3.0); i++) {
+        for (int i = 0; i < Math.ceil(groups.size() / 3.0); i++) {
             List<InlineKeyboardButton> buttons = new ArrayList<>();
-            for (int j = 0; j < 3; j++) {
-                Groupe groupe = groupes.get(3 * i + j);
+            for (int j = 0; j < 3 && 3 * i + j < groups.size(); j++) {
+                Groupe groupe = groups.get(3 * i + j);
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText(groupe.getName());
                 button.setCallbackData(String.valueOf(groupe.getId()));
+                buttons.add(button);
             }
             rows.add(buttons);
         }
         inlineKeyboardMarkup.setKeyboard(rows);
+        System.out.println(inlineKeyboardMarkup);
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Выберите группу");
+        message.setReplyMarkup(inlineKeyboardMarkup);
+        try {
+            execute(message);
+        } catch (TelegramApiException _) {
+        }
     }
 
     /**

@@ -1,5 +1,9 @@
 package io.tgbot.moaishelper.parser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.tgbot.moaishelper.schedule.Schedule;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -7,6 +11,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -14,15 +23,16 @@ import java.util.stream.Stream;
  */
 public class ExcelParser {
     public static void main(String[] args) throws IOException {
-        readExcel("src/main/resources/groups/1/Schedule.xlsx"); // тут нужен нормальный путь
+        createSchedule(1, readExcel("src/main/resources/groups2/1/Schedule.xlsx")); // тут нужен нормальный путь
     }
 
-    public static void readExcel(String fileName) throws IOException {
+    public static List<List<Object>> readExcel(String fileName) {
         try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(fileName))) {
             XSSFSheet mySheet = myExcelBook.getSheetAt(0); // первая таблица
             XSSFRow currentRow; // текущая строка из excel
-            short rowIndex = 3; // текущая строка по индексу (см шаблон)
 
+            List<List<Object>> data = new ArrayList<>(2);
+            short rowIndex = 3; // текущая строка по индексу (см шаблон)
             for (short day = 1; day < 7; day++, rowIndex += 2) { // обход по дням
                 for (short pair = 1; pair < 8; pair++, rowIndex++) { // обход пар в дне
                     currentRow = mySheet.getRow(rowIndex); // получаем текущий столбец
@@ -42,9 +52,25 @@ public class ExcelParser {
                     }
                 }
             }
+            return data;
         }
         catch (FileNotFoundException e) { // если не найден файл
             System.out.println("File not found: " + fileName);
+        }
+        catch (IOException e) {
+            System.out.println("Error reading file: " + fileName);
+        }
+        return List.of();
+    }
+
+    public static void createSchedule(long groupId, List<List<Object>> data) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(Paths.get("src/main/resources/groups/" + groupId + "/Schedule.json").toFile(),
+                    data);
+        }
+        catch (IOException e) {
+            System.out.println("Error creating Schedule: " + e.getMessage());
         }
     }
 }
