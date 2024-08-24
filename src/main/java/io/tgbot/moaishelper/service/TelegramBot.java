@@ -153,7 +153,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (user.getSelectedGroup() != null) {
             Groupe selectedGroup = user.getSelectedGroup();
             if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
-                sendMessage(chatId, "Введите @UserName удаляемого человека");
+                sendMessage(chatId, "Введите @UserName исключаемого из группы человека");
                 user.setStatus(statusRepository.findById(5));
                 userRepository.save(user);
             }
@@ -178,7 +178,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             group.removeMember(removedUser);
             groupRepository.save(group);
-            sendMessage(chatId, "Пользователь успешно удален!");
+            sendMessage(chatId, "Пользователь успешно исключен из группы!");
         }
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS());
@@ -191,7 +191,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (user.getSelectedGroup() != null) {
             Groupe selectedGroup = user.getSelectedGroup();
             if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
-                sendMessage(chatId, "Введите @UserName приглашаемого человека");
+                sendMessage(chatId, "Введите @UserName приглашаемого в группу человека");
                 user.setStatus(statusRepository.findById(3));
                 userRepository.save(user);
             }
@@ -216,7 +216,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             group.addMember(invitedUser, false);
             groupRepository.save(group);
-            sendMessage(chatId, "Пользователь успешно добавлен!");
+            sendMessage(chatId, "Пользователь успешно добавлен в группу!");
         }
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS());
@@ -227,7 +227,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
-            sendMessage(chatId, "Введите название группы");
+            sendMessage(chatId, "Введите название для группы");
             user.setStatus(statusRepository.findById(2));
             userRepository.save(user);
         }
