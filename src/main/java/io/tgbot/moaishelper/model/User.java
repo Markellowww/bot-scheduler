@@ -48,6 +48,11 @@ public class User {
         this.registeredAt = registeredAt;
     }
 
+    @Override
+    public String toString() {
+        return getUserName();
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }

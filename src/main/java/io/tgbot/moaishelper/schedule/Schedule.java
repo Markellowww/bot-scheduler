@@ -12,10 +12,7 @@ import java.util.Map;
  */
 
 public class Schedule {
-    /**
-    * @param String название дня недели
-    * @param DayLesson расписание на заданный день недели
-    */
+
     private Map<String, DayLessons> schedule;
 
     public Schedule() {
@@ -32,6 +29,7 @@ public class Schedule {
 
     /**
      * Добавляет урок в указанный день недели.
+     *
      * @param dayOfWeek название дня недели
      * @param lessonName название урока
      * @param startTime время начала урока
@@ -44,6 +42,7 @@ public class Schedule {
 
     /**
      * Удаляет урок из указанного дня
+     *
      * @param dayOfWeek название дня недели
      * @param lessonName название удаляемого урока
      */
@@ -53,6 +52,7 @@ public class Schedule {
 
     /**
      * Удаляет день из общего расписания
+     *
      * @param dayOfWeek название удаляемого дня
      */
     public void removeDay(String dayOfWeek) {
@@ -78,6 +78,7 @@ public class Schedule {
 
         /**
          * Добавляет урок в день.
+         *
          * @param lessonName название урока
          * @param startTime время начала урока
          * @param endTime время окончания урока
@@ -90,6 +91,7 @@ public class Schedule {
 
         /**
          * Удаляет урок с данным названием.
+         *
          * @param lessonName название урока
          */
         public void removeLesson(String lessonName) {
@@ -127,6 +129,7 @@ public class Schedule {
 
         /**
          * Переопределение метода toString для представления объекта Lesson в виде строки.
+         *
          * @return строковое представление объекта Lesson
          */
         @Override

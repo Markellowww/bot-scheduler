@@ -21,7 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @Authors: Markelloww & YDK
@@ -115,8 +119,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                         handleInviteCommand(chatId);
                         break;
                     }
+
                     case "/kick": {
                         handleKickCommand(chatId);
+                        break;
+                    }
+                    case "/members": {
+                        showMembers(chatId);
                         break;
                     }
                     case "/support": {
@@ -276,6 +285,33 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
     // <--------- Команда /selectgroup
 
+    // ---------> Команда /members
+    private void showMembers(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        if (user.getSelectedGroup() != null) {
+            Groupe selectedGroup = user.getSelectedGroup();
+            List<User> groupUsers = selectedGroup.getMembers();
+
+            String message = IntStream.range(0, groupUsers.size())
+                    .mapToObj(i -> (i + 1) + ". @" + groupUsers.get(i).getUserName() + isAdmin(selectedGroup, groupUsers.get(i)))
+                    .collect(Collectors.joining("\n"));
+
+            sendMessage(chatId, message);
+        }
+        else
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED());
+
+
+    }
+
+    private String isAdmin(Groupe selectedGroup, User user) {
+        if (selectedGroup.getAdmins().stream().anyMatch(u -> u.equals(user))) {
+            return " (Админ)";
+        }
+        return "";
+    }
+    // <--------- Команда /members
+
     // Остальные команды
     private void registerUser(Message msg) {
         var chatId = msg.getChatId();
@@ -336,6 +372,20 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
+     * Проверяет на наличие в строке первого символа, равного '@'.
+     * Если первый символ равен '@', удаляет его и возвращает полученную строку.
+     * Иначе возвращает исходную строку.
+     *
+     * @param message исходное сообщение
+     */
+    private String checkForAtInMessage(String message) {
+        if (message.charAt(0) == '@') {
+            return message.substring(1);
+        }
+        return message;
+    }
+
+    /**
      * Удаляет пользователя из группы.
      * Если это владелец группы, он должен передать права на группу другому члену группы.
      * Если это последний член группы, будет удаление группы.
@@ -371,8 +421,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
-     * Удаляет группу из базы данных и обнуляет все связи с ней
-     * Необходимо быть админом группы
+     * Удаляет группу из базы данных и обнуляет все связи с ней.
+     * (Необходимо быть админом группы).
+     *
      * @param chatId идентификатор чата
      * @param selectedGroup группа, которую надо удалить
      */
@@ -400,12 +451,5 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else
             sendMessage(chatId, Info.GROUP_NOT_SELECTED());
-    }
-
-    private String checkForAtInMessage(String message) {
-        if (message.charAt(0) == '@') {
-            return message.substring(1);
-        }
-        return message;
     }
 }
