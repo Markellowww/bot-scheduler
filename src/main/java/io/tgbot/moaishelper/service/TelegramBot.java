@@ -74,10 +74,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     case 3: {
+                        // Проверяем написал ли '@' пользователь, допускается написание с '@' и без
+                        messageText = checkForAtInMessage(messageText);
                         handleInviteUserInput(chatId, messageText);
                         break;
                     }
                     case 5: {
+                        messageText = checkForAtInMessage(messageText);
                         handleKickUserInput(chatId, messageText);
                         break;
                     }
@@ -399,4 +402,10 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED());
     }
 
+    private String checkForAtInMessage(String message) {
+        if (message.charAt(0) == '@') {
+            return message.substring(1);
+        }
+        return message;
+    }
 }
