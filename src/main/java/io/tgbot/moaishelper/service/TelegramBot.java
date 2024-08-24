@@ -19,9 +19,6 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +146,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 userRepository.save(user);
             }
             else
-                sendMessage(chatId, Info.NOT_ADMIN());
+                sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
         }
         else
             sendMessage(chatId, Info.GROUP_NOT_SELECTED());
@@ -158,6 +155,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void handleInviteUserInput(long chatId, String invitedUserName) {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
 
         if (userRepository.findByUserName(invitedUserName) != null) {
             User invitedUser = userRepository.findByUserName(invitedUserName);
@@ -330,9 +328,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     if (user.getSelectedGroup().getId() == selectedGroup.getId()) {
                         groupUser.setSelectedGroup(null); // если эта группа выбрана у ее пользователей
                         userRepository.save(groupUser);
-                        sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
                     }
                 }
+                sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
                 groupRepository.deleteById(selectedGroup.getId()); // полное удаление группы
                 try {
                     FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
@@ -342,7 +340,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
             else
-                sendMessage(chatId, Info.NOT_ADMIN());
+                sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
         }
         else
             sendMessage(chatId, Info.GROUP_NOT_SELECTED());

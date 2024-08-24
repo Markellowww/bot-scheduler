@@ -5,6 +5,7 @@ package io.tgbot.moaishelper.service;
  */
 
 import com.vdurmont.emoji.EmojiParser;
+import io.tgbot.moaishelper.model.Groupe;
 
 public class Info {
     public static String TEXT_ABOUT() {
@@ -31,8 +32,8 @@ public class Info {
         return EmojiParser.parseToUnicode("Не выбрана текущая группа");
     }
 
-    public static String NOT_ADMIN() {
-        return EmojiParser.parseToUnicode("Вы не являетесь администратором данной группы");
+    public static String NOT_ADMIN(Groupe selectedGroup) {
+        return String.format("Вы не являетесь администратором группы: \"%s\"", selectedGroup.getName());
     }
 
     public static String USER_NOT_EXISTS() {
