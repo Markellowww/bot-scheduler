@@ -77,6 +77,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                         handleInviteUserInput(chatId, messageText);
                         break;
                     }
+                    case 5: {
+                        handleKickUserInput(chatId, messageText);
+                        break;
+                    }
                     default:
                         sendMessage(chatId, Info.NOT_SELECTED_ARGUMENT());
                 }
@@ -100,12 +104,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                         leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                         break;
                     }
+                    case "/deletegroup": {
+                        deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                        break;
+                    }
                     case "/invite": {
                         handleInviteCommand(chatId);
                         break;
                     }
-                    case "/deletegroup": {
-                        deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                    case "/kick": {
+                        handleKickCommand(chatId);
                         break;
                     }
                     case "/support": {
@@ -136,6 +144,45 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    // ---------> Команда /kick
+    private void handleKickCommand(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        if (user.getSelectedGroup() != null) {
+            Groupe selectedGroup = user.getSelectedGroup();
+            if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
+                sendMessage(chatId, "Введите @UserName удаляемого человека");
+                user.setStatus(statusRepository.findById(5));
+                userRepository.save(user);
+            }
+            else
+                sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
+        }
+        else
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED());
+    }
+
+    private void handleKickUserInput(long chatId, String removedUserName) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+
+        if (userRepository.findByUserName(removedUserName) != null) {
+            User removedUser = userRepository.findByUserName(removedUserName);
+            Groupe group = user.getSelectedGroup();
+            if (group.getMembers().stream().noneMatch(u -> u.getId() == removedUser.getId())) {
+                sendMessage(chatId, "Пользователь не состоит в группе");
+                return;
+            }
+            group.removeMember(removedUser);
+            groupRepository.save(group);
+            sendMessage(chatId, "Пользователь успешно удален!");
+        }
+        else
+            sendMessage(chatId, Info.USER_NOT_EXISTS());
+    }
+    // <--------- Команда /kick
+
+    // ---------> Команда /invite
     private void handleInviteCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (user.getSelectedGroup() != null) {
@@ -171,7 +218,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS());
     }
+    // <--------- Команда /invite
 
+    // ---------> Команда /creategroup
     private void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
@@ -198,7 +247,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         userRepository.save(creator);
         sendMessage(chatId, "Вы успешно создали группу с названием: " + groupe.getName());
     }
+    // <--------- Команда /creategroup
 
+    // ---------> Команда /selectgroup
     private void handleGroupSelectCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
 
@@ -220,7 +271,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         userRepository.save(user);
         sendMessage(chatId, String.format("Вы выбрали группу \"%s\"", selectedGroup.getName()));
     }
+    // <--------- Команда /selectgroup
 
+    // Остальные команды
     private void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();

@@ -19,5 +19,6 @@ public class CommandInitializer {
         listOfCommands.add(new BotCommand("/leavegroup", "Покинуть группу"));
         listOfCommands.add(new BotCommand("/deletegroup", "Удалить группу"));
         listOfCommands.add(new BotCommand("/invite", "Добавить пользователя в вашу группу"));
+        listOfCommands.add(new BotCommand("/kick", "Выгнать пользователя из группы"));
     }
 }

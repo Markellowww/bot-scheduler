@@ -2,7 +2,10 @@ package io.tgbot.moaishelper.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.springframework.boot.autoconfigure.graphql.ConditionalOnGraphQlSchema;
+
+/**
+ * @Authors: Markelloww & YDK
+ */
 
 @Entity
 @Getter
