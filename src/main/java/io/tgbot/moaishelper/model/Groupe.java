@@ -3,11 +3,13 @@ package io.tgbot.moaishelper.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Authors: Markelloww & YDK
@@ -55,6 +57,15 @@ public class Groupe { // французское слово, group[s] - ключ�
             }
         }
         return false;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+        groupUsers.forEach(groupUser -> {
+            if (groupUser.getGroup().getOwner().getId() == owner.getId()) {
+                groupUser.setAdmin(true);
+            }
+        });
     }
 
     public List<User> getAdmins() {

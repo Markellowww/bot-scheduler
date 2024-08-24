@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @Authors: Markelloww & YDK
@@ -22,6 +23,7 @@ public class GroupUser {
     @JoinColumn(name = "userID", referencedColumnName = "id", nullable = false)
     private User user;
 
+    @Setter
     private boolean admin;
 
     public GroupUser() {
@@ -32,4 +34,5 @@ public class GroupUser {
         this.user = user;
         this.admin = admin;
     }
+
 }

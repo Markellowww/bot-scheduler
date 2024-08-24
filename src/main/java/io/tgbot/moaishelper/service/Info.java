@@ -8,13 +8,11 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 
 public class Info {
-    public static String TEXT_ABOUT() {
-        return EmojiParser.parseToUnicode(
+    static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
                 "Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:\n\n" +
                         ":arrow_backward:Telegram: @fsbrossii\n\n" +
                         ":pushpin:GitHub: https://github.com/Markelloww\n\n" +
                         ":e-mail:Почта: markelloww@internet.ru");
-    }
 
     public static String TEXT_IN_DEVELOP() {
         return EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
@@ -28,12 +26,16 @@ public class Info {
         return EmojiParser.parseToUnicode("Вы не состоите ни в одной группе");
     }
 
-    public static String GROUP_NOT_SELECTED() {
-        return EmojiParser.parseToUnicode("Не выбрана текущая группа");
-    }
+    static final String GROUP_EXIT_SUCCESSFUL = EmojiParser.parseToUnicode("Вы успешно вышли из группы!");
+    static final String GROUP_EXIT_FAILED = EmojiParser.parseToUnicode("Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку!");
+    static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("Не выбрана текущая группа");
 
     public static String NOT_ADMIN(Groupe selectedGroup) {
         return String.format("Вы не являетесь администратором группы: \"%s\"", selectedGroup.getName());
+    }
+
+    public static String NOT_OWNER(Groupe selectedGroup) {
+        return String.format("Вы не являетесь владельцем группы: \"%s\"", selectedGroup.getName());
     }
 
     public static String USER_NOT_EXISTS() {
