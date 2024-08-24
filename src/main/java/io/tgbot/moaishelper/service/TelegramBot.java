@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -21,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -44,6 +43,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     private StatusRepository statusRepository;
 
     final BotConfig config;
+
+    private Integer choiceMessageId;
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -269,9 +270,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             user.setStatus(statusRepository.findById(4));
             userRepository.save(user);
             addGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
-            return;
         }
-        sendMessage(chatId, Info.NO_GROUPS());
+        else
+            sendMessage(chatId, Info.NO_GROUPS());
     }
 
     private void handleGroupSelectInput(long chatId, String stringGroupId) {
@@ -282,6 +283,34 @@ public class TelegramBot extends TelegramLongPollingBot {
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
         sendMessage(chatId, String.format("Вы выбрали группу \"%s\"", selectedGroup.getName()));
+        deleteMessage(chatId, choiceMessageId);
+    }
+
+    private void addGroupAnswers(long chatId, List<Groupe> groups) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (int i = 0; i < Math.ceil(groups.size() / 3.0); i++) {
+            List<InlineKeyboardButton> buttons = new ArrayList<>();
+            for (int j = 0; j < 3 && 3 * i + j < groups.size(); j++) {
+                Groupe groupe = groups.get(3 * i + j);
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText(groupe.getName());
+                button.setCallbackData(String.valueOf(groupe.getId()));
+                buttons.add(button);
+            }
+            rows.add(buttons);
+        }
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Выберите группу");
+        message.setReplyMarkup(inlineKeyboardMarkup);
+        try {
+            var sentMessage = execute(message);
+            choiceMessageId = sentMessage.getMessageId();
+        } catch (TelegramApiException _) {
+        }
     }
     // <--------- Команда /selectgroup
 
@@ -300,7 +329,6 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else
             sendMessage(chatId, Info.GROUP_NOT_SELECTED());
-
 
     }
 
@@ -345,28 +373,15 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void addGroupAnswers(long chatId, List<Groupe> groups) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        for (int i = 0; i < Math.ceil(groups.size() / 3.0); i++) {
-            List<InlineKeyboardButton> buttons = new ArrayList<>();
-            for (int j = 0; j < 3 && 3 * i + j < groups.size(); j++) {
-                Groupe groupe = groups.get(3 * i + j);
-                InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(groupe.getName());
-                button.setCallbackData(String.valueOf(groupe.getId()));
-                buttons.add(button);
-            }
-            rows.add(buttons);
-        }
-        inlineKeyboardMarkup.setKeyboard(rows);
-
-        SendMessage message = new SendMessage();
-        message.setChatId(chatId);
-        message.setText("Выберите группу");
-        message.setReplyMarkup(inlineKeyboardMarkup);
+    /**
+     * Удаляет сообщение, отправленное ботом.
+     *
+     * @param chatId идентификатор чата
+     * @param messageId идентификатор отправленного ботом сообщения
+     */
+    private void deleteMessage(long chatId, Integer messageId) {
         try {
-            execute(message);
+            execute(new DeleteMessage(String.valueOf(chatId), messageId));
         } catch (TelegramApiException _) {
         }
     }
