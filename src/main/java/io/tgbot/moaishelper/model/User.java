@@ -30,6 +30,10 @@ public class User {
     @JoinColumn(name = "selectedGroupId", referencedColumnName = "id")
     private Groupe selectedGroup;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
+    private Status status;
+
     private String firstName;
 
     @Column(unique = true, nullable = false) // уникально в Telegram
@@ -55,4 +59,6 @@ public class User {
     public void setSelectedGroup(Groupe selectedGroup) {
         this.selectedGroup = selectedGroup;
     }
+
+    public void setStatus(Status status) {this.status = status;}
 }

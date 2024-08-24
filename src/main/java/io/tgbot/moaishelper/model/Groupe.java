@@ -25,8 +25,8 @@ public class Groupe { // французское слово, group[s] - ключ�
     private List<GroupUser> groupUsers = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "creatorID", referencedColumnName = "id", nullable = false)
-    private User creator;
+    @JoinColumn(name = "ownerId", referencedColumnName = "id", nullable = false)
+    private User owner;
 
     @Column(nullable = false)
     private String name;
@@ -35,7 +35,7 @@ public class Groupe { // французское слово, group[s] - ключ�
     private Timestamp createdAt;
 
     public Groupe(User creator, String name, Timestamp createdAt) {
-        this.creator = creator;
+        this.owner = creator;
         this.name = name;
         this.createdAt = createdAt;
         addMember(creator, true);

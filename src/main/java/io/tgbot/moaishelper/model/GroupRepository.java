@@ -7,5 +7,5 @@ import org.springframework.data.repository.CrudRepository;
  */
 
 public interface GroupRepository extends CrudRepository<Groupe, Long> {
-    Groupe findByCreatorId(long creatorId);
+    Groupe findByOwnerId(Long id);
 }

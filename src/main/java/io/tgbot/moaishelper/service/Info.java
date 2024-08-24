@@ -20,7 +20,7 @@ public class Info {
     }
 
     public static String TEXT_GROUP_EXISTS() {
-        return EmojiParser.parseToUnicode("Вы уже создавали ранее группу");
+        return EmojiParser.parseToUnicode("Вы уже являетесь владельцем одной группы.");
     }
 
     public static String NO_GROUPS() {
@@ -37,5 +37,9 @@ public class Info {
 
     public static String USER_NOT_EXISTS() {
         return EmojiParser.parseToUnicode("Такой пользователь не зарегистрирован в боте");
+    }
+
+    public static String NOT_SELECTED_ARGUMENT() {
+        return EmojiParser.parseToUnicode("Пожалуйста, выберите один из предложенных вариантов ответа");
     }
 }
