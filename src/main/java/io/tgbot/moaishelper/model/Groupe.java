@@ -3,13 +3,12 @@ package io.tgbot.moaishelper.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+import javax.swing.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @Authors: Markelloww & YDK
@@ -48,24 +47,37 @@ public class Groupe { // французское слово, group[s] - ключ�
         groupUsers.add(groupUser);
     }
 
-    public boolean removeMember(User user) {
+    public void removeMember(User user) {
         for (Iterator<GroupUser> it = groupUsers.iterator(); it.hasNext(); ) {
             GroupUser groupUser = it.next();
             if (groupUser.getGroup().getId() == this.id && groupUser.getUser().getId() == user.getId()) {
                 it.remove();
-                return true;
+                return;
             }
         }
-        return false;
     }
 
     public void setOwner(User owner) {
         this.owner = owner;
-        groupUsers.forEach(groupUser -> {
-            if (groupUser.getGroup().getOwner().getId() == owner.getId()) {
+        setAdmin(owner);
+    }
+
+    public void setAdmin(User user) {
+        for (GroupUser groupUser : groupUsers) {
+            if (groupUser.getUser().getId() == user.getId()) {
                 groupUser.setAdmin(true);
+                return;
             }
-        });
+        }
+    }
+
+    public void removeAdmin(User user) {
+        for (GroupUser groupUser : groupUsers) {
+            if (groupUser.getUser().getId() == user.getId()) {
+                groupUser.setAdmin(false);
+                return;
+            }
+        }
     }
 
     public List<User> getAdmins() {

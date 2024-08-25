@@ -165,6 +165,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    // ---------> Команда /setadmin
+    // <--------- Команда /setadmin
+
+    // ---------> Команда /removeadmin
+    // <--------- Команда /removeadmin
+
     // ---------> Команда /giveowner
     public void handleOwnerCommand(long chatId) {
         User owner = userRepository.findByChatId(chatId);
@@ -204,7 +210,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
             group.setOwner(newOwner);
-
 
             groupRepository.save(group);
             sendMessage(chatId, "Пользователь успешно назначен владельцем группы!");
