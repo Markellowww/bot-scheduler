@@ -22,5 +22,7 @@ public class CommandInitializer {
         listOfCommands.add(new BotCommand("/kick", "Исключить пользователя из группы"));
         listOfCommands.add(new BotCommand("/members", "Показать всех пользователей группы"));
         listOfCommands.add(new BotCommand("/giveowner", "Передать роль владельца участнику группы"));
+        listOfCommands.add(new BotCommand("/setadmin", "Выдать роль админа участнику группы"));
+        listOfCommands.add(new BotCommand("/removeadmin", "Снять роль админа у участника группы"));
     }
 }

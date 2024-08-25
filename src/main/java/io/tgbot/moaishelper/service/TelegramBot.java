@@ -94,6 +94,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                         handleGiveOwnerInput(chatId, messageText);
                         break;
                     }
+                    case 7: {
+                        messageText = checkForAtInMessage(messageText);
+                        handleSetAdminInput(chatId, messageText);
+                        break;
+                    }
+                    case 8: {
+                        messageText = checkForAtInMessage(messageText);
+                        handleRemoveAdminInput(chatId, messageText);
+                        break;
+                    }
                     default:
                         sendMessage(chatId, Info.NOT_SELECTED_ARGUMENT());
                 }
@@ -127,6 +137,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                     }
                     case "/giveowner": {
                         handleOwnerCommand(chatId);
+                        break;
+                    }
+                    case "/setadmin": {
+                        handleSetAdminCommand(chatId);
+                        break;
+                    }
+                    case "/removeadmin": {
+                        handleRemoveAdminCommand(chatId);
                         break;
                     }
                     case "/kick": {
@@ -166,9 +184,99 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     // ---------> Команда /setadmin
+    public void handleSetAdminCommand(long chatId) {
+        User owner = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = owner.getSelectedGroup();
+        // Проверяем выбрана или группа
+        if (selectedGroup == null) {
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            return;
+        }
+        // Проверяем владелец ли он группы
+        if (selectedGroup.getOwner().getId() != owner.getId()) {
+            sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            return;
+        }
+        sendMessage(chatId, "Введите @UserName человека, которого вы хотите назначить админом группы:");
+        owner.setStatus(statusRepository.findById(7));
+        userRepository.save(owner);
+    }
+
+    private void handleSetAdminInput(long chatId, String newOwnerName) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+
+        // Проверяем есть ли такой человек в боте
+        if (userRepository.findByUserName(newOwnerName) != null) {
+            User newAdmin = userRepository.findByUserName(newOwnerName);
+            Groupe group = user.getSelectedGroup();
+            //Проверяем состоит ли указанный пользователь в группе
+            if (group.getMembers().stream().noneMatch(u -> u.getId() == newAdmin.getId())) {
+                sendMessage(chatId, "Пользователь не состоит в группе");
+                return;
+            }
+            // Проверяем является ли он уже админом выбранной группы
+            if (group.getAdmins().stream().anyMatch(admin -> admin.getId() == newAdmin.getId())) {
+                sendMessage(chatId, "Пользователь уже является админом группы");
+                return;
+            }
+            group.setAdmin(newAdmin);
+
+            groupRepository.save(group);
+            sendMessage(chatId, "Пользователь успешно назначен админом группы!");
+        }
+        else
+            sendMessage(chatId, Info.USER_NOT_EXISTS());
+    }
     // <--------- Команда /setadmin
 
     // ---------> Команда /removeadmin
+    public void handleRemoveAdminCommand(long chatId) {
+        User owner = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = owner.getSelectedGroup();
+        // Проверяем выбрана или группа
+        if (selectedGroup == null) {
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            return;
+        }
+        // Проверяем владелец ли он группы
+        if (selectedGroup.getOwner().getId() != owner.getId()) {
+            sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            return;
+        }
+        sendMessage(chatId, "Введите @UserName удаляемого админа:");
+        owner.setStatus(statusRepository.findById(8));
+        userRepository.save(owner);
+    }
+
+    private void handleRemoveAdminInput(long chatId, String newOwnerName) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+
+        // Проверяем есть ли такой человек в боте
+        if (userRepository.findByUserName(newOwnerName) != null) {
+            User removedAdmin = userRepository.findByUserName(newOwnerName);
+            Groupe group = user.getSelectedGroup();
+            //Проверяем состоит ли указанный пользователь в группе
+            if (group.getMembers().stream().noneMatch(u -> u.getId() == removedAdmin.getId())) {
+                sendMessage(chatId, "Пользователь не состоит в группе");
+                return;
+            }
+            // Проверяем является ли он админом выбранной группы
+            if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == removedAdmin.getId())) {
+                sendMessage(chatId, "Пользователь не является админом группы");
+                return;
+            }
+            group.removeAdmin(removedAdmin);
+
+            groupRepository.save(group);
+            sendMessage(chatId, "Пользователь больше не админ группы!");
+        }
+        else
+            sendMessage(chatId, Info.USER_NOT_EXISTS());
+    }
     // <--------- Команда /removeadmin
 
     // ---------> Команда /giveowner
@@ -385,6 +493,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     // <--------- Команда /selectgroup
 
     // ---------> Команда /members
+    /**
+     * Показывает пользователей в выбранной группе у пользователя.
+     *
+     * @param chatId идентификатор чата
+     */
     private void showMembers(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (user.getSelectedGroup() != null) {
@@ -402,7 +515,16 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     }
 
+    /**
+     * Вспомогательный метод, который добавляет приписку (Админ)/(Владелец).
+     *
+     * @param selectedGroup выбранная группа
+     * @param user выбранный пользователь
+     */
     private String isAdmin(Groupe selectedGroup, User user) {
+        if (selectedGroup.getOwner().getId() == user.getId()) {
+            return " (Владелец)";
+        }
         if (selectedGroup.getAdmins().stream().anyMatch(u -> u.equals(user))) {
             return " (Админ)";
         }
@@ -489,6 +611,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
     // Вспомогательные команды
+    /**
+     * Регистрация нового пользователя в базе данных.
+     * Если пользователь зарегистрирован в боте, то он обновляется в базе данных.
+     * Если пользователь не зарегистрирован в боте, то он добавляется в базу данных.
+     *
+     * @param msg идентификатор чата
+     */
     private void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();
@@ -505,12 +634,24 @@ public class TelegramBot extends TelegramLongPollingBot {
         userRepository.save(user);
     }
 
+    /**
+     * Начальное сообщение.
+     *
+     * @param chatId идентификатор чата
+     * @param firstName имя человека
+     */
     private void startCommandReceived(long chatId, String firstName) {
         String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
                 "Для начала работы ознакомьтесь с руководством:closed_book: (/help).");
         sendMessage(chatId, answer);
     }
 
+    /**
+     * Отравляет сообщение, переданное в качестве параметра метода.
+     *
+     * @param chatId идентификатор чата
+     * @param textToSend отправляемое сообщение
+     */
     private void sendMessage(long chatId, String textToSend) {
         SendMessage message =  new SendMessage();
         message.setChatId(String.valueOf(chatId));
