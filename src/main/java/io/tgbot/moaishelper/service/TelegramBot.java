@@ -2,6 +2,8 @@ package io.tgbot.moaishelper.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
+import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
+import io.tgbot.moaishelper.keyboard.KeyboardText;
 import io.tgbot.moaishelper.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +17,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +48,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     final BotConfig config;
 
+    // Вот эту хуйню в бд перенести //
     private Integer choiceMessageId;
 
     public TelegramBot(BotConfig config) {
@@ -72,6 +77,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
             User user = userRepository.findByChatId(chatId);
             String messageText = update.getMessage().getText();
+
             if (user != null && user.getStatus().getId() != 1) { // ожидается ввод каких-то данных
                 switch (user.getStatus().getId()) {
                     case 2: {
@@ -105,11 +111,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     default:
-                        sendMessage(chatId, Info.NOT_SELECTED_ARGUMENT());
+                        sendMessage(chatId, Info.NOT_SELECTED_ARGUMENT);
                 }
             }
             else {
-                switch (messageText) {
+                if (messageText.equals(KeyboardText.CONTACTS)) {
+                    sendMessage(chatId, Info.TEXT_SUPPORT);
+                }
+                else if (messageText.equals(KeyboardText.NOTIFICATION_SETTING)) {
+                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                }
+                else if (messageText.equals(KeyboardText.GUIDE)) {
+                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                }
+                else if (messageText.equals(KeyboardText.GO_TO_GROUPS)) {
+                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                }
+                else
+                    switch (messageText) {
                     case "/start": {
                         registerUser(update.getMessage());
                         startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
@@ -155,12 +174,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                         showMembers(chatId);
                         break;
                     }
-                    case "/support": {
-                        sendMessage(chatId, Info.TEXT_SUPPORT);
-                        break;
-                    }
                     case "/help": {
-                        sendMessage(chatId, Info.TEXT_IN_DEVELOP());
+                        sendMessage(chatId, Info.TEXT_IN_DEVELOP);
                         break;
                     }
                     default: {
@@ -227,7 +242,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Пользователь успешно назначен админом группы!");
         }
         else
-            sendMessage(chatId, Info.USER_NOT_EXISTS());
+            sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
     // <--------- Команда /setadmin
 
@@ -275,7 +290,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Пользователь больше не админ группы!");
         }
         else
-            sendMessage(chatId, Info.USER_NOT_EXISTS());
+            sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
     // <--------- Команда /removeadmin
 
@@ -323,7 +338,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Пользователь успешно назначен владельцем группы!");
         }
         else
-            sendMessage(chatId, Info.USER_NOT_EXISTS());
+            sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
     // <--------- Команда /giveowner
 
@@ -369,7 +384,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Пользователь успешно исключен из группы!");
         }
         else
-            sendMessage(chatId, Info.USER_NOT_EXISTS());
+            sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
     // <--------- Команда /kick
 
@@ -407,7 +422,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, "Пользователь успешно добавлен в группу!");
         }
         else
-            sendMessage(chatId, Info.USER_NOT_EXISTS());
+            sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
     // <--------- Команда /invite
 
@@ -420,7 +435,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             userRepository.save(user);
         }
         else {
-            sendMessage(chatId, Info.TEXT_GROUP_EXISTS());
+            sendMessage(chatId, Info.TEXT_GROUP_EXISTS(groupRepository.findByOwnerId(user.getId())));
         }
     }
 
@@ -450,7 +465,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             addGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
         }
         else
-            sendMessage(chatId, Info.NO_GROUPS());
+            sendMessage(chatId, Info.NO_GROUPS);
     }
 
     private void handleGroupSelectInput(long chatId, String stringGroupId) {
@@ -552,7 +567,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             // Если в группе только владелец, то группа удаляется
             if (selectedGroup.getMembers().size() == 1) {
                 deleteGroup(chatId, selectedGroup);
-                sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL);
+                sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup));
                 return;
             }
             // Если в группе есть кто-то еще, то ошибка
@@ -642,8 +657,20 @@ public class TelegramBot extends TelegramLongPollingBot {
      */
     private void startCommandReceived(long chatId, String firstName) {
         String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
-                "Для начала работы ознакомьтесь с руководством:closed_book: (/help).");
-        sendMessage(chatId, answer);
+                "Для начала работы ознакомьтесь с руководством:closed_book:");
+        sendMessage(chatId, answer, KeyboardMarkupProvider.start());
+    }
+
+    private void sendMessage(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
+        SendMessage message =  new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        message.setReplyMarkup(keyboardMarkup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException _) {
+        }
     }
 
     /**
@@ -656,6 +683,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message =  new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
+
         try {
             execute(message);
         } catch (TelegramApiException _) {

@@ -8,41 +8,41 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 
 public class Info {
-    static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
-                "Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:\n\n" +
-                        ":arrow_backward:Telegram: @fsbrossii\n\n" +
-                        ":pushpin:GitHub: https://github.com/Markelloww\n\n" +
-                        ":e-mail:Почта: markelloww@internet.ru");
+    public static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
+            """
+                    Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:
 
-    public static String TEXT_IN_DEVELOP() {
-        return EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
+                    :arrow_backward:Telegram: @fsbrossii
+
+                    :smiley_cat:GitHub: github.com/Markelloww
+
+                    :incoming_envelope:Почта: markelloww@internet.ru""");
+
+    public static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
+
+    public static final String NO_GROUPS = EmojiParser.parseToUnicode("Вы не состоите ни в одной группе");
+
+    public static final String USER_NOT_EXISTS = EmojiParser.parseToUnicode("Такой пользователь не зарегистрирован в боте");
+
+    public static final String NOT_SELECTED_ARGUMENT = EmojiParser.parseToUnicode("Пожалуйста, выберите один из предложенных вариантов ответа");
+
+    public static final String GROUP_EXIT_FAILED = EmojiParser.parseToUnicode("Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку!");
+
+    public static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("Не выбрана текущая группа");
+
+    public static String GROUP_EXIT_SUCCESSFUL(Groupe group) {
+        return String.format("Вы успешно вышли из группы \"%s\"", group.getName());
     }
 
-    public static String TEXT_GROUP_EXISTS() {
-        return EmojiParser.parseToUnicode("Вы уже являетесь владельцем одной группы.");
+    public static String TEXT_GROUP_EXISTS(Groupe group) {
+        return String.format("Вы уже являетесь владельцем группы \"%s\"", group.getName());
     }
 
-    public static String NO_GROUPS() {
-        return EmojiParser.parseToUnicode("Вы не состоите ни в одной группе");
+    public static String NOT_ADMIN(Groupe group) {
+        return String.format("Вы не являетесь администратором группы \"%s\"", group.getName());
     }
 
-    static final String GROUP_EXIT_SUCCESSFUL = EmojiParser.parseToUnicode("Вы успешно вышли из группы!");
-    static final String GROUP_EXIT_FAILED = EmojiParser.parseToUnicode("Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку!");
-    static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("Не выбрана текущая группа");
-
-    public static String NOT_ADMIN(Groupe selectedGroup) {
-        return String.format("Вы не являетесь администратором группы: \"%s\"", selectedGroup.getName());
-    }
-
-    public static String NOT_OWNER(Groupe selectedGroup) {
-        return String.format("Вы не являетесь владельцем группы: \"%s\"", selectedGroup.getName());
-    }
-
-    public static String USER_NOT_EXISTS() {
-        return EmojiParser.parseToUnicode("Такой пользователь не зарегистрирован в боте");
-    }
-
-    public static String NOT_SELECTED_ARGUMENT() {
-        return EmojiParser.parseToUnicode("Пожалуйста, выберите один из предложенных вариантов ответа");
+    public static String NOT_OWNER(Groupe group) {
+        return String.format("Вы не являетесь владельцем группы \"%s\"", group.getName());
     }
 }
