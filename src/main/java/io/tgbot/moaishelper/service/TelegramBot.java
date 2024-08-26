@@ -284,6 +284,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, "Пользователь не является админом группы");
                 return;
             }
+            else if (group.getOwner().getId() == removedAdmin.getId()) {
+                sendMessage(chatId, "Владелец группы всегда является админом");
+                return;
+            }
             group.removeAdmin(removedAdmin);
 
             groupRepository.save(group);
