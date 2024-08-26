@@ -599,7 +599,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
                 return;
             }
-            if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
+            if (selectedGroup.getOwner().getId() == user.getId()) {
                 for (User groupUser : selectedGroup.getMembers()) {
                     if (user.getSelectedGroup().getId() == selectedGroup.getId()) {
                         groupUser.setSelectedGroup(null); // если эта группа выбрана у ее пользователей
@@ -616,7 +616,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
             else
-                sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
+                sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
         }
         else
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
