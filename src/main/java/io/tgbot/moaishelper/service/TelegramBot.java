@@ -12,15 +12,12 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -201,7 +198,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    // ---------> Команда /setadmin
+    // ---------> Команда /setadmin (ОТРЕФАКТОРИТЬ)
     public void handleSetAdminCommand(long chatId) {
         User owner = userRepository.findByChatId(chatId);
         Groupe selectedGroup = owner.getSelectedGroup();
@@ -247,9 +244,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
-    // <--------- Команда /setadmin
+    // <--------- Команда /setadmin (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /removeadmin
+    // ---------> Команда /removeadmin (ОТРЕФАКТОРИТЬ)
     public void handleRemoveAdminCommand(long chatId) {
         User owner = userRepository.findByChatId(chatId);
         Groupe selectedGroup = owner.getSelectedGroup();
@@ -299,9 +296,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
-    // <--------- Команда /removeadmin
+    // <--------- Команда /removeadmin (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /giveowner
+    // ---------> Команда /giveowner (ОТРЕФАКТОРИТЬ)
     public void handleOwnerCommand(long chatId) {
         User owner = userRepository.findByChatId(chatId);
         Groupe selectedGroup = owner.getSelectedGroup();
@@ -347,9 +344,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
-    // <--------- Команда /giveowner
+    // <--------- Команда /giveowner (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /kick
+    // ---------> Команда /kick (ОТРЕФАКТОРИТЬ)
     private void handleKickCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (user.getSelectedGroup() != null) {
@@ -393,9 +390,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
-    // <--------- Команда /kick
+    // <--------- Команда /kick (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /invite
+    // ---------> Команда /invite (ОТРЕФАКТОРИТЬ)
     private void handleInviteCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (user.getSelectedGroup() != null) {
@@ -431,9 +428,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
-    // <--------- Команда /invite
+    // <--------- Команда /invite (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /creategroup
+    // ---------> Команда /creategroup (ОТРЕФАКТОРИТЬ)
     private void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
@@ -460,9 +457,9 @@ public class TelegramBot extends TelegramLongPollingBot {
         userRepository.save(creator);
         sendMessage(chatId, "Вы успешно создали группу с названием: " + groupe.getName());
     }
-    // <--------- Команда /creategroup
+    // <--------- Команда /creategroup (ОТРЕФАКТОРИТЬ)
 
-    // ---------> Команда /selectgroup
+    // ---------> Команда /selectgroup (ОТРЕФАКТОРИТЬ)
     private void handleGroupSelectCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
 
@@ -509,56 +506,37 @@ public class TelegramBot extends TelegramLongPollingBot {
         } catch (TelegramApiException _) {
         }
     }
-    // <--------- Команда /selectgroup
+    // <--------- Команда /selectgroup (ОТРЕФАКТОРИТЬ)
 
     // ---------> Команда /members
     /**
-     * Показывает пользователей в выбранной группе у пользователя.
+     * Отправляет пользователю список участников выбранной группы с указанием их статуса (владелец или админ).
      *
-     * @param chatId идентификатор чата
+     * @param chatId идентификатор чата пользователя, для которого отображается список участников
      */
     private void showMembers(long chatId) {
         User user = userRepository.findByChatId(chatId);
-        if (user.getSelectedGroup() != null) {
-            Groupe selectedGroup = user.getSelectedGroup();
-            List<User> groupUsers = selectedGroup.getMembers();
-
-            String message = IntStream.range(0, groupUsers.size())
+        if (user.getSelectedGroup() == null) {
+            sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+        }
+        Groupe selectedGroup = user.getSelectedGroup();
+        List<User> groupUsers = selectedGroup.getMembers();
+        String message = IntStream.range(0, groupUsers.size())
                     .mapToObj(i -> (i + 1) + ". @" + groupUsers.get(i).getUserName() + isAdmin(selectedGroup, groupUsers.get(i)))
                     .collect(Collectors.joining("\n"));
-
-            sendMessage(chatId, message);
-        }
-        else
-            sendMessage(chatId, Info.GROUP_NOT_SELECTED);
-
+        sendMessage(chatId, message);
     }
 
-    /**
-     * Вспомогательный метод, который добавляет приписку (Админ)/(Владелец).
-     *
-     * @param selectedGroup выбранная группа
-     * @param user выбранный пользователь
-     */
-    private String isAdmin(Groupe selectedGroup, User user) {
-        if (selectedGroup.getOwner().getId() == user.getId()) {
-            return " (Владелец)";
-        }
-        if (selectedGroup.getAdmins().stream().anyMatch(u -> u.equals(user))) {
-            return " (Админ)";
-        }
-        return "";
-    }
     // <--------- Команда /members
 
     // ---------> Команда /leavegroup
     /**
      * Удаляет пользователя из выбранной группы.
-     * Если это владелец группы и он в группе один, то группа удаляется,
-     * иначе ему нужно передать роль владельца другому участнику группы.
+     * Если пользователь является владельцем группы и в группе только он один, то группа удаляется.
+     * Если в группе есть другие участники, то пользователь должен передать роль владельца другому участнику, иначе операция выхода не выполнится.
      *
-     * @param chatId идентификатор чата
-     * @param selectedGroup группа для выхода
+     * @param chatId идентификатор чата пользователя, который хочет выйти из группы
+     * @param selectedGroup группа, из которой пользователь хочет выйти
      */
     private void leaveGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup == null) {
@@ -597,45 +575,38 @@ public class TelegramBot extends TelegramLongPollingBot {
      * @param selectedGroup группа, которую надо удалить
      */
     private void deleteGroup(long chatId, Groupe selectedGroup) {
-        if (selectedGroup != null) {
-            User user = userRepository.findByChatId(chatId);
-            if (user.getId() != selectedGroup.getOwner().getId()) {
-                sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
-                return;
-            }
-            if (selectedGroup.getOwner().getId() == user.getId()) {
-                for (User groupUser : selectedGroup.getMembers()) {
-                    if (user.getSelectedGroup().getId() == selectedGroup.getId()) {
-                        groupUser.setSelectedGroup(null); // если эта группа выбрана у ее пользователей
-                        userRepository.save(groupUser);
-                    }
-                }
-                sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
-                groupRepository.deleteById(selectedGroup.getId()); // полное удаление группы
-                try {
-                    FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
-                            selectedGroup.getId())));
-                }
-                catch (IOException _) {
-                }
-            }
-            else
-                sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
-        }
-        else
+        if (selectedGroup == null) {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+        }
+        User user = userRepository.findByChatId(chatId);
+        assert selectedGroup != null;
+        if (user.getId() != selectedGroup.getOwner().getId()) {
+            sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            return;
+        }
+        for (User groupUser : selectedGroup.getMembers()) {
+            if (user.getSelectedGroup().getId() == selectedGroup.getId()) {
+                groupUser.setSelectedGroup(null);
+                userRepository.save(groupUser);
+            }
+        }
+        sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
+        groupRepository.deleteById(selectedGroup.getId()); // полное удаление группы
+        try {
+            FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
+                    selectedGroup.getId())));
+        }
+        catch (IOException _) {
+        }
     }
     // <--------- Команда /deletegroup
 
-
-
-    // Вспомогательные команды
     /**
-     * Регистрация нового пользователя в базе данных.
+     * Регистрация или обновление информации о пользователе в базе данных.
      * Если пользователь зарегистрирован в боте, то он обновляется в базе данных.
      * Если пользователь не зарегистрирован в боте, то он добавляется в базу данных.
      *
-     * @param msg идентификатор чата
+     * @param msg объект сообщения, содержащий информацию о пользователе и чате
      */
     private void registerUser(Message msg) {
         var chatId = msg.getChatId();
@@ -655,7 +626,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
-     * Начальное сообщение.
+     * Отравляет начальное сообщение со стартовой клавиатурой.
      *
      * @param chatId идентификатор чата
      * @param firstName имя человека
@@ -663,15 +634,19 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void startCommandReceived(long chatId, String firstName) {
         String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
                 "Для начала работы ознакомьтесь с руководством:closed_book:");
-        sendMessage(chatId, answer, KeyboardMarkupProvider.start());
+        sendMessageWithKeyboardMarkup(chatId, answer, KeyboardMarkupProvider.start());
     }
 
-    private void sendMessage(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
-        SendMessage message =  new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(textToSend);
+    /**
+     * Отправляет текстовое сообщение в указанный чат с клавиатурой.
+     *
+     * @param chatId идентификатор чата, в который будет отправлено сообщение
+     * @param textToSend текст сообщения, которое нужно отправить
+     * @param keyboardMarkup клавиатура, прикрепляемая к сообщению
+     */
+    private void sendMessageWithKeyboardMarkup(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
+        SendMessage message = createSendMassage(chatId, textToSend);
         message.setReplyMarkup(keyboardMarkup);
-
         try {
             execute(message);
         } catch (TelegramApiException _) {
@@ -679,16 +654,27 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
-     * Отравляет сообщение, переданное в качестве параметра метода.
+     * Создает объект SendMessage с указанными параметрами для отправки сообщения.
      *
-     * @param chatId идентификатор чата
-     * @param textToSend отправляемое сообщение
+     * @param chatId идентификатор чата, в который будет отправлено сообщение
+     * @param textToSend текст сообщения, которое нужно отправить
+     * @return объект SendMessage, настроенный с указанными параметрами
+     */
+    private SendMessage createSendMassage(long chatId, String textToSend) {
+        SendMessage message =  new SendMessage();
+        message.setChatId(String.valueOf(chatId));
+        message.setText(textToSend);
+        return message;
+    }
+
+    /**
+     * Отправляет текстовое сообщение в указанный чат без клавиатуры.
+     *
+     * @param chatId идентификатор чата, в который будет отправлено сообщение
+     * @param textToSend текст сообщения, которое нужно отправить
      */
     private void sendMessage(long chatId, String textToSend) {
-        SendMessage message =  new SendMessage();
-        message.setChatId(String.valueOf(chatId));
-        message.setText(textToSend);
-
+        SendMessage message = createSendMassage(chatId,textToSend);
         try {
             execute(message);
         } catch (TelegramApiException _) {
@@ -696,10 +682,10 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
-     * Удаляет сообщение, отправленное ботом.
+     * Удаляет сообщение в чате.
      *
-     * @param chatId идентификатор чата
-     * @param messageId идентификатор отправленного ботом сообщения
+     * @param chatId идентификатор чата, где находится сообщение
+     * @param messageId идентификатор удаляемого сообщения
      */
     private void deleteMessage(long chatId, Integer messageId) {
         try {
@@ -709,16 +695,32 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     /**
-     * Проверяет на наличие в строке первого символа, равного '@'.
-     * Если первый символ равен '@', удаляет его и возвращает полученную строку.
-     * Иначе возвращает исходную строку.
+     * Проверяет строку на наличие у нее первого символа равного '@'.
      *
-     * @param message исходное сообщение
+     * @param message исходное сообщение, которое необходимо проверить
+     * @return строку без начального '@', если он присутствует, иначе исходную строку
      */
     private String checkForAtInMessage(String message) {
         if (message.charAt(0) == '@') {
             return message.substring(1);
         }
         return message;
+    }
+
+    /**
+     * Определяет, является ли пользователь владельцем или администратором выбранной группы.
+     *
+     * @param selectedGroup группа, в которой проверяется статус пользователя
+     * @param user пользователь, чей статус проверяется
+     * @return строка с указанием статуса пользователя в группе Владелец/Админ
+     */
+    private String isAdmin(Groupe selectedGroup, User user) {
+        if (selectedGroup.getOwner().getId() == user.getId()) {
+            return " (Владелец)";
+        }
+        if (selectedGroup.getAdmins().stream().anyMatch(u -> u.equals(user))) {
+            return " (Админ)";
+        }
+        return "";
     }
 }
