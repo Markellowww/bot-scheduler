@@ -12,15 +12,17 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 
 import java.io.File;
 import java.io.IOException;
@@ -47,9 +49,6 @@ public class TelegramBot extends TelegramLongPollingBot {
     private StatusRepository statusRepository;
 
     final BotConfig config;
-
-    // Вот эту хуйню в бд перенести //
-    private Integer choiceMessageId;
 
     public TelegramBot(BotConfig config) {
         this.config = config;
@@ -185,13 +184,17 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
         else if (update.hasCallbackQuery()) {
+            long messageId = update.getCallbackQuery().getMessage().getMessageId();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
+
             User user = userRepository.findByChatId(chatId);
 
-            String call_data = update.getCallbackQuery().getData();
+            String callbackData = update.getCallbackQuery().getData();
+
             switch (user.getStatus().getId()) {
                 case 4: {
-                    handleGroupSelectInput(chatId, call_data);
+                    handleGroupSelectInput(chatId, callbackData);
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     break;
                 }
             }
@@ -466,24 +469,22 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (!user.getGroupUsers().isEmpty()) {
             user.setStatus(statusRepository.findById(4));
             userRepository.save(user);
-            addGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
+            addSelectGroupAnswers(chatId, user.getGroupUsers().stream().map(GroupUser::getGroup).toList());
         }
         else
             sendMessage(chatId, Info.NO_GROUPS);
     }
 
     private void handleGroupSelectInput(long chatId, String stringGroupId) {
-        System.out.println(stringGroupId);
         User user = userRepository.findByChatId(chatId);
         Groupe selectedGroup = groupRepository.findById(Long.parseLong(stringGroupId)).get();
         user.setSelectedGroup(selectedGroup);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
         sendMessage(chatId, String.format("Вы выбрали группу \"%s\"", selectedGroup.getName()));
-        deleteMessage(chatId, choiceMessageId);
     }
 
-    private void addGroupAnswers(long chatId, List<Groupe> groups) {
+    private void addSelectGroupAnswers(long chatId, List<Groupe> groups) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         for (int i = 0; i < Math.ceil(groups.size() / 3.0); i++) {
@@ -504,8 +505,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setText("Выберите группу");
         message.setReplyMarkup(inlineKeyboardMarkup);
         try {
-            var sentMessage = execute(message);
-            choiceMessageId = sentMessage.getMessageId();
+            execute(message);
         } catch (TelegramApiException _) {
         }
     }
@@ -650,6 +650,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         User user = userRepository.findByChatId(chatId); // иначе обновление данных об имеющемся пользователе
         user.setUserName(chat.getUserName());
         user.setFirstName(chat.getFirstName());
+        user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
     }
 
