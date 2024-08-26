@@ -2,10 +2,7 @@ package io.tgbot.moaishelper.schedule;
 
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Authors: Markelloww & YDK
@@ -16,7 +13,7 @@ public class Schedule {
     private Map<String, DayLessons> schedule;
 
     public Schedule() {
-        this.schedule = new HashMap<>();
+        this.schedule = new LinkedHashMap<>();
     }
 
     /**
@@ -32,12 +29,13 @@ public class Schedule {
      *
      * @param dayOfWeek название дня недели
      * @param lessonName название урока
-     * @param startTime время начала урока
-     * @param endTime время окончания урока
+     * @param time время начала урока
      * @param cabinet номер кабинета
+     * @param teacher преподаватель
+     *
      */
-    public void addLesson(String dayOfWeek, String lessonName, String startTime, String endTime, String cabinet) {
-        schedule.get(dayOfWeek).addLesson(lessonName, startTime, endTime, cabinet);
+    public void addLesson(String dayOfWeek, String lessonName, String time, String cabinet, String teacher) {
+        schedule.get(dayOfWeek).addLesson(lessonName, time, cabinet, teacher);
     }
 
     /**
@@ -80,12 +78,12 @@ public class Schedule {
          * Добавляет урок в день.
          *
          * @param lessonName название урока
-         * @param startTime время начала урока
-         * @param endTime время окончания урока
+         * @param time время начала урока
          * @param cabinet номер кабинета
+         * @param teacher преподаватель
          */
-        public void addLesson(String lessonName, String startTime, String endTime, String cabinet) {
-            Lesson lesson = new Lesson(lessonName , startTime, endTime, cabinet);
+        public void addLesson(String lessonName, String time, String cabinet, String teacher) {
+            Lesson lesson = new Lesson(lessonName, time, cabinet, teacher);
             lessonList.add(lesson);
         }
 
@@ -116,14 +114,14 @@ public class Schedule {
     private static class Lesson {
         @Getter
         private final String lessonName;
-        private final String startTime;
-        private final String endTime;
+        private final String teacher;
+        private final String time;
         private final String cabinet;
 
-        public Lesson(String lessonName, String startTime, String endTime, String cabinet) {
+        public Lesson(String lessonName, String time, String cabinet, String teacher) {
             this.lessonName = lessonName;
-            this.startTime = startTime;
-            this.endTime = endTime;
+            this.teacher = teacher;
+            this.time = time;
             this.cabinet = cabinet;
         }
 
@@ -134,7 +132,8 @@ public class Schedule {
          */
         @Override
         public String toString() {
-            return "Предмет: " + lessonName + ". Время: " + startTime + " " + endTime + ". Кабинет: " + cabinet;
+            return "Предмет: " + lessonName + ". Время: " + time + ". Кабинет: " + cabinet +
+                    ". Преподаватель: " + teacher;
         }
     }
 }
