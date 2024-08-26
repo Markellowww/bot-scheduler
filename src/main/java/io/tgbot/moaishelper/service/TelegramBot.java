@@ -587,7 +587,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     // ---------> Команда /deletegroup
     /**
      * Удаляет группу из базы данных и обнуляет все связи с ней.
-     * (Необходимо быть админом группы).
+     * (Необходимо быть владельцем группы).
      *
      * @param chatId идентификатор чата
      * @param selectedGroup группа, которую надо удалить
