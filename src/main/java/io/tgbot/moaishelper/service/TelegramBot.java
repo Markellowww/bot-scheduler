@@ -198,23 +198,21 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    // ---------> Команда /setadmin (ОТРЕФАКТОРИТЬ)
+    // ---------> Команда /setadmin
     public void handleSetAdminCommand(long chatId) {
-        User owner = userRepository.findByChatId(chatId);
-        Groupe selectedGroup = owner.getSelectedGroup();
-        // Проверяем выбрана или группа
+        User user = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = user.getSelectedGroup();
         if (selectedGroup == null) {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
             return;
         }
-        // Проверяем владелец ли он группы
-        if (selectedGroup.getOwner().getId() != owner.getId()) {
+        if (selectedGroup.getOwner().getId() != user.getId()) {
             sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
             return;
         }
         sendMessage(chatId, "Введите @UserName человека, которого вы хотите назначить админом группы:");
-        owner.setStatus(statusRepository.findById(7));
-        userRepository.save(owner);
+        user.setStatus(statusRepository.findById(7));
+        userRepository.save(user);
     }
 
     private void handleSetAdminInput(long chatId, String newOwnerName) {
@@ -222,47 +220,42 @@ public class TelegramBot extends TelegramLongPollingBot {
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
 
-        // Проверяем есть ли такой человек в боте
-        if (userRepository.findByUserName(newOwnerName) != null) {
-            User newAdmin = userRepository.findByUserName(newOwnerName);
-            Groupe group = user.getSelectedGroup();
-            //Проверяем состоит ли указанный пользователь в группе
-            if (group.getMembers().stream().noneMatch(u -> u.getId() == newAdmin.getId())) {
-                sendMessage(chatId, "Пользователь не состоит в группе");
-                return;
-            }
-            // Проверяем является ли он уже админом выбранной группы
-            if (group.getAdmins().stream().anyMatch(admin -> admin.getId() == newAdmin.getId())) {
-                sendMessage(chatId, "Пользователь уже является админом группы");
-                return;
-            }
-            group.setAdmin(newAdmin);
-
-            groupRepository.save(group);
-            sendMessage(chatId, "Пользователь успешно назначен админом группы!");
-        }
-        else
+        if (userRepository.findByUserName(newOwnerName) == null) {
             sendMessage(chatId, Info.USER_NOT_EXISTS);
-    }
-    // <--------- Команда /setadmin (ОТРЕФАКТОРИТЬ)
+            return;
+        }
+        User newAdmin = userRepository.findByUserName(newOwnerName);
+        Groupe group = user.getSelectedGroup();
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == newAdmin.getId())) {
+            sendMessage(chatId, "Пользователь не состоит в группе");
+            return;
+        }
+        if (group.getAdmins().stream().anyMatch(admin -> admin.getId() == newAdmin.getId())) {
+            sendMessage(chatId, "Пользователь уже является админом группы");
+            return;
+        }
+        group.setAdmin(newAdmin);
 
-    // ---------> Команда /removeadmin (ОТРЕФАКТОРИТЬ)
+        groupRepository.save(group);
+        sendMessage(chatId, "Пользователь успешно назначен админом группы!");
+    }
+    // <--------- Команда /setadmin
+
+    // ---------> Команда /removeadmin
     public void handleRemoveAdminCommand(long chatId) {
-        User owner = userRepository.findByChatId(chatId);
-        Groupe selectedGroup = owner.getSelectedGroup();
-        // Проверяем выбрана или группа
+        User user = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = user.getSelectedGroup();
         if (selectedGroup == null) {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
             return;
         }
-        // Проверяем владелец ли он группы
-        if (selectedGroup.getOwner().getId() != owner.getId()) {
+        if (selectedGroup.getOwner().getId() != user.getId()) {
             sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
             return;
         }
         sendMessage(chatId, "Введите @UserName удаляемого админа:");
-        owner.setStatus(statusRepository.findById(8));
-        userRepository.save(owner);
+        user.setStatus(statusRepository.findById(8));
+        userRepository.save(user);
     }
 
     private void handleRemoveAdminInput(long chatId, String newOwnerName) {
@@ -270,33 +263,30 @@ public class TelegramBot extends TelegramLongPollingBot {
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
 
-        // Проверяем есть ли такой человек в боте
-        if (userRepository.findByUserName(newOwnerName) != null) {
-            User removedAdmin = userRepository.findByUserName(newOwnerName);
-            Groupe group = user.getSelectedGroup();
-            //Проверяем состоит ли указанный пользователь в группе
-            if (group.getMembers().stream().noneMatch(u -> u.getId() == removedAdmin.getId())) {
-                sendMessage(chatId, "Пользователь не состоит в группе");
-                return;
-            }
-            // Проверяем является ли он админом выбранной группы
-            if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == removedAdmin.getId())) {
-                sendMessage(chatId, "Пользователь не является админом группы");
-                return;
-            }
-            else if (group.getOwner().getId() == removedAdmin.getId()) {
-                sendMessage(chatId, "Владелец группы всегда является админом");
-                return;
-            }
-            group.removeAdmin(removedAdmin);
-
-            groupRepository.save(group);
-            sendMessage(chatId, "Пользователь больше не админ группы!");
-        }
-        else
+        if (userRepository.findByUserName(newOwnerName) == null) {
             sendMessage(chatId, Info.USER_NOT_EXISTS);
+            return;
+        }
+        User removedAdmin = userRepository.findByUserName(newOwnerName);
+        Groupe group = user.getSelectedGroup();
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == removedAdmin.getId())) {
+            sendMessage(chatId, "Пользователь не состоит в группе");
+            return;
+        }
+        if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == removedAdmin.getId())) {
+            sendMessage(chatId, "Пользователь не является админом группы");
+            return;
+        }
+        else if (group.getOwner().getId() == removedAdmin.getId()) {
+            sendMessage(chatId, "Владелец группы всегда является админом");
+            return;
+        }
+        group.removeAdmin(removedAdmin);
+
+        groupRepository.save(group);
+        sendMessage(chatId, "Пользователь больше не админ группы!");
     }
-    // <--------- Команда /removeadmin (ОТРЕФАКТОРИТЬ)
+    // <--------- Команда /removeadmin
 
     // ---------> Команда /giveowner (ОТРЕФАКТОРИТЬ)
     public void handleOwnerCommand(long chatId) {
@@ -503,8 +493,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setReplyMarkup(inlineKeyboardMarkup);
         try {
             execute(message);
-        } catch (TelegramApiException _) {
-        }
+        } catch (TelegramApiException _) {}
     }
     // <--------- Команда /selectgroup (ОТРЕФАКТОРИТЬ)
 
@@ -518,6 +507,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         User user = userRepository.findByChatId(chatId);
         if (user.getSelectedGroup() == null) {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            return;
         }
         Groupe selectedGroup = user.getSelectedGroup();
         List<User> groupUsers = selectedGroup.getMembers();
@@ -543,23 +533,20 @@ public class TelegramBot extends TelegramLongPollingBot {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
             return;
         }
-        // Если команду выхода пишет владелец группы
         User user = userRepository.findByChatId(chatId);
         if (user.getId() == selectedGroup.getOwner().getId()){
-            // Если в группе только владелец, то группа удаляется
             if (selectedGroup.getMembers().size() == 1) {
                 deleteGroup(chatId, selectedGroup);
                 sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup));
                 return;
             }
-            // Если в группе есть кто-то еще, то ошибка
             else if ((selectedGroup.getMembers().size() > 1)) {
                 sendMessage(chatId, Info.GROUP_EXIT_FAILED);
                 return;
             }
         }
-        user.setSelectedGroup(null); // обнуление у пользователя выбранной группы
-        selectedGroup.removeMember(user); // удаление пользователя из группы
+        user.setSelectedGroup(null);
+        selectedGroup.removeMember(user);
         userRepository.save(user);
         groupRepository.save(selectedGroup);
         sendMessage(chatId, "Вы успешно вышли из группы!");
@@ -577,9 +564,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void deleteGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup == null) {
             sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            return;
         }
         User user = userRepository.findByChatId(chatId);
-        assert selectedGroup != null;
         if (user.getId() != selectedGroup.getOwner().getId()) {
             sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
             return;
@@ -591,13 +578,12 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
         sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
-        groupRepository.deleteById(selectedGroup.getId()); // полное удаление группы
+        groupRepository.deleteById(selectedGroup.getId());
         try {
             FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
                     selectedGroup.getId())));
         }
-        catch (IOException _) {
-        }
+        catch (IOException _) {}
     }
     // <--------- Команда /deletegroup
 
@@ -611,14 +597,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();
-        if (userRepository.findByChatId(chatId) == null) { // пользователь не зарегистрирован
+        if (userRepository.findByChatId(chatId) == null) {
             User user = new User(chatId, chat.getFirstName(), chat.getUserName(),
-                    new Timestamp(System.currentTimeMillis())); // создание нового пользователя
+                    new Timestamp(System.currentTimeMillis()));
             user.setStatus(statusRepository.findById(1));
             userRepository.save(user);
             return;
         }
-        User user = userRepository.findByChatId(chatId); // иначе обновление данных об имеющемся пользователе
+        User user = userRepository.findByChatId(chatId);
         user.setUserName(chat.getUserName());
         user.setFirstName(chat.getFirstName());
         user.setStatus(statusRepository.findById(1));
@@ -649,8 +635,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         message.setReplyMarkup(keyboardMarkup);
         try {
             execute(message);
-        } catch (TelegramApiException _) {
-        }
+        } catch (TelegramApiException _) {}
     }
 
     /**
@@ -677,8 +662,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         SendMessage message = createSendMassage(chatId,textToSend);
         try {
             execute(message);
-        } catch (TelegramApiException _) {
-        }
+        } catch (TelegramApiException _) {}
     }
 
     /**
@@ -690,8 +674,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void deleteMessage(long chatId, Integer messageId) {
         try {
             execute(new DeleteMessage(String.valueOf(chatId), messageId));
-        } catch (TelegramApiException _) {
-        }
+        } catch (TelegramApiException _) {}
     }
 
     /**
