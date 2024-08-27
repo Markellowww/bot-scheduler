@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -181,7 +182,6 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         }
         else if (update.hasCallbackQuery()) {
-            long messageId = update.getCallbackQuery().getMessage().getMessageId();
             long chatId = update.getCallbackQuery().getMessage().getChatId();
 
             User user = userRepository.findByChatId(chatId);
@@ -192,6 +192,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case 4: {
                     handleGroupSelectInput(chatId, callbackData);
                     deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    break;
+                }
+            }
+            List<Long> data = Arrays.stream(callbackData.split(" ")).mapToLong(Long::parseLong)
+                    .boxed().toList(); // данные вида "код <аргументы через пробел>"
+            switch (data.get(0).intValue()) {
+                case 1: { // код принятия приглашения
+                    Groupe group = groupRepository.findById(data.get(1)).get();
+                    addUserToGroup(user, group, data.get(2));
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    break;
+                }
+                case 2: { // код отклонения приглашения
+                    Groupe group = groupRepository.findById(data.get(1)).get();
+                    declineInvite(user, group, data.get(2));
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
+                        sendMessage(chatId, String.format("Вы отклонили приглашение в группу \"%s\"", group.getName()));
                     break;
                 }
             }
@@ -411,13 +429,63 @@ public class TelegramBot extends TelegramLongPollingBot {
                 sendMessage(chatId, "Пользователь уже состоит в группе");
                 return;
             }
-            group.addMember(invitedUser, false);
-            groupRepository.save(group);
-            sendMessage(chatId, "Пользователь успешно добавлен в группу!");
+            sendInviteMessage(invitedUser, user, group);
+            sendMessage(chatId, "Приглашение отправлено пользователю");
         }
         else
             sendMessage(chatId, Info.USER_NOT_EXISTS);
     }
+
+    private void sendInviteMessage(User invitedUser, User invitor, Groupe group) {
+        System.out.println(invitedUser);
+        SendMessage message = new SendMessage();
+        message.setChatId(invitedUser.getChatId());
+        message.setText(String.format("Пользователь %s приглашает Вас в группу \"%s\"",
+                invitor.getUserName(), group.getName()));
+        InlineKeyboardMarkup answerKeyBoard = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton acceptButton = new InlineKeyboardButton();
+        acceptButton.setText("Вступить");
+        acceptButton.setCallbackData(String.format("1 %d %d", group.getId(), invitor.getChatId()));
+
+        InlineKeyboardButton declineButton = new InlineKeyboardButton();
+        declineButton.setText("Отклонить");
+        declineButton.setCallbackData(String.format("2 %d %d", group.getId(), invitor.getChatId()));
+
+        rows.add(List.of(declineButton, acceptButton));
+        answerKeyBoard.setKeyboard(rows);
+        message.setReplyMarkup(answerKeyBoard);
+        System.out.println(message);
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void addUserToGroup(User invitedUser, Groupe group, long invitorChatId) {
+        System.out.println(invitorChatId);
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == invitedUser.getId())) {
+            group.addMember(invitedUser, false);
+            groupRepository.save(group);
+            sendMessage(invitorChatId,
+                    String.format("Пользователь %s успешно добавлен в группу \"%s\"!",
+                            invitedUser.getUserName(), group.getName()));
+            sendMessage(invitedUser.getChatId(), String.format("Вы вошли в группу \"%s\"", group.getName()));
+            return;
+        }
+        sendMessage(invitedUser.getChatId(), "Вы уже состоите в этой группе");
+    }
+
+    private void declineInvite(User invitedUser, Groupe group, long invitorChatId) {
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == invitedUser.getId()))
+            sendMessage(invitorChatId,
+                String.format("Пользователь %s отклонил приглашение в группу \"%s\"!",
+                        invitedUser.getUserName(), group.getName()));
+    }
+
     // <--------- Команда /invite (ОТРЕФАКТОРИТЬ)
 
     // ---------> Команда /creategroup (ОТРЕФАКТОРИТЬ)
