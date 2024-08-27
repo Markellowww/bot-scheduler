@@ -44,6 +44,11 @@ public class ExcelParser {
                         String subject = currentRow.getCell(cellIndex++).toString();
                         String teacher = currentRow.getCell(cellIndex++).toString(); // данные
                         String auditorium  = currentRow.getCell(cellIndex++).toString();
+                        try {
+                            auditorium = String.valueOf((int) Float.parseFloat(auditorium));
+                        } // нормальный вид для целых чисел
+                        catch (NumberFormatException _) {
+                        }
 
                         if (Stream.of(subject, teacher, auditorium).anyMatch(s -> !s.isEmpty())) {
                             subjectData.add(pair);

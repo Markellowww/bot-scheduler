@@ -51,6 +51,7 @@ public class ScheduleReader {
                     groupId, name)));
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
+            schedule.show();
         }
         catch (IOException _) {}
         return "";
