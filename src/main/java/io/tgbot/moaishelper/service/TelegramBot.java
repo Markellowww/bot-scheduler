@@ -82,7 +82,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     case 3: {
-                        // Проверяем написал ли '@' пользователь, допускается написание с '@' и без
                         messageText = checkForAtInMessage(messageText);
                         handleInviteUserInput(chatId, messageText);
                         break;
@@ -700,7 +699,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     private void startCommandReceived(long chatId, String firstName) {
         String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
                 "Для начала работы ознакомьтесь с руководством:closed_book:");
-        sendMessageWithKeyboardMarkup(chatId, answer, KeyboardMarkupProvider.start());
+        sendMessageWithKeyboardMarkup(chatId, answer, KeyboardMarkupProvider.startMenu());
     }
 
     /**
