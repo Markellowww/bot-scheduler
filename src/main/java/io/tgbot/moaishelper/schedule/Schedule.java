@@ -30,12 +30,12 @@ public class Schedule {
      * @param dayOfWeek название дня недели
      * @param lessonName название урока
      * @param time время начала урока
-     * @param cabinet номер кабинета
+     * @param auditorium номер кабинета
      * @param teacher преподаватель
      *
      */
-    public void addLesson(String dayOfWeek, String lessonName, String time, String cabinet, String teacher) {
-        schedule.get(dayOfWeek).addLesson(lessonName, time, cabinet, teacher);
+    public void addLesson(String dayOfWeek, String lessonName, String time, String auditorium, String teacher) {
+        schedule.get(dayOfWeek).addLesson(lessonName, time, auditorium, teacher);
     }
 
     /**
@@ -79,11 +79,11 @@ public class Schedule {
          *
          * @param lessonName название урока
          * @param time время начала урока
-         * @param cabinet номер кабинета
+         * @param auditorium номер кабинета
          * @param teacher преподаватель
          */
-        public void addLesson(String lessonName, String time, String cabinet, String teacher) {
-            Lesson lesson = new Lesson(lessonName, time, cabinet, teacher);
+        public void addLesson(String lessonName, String time, String auditorium, String teacher) {
+            Lesson lesson = new Lesson(lessonName, time, auditorium, teacher);
             lessonList.add(lesson);
         }
 
@@ -116,13 +116,13 @@ public class Schedule {
         private final String lessonName;
         private final String teacher;
         private final String time;
-        private final String cabinet;
+        private final String auditorium;
 
-        public Lesson(String lessonName, String time, String cabinet, String teacher) {
+        public Lesson(String lessonName, String time, String auditorium, String teacher) {
             this.lessonName = lessonName;
             this.teacher = teacher;
             this.time = time;
-            this.cabinet = cabinet;
+            this.auditorium = auditorium;
         }
 
         /**
@@ -132,7 +132,7 @@ public class Schedule {
          */
         @Override
         public String toString() {
-            return "Предмет: " + lessonName + ". Время: " + time + ". Кабинет: " + cabinet +
+            return "Предмет: " + lessonName + ". Время: " + time + ". Кабинет: " + auditorium +
                     ". Преподаватель: " + teacher;
         }
     }

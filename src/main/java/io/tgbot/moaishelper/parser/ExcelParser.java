@@ -48,8 +48,8 @@ public class ExcelParser {
                         if (Stream.of(subject, teacher, auditorium).anyMatch(s -> !s.isEmpty())) {
                             subjectData.add(pair);
                             subjectData.add(subject);
-                            subjectData.add(teacher); // добавляем данные в урок
                             subjectData.add(auditorium);
+                            subjectData.add(teacher); // добавляем данные в урок
                             dayData.add(subjectData); // добавляем урок в день
                         }
 
@@ -90,9 +90,16 @@ public class ExcelParser {
             System.out.println();
         }
 
-        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Schedule.json")) {
+        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Числитель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(schedules, writer);
+            gson.toJson(schedules.get((short) 0), writer);
+        }
+        catch (IOException e) {
+            System.out.println("Не найдено расписание числителя");
+        }
+        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(schedules.get((short) 1), writer);
         }
     }
 

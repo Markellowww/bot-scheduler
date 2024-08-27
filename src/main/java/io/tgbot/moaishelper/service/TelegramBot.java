@@ -442,6 +442,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         new File(String.format("src/main/resources/groups/%d",
                 groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
 
+        new File(String.format("src/main/resources/groups/%d/homeworks",
+                groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
+
+        new File(String.format("src/main/resources/groups/%d/lectures",
+                groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
+
         creator.setSelectedGroup(groupe);
         creator.setStatus(statusRepository.findById(1));
         userRepository.save(creator);
@@ -471,6 +477,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         sendMessage(chatId, String.format("Вы выбрали группу \"%s\"", selectedGroup.getName()));
     }
 
+    /**
+     * Присылает пользователю кнопки с вариантами групп для выбора (нажатие кнопки возвращает id группы)
+     * @param chatId идентификатор чата
+     * @param groups список групп для добавления
+     */
     private void addSelectGroupAnswers(long chatId, List<Groupe> groups) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -523,7 +534,8 @@ public class TelegramBot extends TelegramLongPollingBot {
     /**
      * Удаляет пользователя из выбранной группы.
      * Если пользователь является владельцем группы и в группе только он один, то группа удаляется.
-     * Если в группе есть другие участники, то пользователь должен передать роль владельца другому участнику, иначе операция выхода не выполнится.
+     * Если в группе есть другие участники, то пользователь должен передать роль владельца другому участнику,
+     * иначе операция выхода не выполнится.
      *
      * @param chatId идентификатор чата пользователя, который хочет выйти из группы
      * @param selectedGroup группа, из которой пользователь хочет выйти

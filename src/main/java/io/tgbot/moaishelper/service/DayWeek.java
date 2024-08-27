@@ -15,11 +15,11 @@ public class DayWeek {
 
     public static int weekNum() {
         LocalDate today = LocalDate.now();
-        LocalDate september1;
+        LocalDate september2;
         if (today.getMonthValue() >= 9)
-            september1 = LocalDate.of(today.getYear(), 9, 1);
+            september2 = LocalDate.of(today.getYear(), 9, 2);
         else
-            september1 = LocalDate.of(today.getYear() - 1, 9, 1);
-        return (int) september1.until(today, ChronoUnit.DAYS) / 7 % 2;
+            september2 = LocalDate.of(today.getYear() - 1, 9, 2);
+        return (int) september2.until(today, ChronoUnit.DAYS) / 7 % 2;
     }
 }
