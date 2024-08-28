@@ -1,5 +1,7 @@
 package io.tgbot.moaishelper.keyboard;
 
+import io.tgbot.moaishelper.model.Groupe;
+import io.tgbot.moaishelper.text.KeyboardText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -115,6 +117,26 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(callbackData);
         return button;
+    }
+
+    public static InlineKeyboardMarkup addSelectGroupAnswers(List<Groupe> groups) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 0; i < Math.ceil(groups.size() / 3.0); i++) {
+            List<InlineKeyboardButton> buttons = new ArrayList<>();
+            for (int j = 0; j < 3 && 3 * i + j < groups.size(); j++) {
+                Groupe groupe = groups.get(3 * i + j);
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText(groupe.getName());
+                button.setCallbackData(String.valueOf(groupe.getId()));
+                buttons.add(button);
+            }
+            rows.add(buttons);
+        }
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
     }
 
     public static InlineKeyboardMarkup inlineGoBackButton() {

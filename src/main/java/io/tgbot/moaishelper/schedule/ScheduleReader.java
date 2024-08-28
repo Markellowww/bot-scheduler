@@ -1,8 +1,8 @@
 package io.tgbot.moaishelper.schedule;
 
 import com.google.gson.Gson;
-import io.tgbot.moaishelper.service.DayWeek;
-import static io.tgbot.moaishelper.service.DayWeek.dayOfWeek;
+
+import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;

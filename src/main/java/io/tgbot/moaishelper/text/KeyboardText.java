@@ -1,4 +1,4 @@
-package io.tgbot.moaishelper.keyboard;
+package io.tgbot.moaishelper.text;
 
 import com.vdurmont.emoji.EmojiParser;
 

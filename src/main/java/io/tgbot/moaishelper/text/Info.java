@@ -1,4 +1,4 @@
-package io.tgbot.moaishelper.service;
+package io.tgbot.moaishelper.text;
 
 /**
  * @Authors: Markelloww & YDK

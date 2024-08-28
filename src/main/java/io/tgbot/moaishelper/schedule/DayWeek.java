@@ -1,4 +1,4 @@
-package io.tgbot.moaishelper.service;
+package io.tgbot.moaishelper.schedule;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

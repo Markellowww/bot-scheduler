@@ -4,7 +4,6 @@ package io.tgbot.moaishelper.parser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.tgbot.moaishelper.schedule.Schedule;
-import io.tgbot.moaishelper.service.DayWeek.*;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -13,7 +12,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static io.tgbot.moaishelper.service.DayWeek.dayOfWeek;
+import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
 
 /**
  * @Authors: Markelloww & YDK
