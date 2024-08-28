@@ -6,7 +6,6 @@ import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.text.Info;
 import io.tgbot.moaishelper.text.KeyboardText;
 import io.tgbot.moaishelper.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -29,27 +28,14 @@ import java.util.List;
 @Component
 public class TelegramBot extends TelegramLongPollingBot {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
+    private final StatusRepository statusRepository;
+    private final GroupHandler groupHandler;
+    private final MessageHandler messageHandler;
+    private final BotConfig config;
 
-    @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
-    private StatusRepository statusRepository;
-
-    @Autowired
-    @Lazy
-    private GroupHandler groupHandler;
-
-    @Autowired
-    @Lazy
-    private MessageHandler messageHandler;
-
-
-    final BotConfig config;
-
-    public TelegramBot(BotConfig config) {
+    public TelegramBot(BotConfig config, @Lazy GroupHandler groupHandler, @Lazy MessageHandler messageHandler, StatusRepository statusRepository, GroupRepository groupRepository, UserRepository userRepository) {
         this.config = config;
         List<BotCommand> listOfCommands = new ArrayList<>();
         CommandInitializer.init(listOfCommands);
@@ -57,6 +43,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
         }
         catch (TelegramApiException _) {}
+        this.groupHandler = groupHandler;
+        this.messageHandler = messageHandler;
+        this.statusRepository = statusRepository;
+        this.groupRepository = groupRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -126,59 +117,60 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(KeyboardText.GUIDE)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.TEXT_IN_DEVELOP, KeyboardMarkupProvider.inlineGoBackButton());
                 }
-                else
+                else {
                     switch (messageText) {
-                    case "/start": {
-                        registerUser(update.getMessage());
-                        messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                        break;
-                    }
-                    case "/creategroup": {
-                        groupHandler.handleCreateGroupCommand(chatId);
-                        break;
-                    }
-                    case "/selectgroup": {
-                        groupHandler.handleGroupSelectCommand(chatId);
-                        break;
-                    }
-                    case "/leavegroup": {
-                        groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
-                        break;
-                    }
-                    case "/deletegroup": {
-                        groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
-                        break;
-                    }
-                    case "/invite": {
-                        groupHandler.handleInviteCommand(chatId);
-                        break;
-                    }
-                    case "/giveowner": {
-                        groupHandler.handleOwnerCommand(chatId);
-                        break;
-                    }
-                    case "/setadmin": {
-                        groupHandler.handleSetAdminCommand(chatId);
-                        break;
-                    }
-                    case "/removeadmin": {
-                        groupHandler.handleRemoveAdminCommand(chatId);
-                        break;
-                    }
-                    case "/kick": {
-                        groupHandler.handleKickCommand(chatId);
-                        break;
-                    }
-                    case "/members": {
-                        groupHandler.showMembers(chatId);
-                        break;
-                    }
-                    case "/help": {
-                        messageHandler.sendMessage(chatId, Info.TEXT_IN_DEVELOP);
-                        break;
-                    }
-                    default: {
-                        messageHandler.sendMessage(chatId, EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"));
+                        case "/start": {
+                            registerUser(update.getMessage());
+                            messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                            break;
+                        }
+                        case "/creategroup": {
+                            groupHandler.handleCreateGroupCommand(chatId);
+                            break;
+                        }
+                        case "/selectgroup": {
+                            groupHandler.handleGroupSelectCommand(chatId);
+                            break;
+                        }
+                        case "/leavegroup": {
+                            groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                            break;
+                        }
+                        case "/deletegroup": {
+                            groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                            break;
+                        }
+                        case "/invite": {
+                            groupHandler.handleInviteCommand(chatId);
+                            break;
+                        }
+                        case "/giveowner": {
+                            groupHandler.handleOwnerCommand(chatId);
+                            break;
+                        }
+                        case "/setadmin": {
+                            groupHandler.handleSetAdminCommand(chatId);
+                            break;
+                        }
+                        case "/removeadmin": {
+                            groupHandler.handleRemoveAdminCommand(chatId);
+                            break;
+                        }
+                        case "/kick": {
+                            groupHandler.handleKickCommand(chatId);
+                            break;
+                        }
+                        case "/members": {
+                            groupHandler.showMembers(chatId);
+                            break;
+                        }
+                        case "/help": {
+                            messageHandler.sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                            break;
+                        }
+                        default: {
+                            messageHandler.sendMessage(chatId, EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"));
+                        }
                     }
                 }
             }

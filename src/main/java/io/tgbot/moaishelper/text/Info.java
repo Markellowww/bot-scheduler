@@ -11,13 +11,11 @@ import io.tgbot.moaishelper.model.User;
 public class Info {
     public static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
             """
-                    Если у вас возникли проблемы, вопросы по работе бота, или есть какие-либо предложения:
+                    Если у вас возникли проблемы либо касаемо работы бота, или есть какие-либо предложения:
 
-                    :arrow_backward:Telegram: @fsbrossii
+                    :arrow_backward:Telegram: @markellowww, @YDKrivoshey
 
-                    :smiley_cat:GitHub: github.com/Markelloww
-
-                    :incoming_envelope:Почта: markelloww@internet.ru""");
+                    :smiley_cat:GitHub: Markelloww, KrivosheyYuriy""");
 
     public static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
 
