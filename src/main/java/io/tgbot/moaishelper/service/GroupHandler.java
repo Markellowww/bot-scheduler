@@ -1,15 +1,13 @@
 package io.tgbot.moaishelper.service;
 
-/*
- * @Author: Markelloww
- * Date: 28.08.2024
+/**
+ * @Authors: Markelloww & YDK
  */
 
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.text.Info;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -27,21 +25,23 @@ import java.util.stream.IntStream;
 @Component
 public class GroupHandler {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final GroupRepository groupRepository;
+    private final StatusRepository statusRepository;
+    private final TelegramBot bot;
+    private final MessageHandler messageHandler;
 
-    @Autowired
-    private GroupRepository groupRepository;
-
-    @Autowired
-    private StatusRepository statusRepository;
-
-    @Autowired
-    TelegramBot bot;
-
-    @Autowired
-    MessageHandler messageHandler;
-
+    public GroupHandler(UserRepository userRepository,
+                        GroupRepository groupRepository,
+                        StatusRepository statusRepository,
+                        TelegramBot bot,
+                        MessageHandler messageHandler) {
+        this.userRepository = userRepository;
+        this.groupRepository = groupRepository;
+        this.statusRepository = statusRepository;
+        this.bot = bot;
+        this.messageHandler = messageHandler;
+    }
 
     // ---------> Команда /setadmin
     protected void handleSetAdminCommand(long chatId) {
@@ -340,7 +340,7 @@ public class GroupHandler {
     protected void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
-            messageHandler.sendMessage(chatId, "Введите название для группы");
+            messageHandler.sendMessage(chatId, Info.GROUP_CREATE);
             user.setStatus(statusRepository.findById(2));
             userRepository.save(user);
         }
@@ -351,9 +351,9 @@ public class GroupHandler {
 
     protected void handleGroupNameInput(long chatId, String groupName) {
         User creator = userRepository.findByChatId(chatId);
-        Groupe groupe = new Groupe(creator, groupName, new Timestamp(System.currentTimeMillis()));
-        System.out.println(groupe.getId());
-        groupRepository.save(groupe);
+        Groupe group = new Groupe(creator, groupName, new Timestamp(System.currentTimeMillis()));
+        System.out.println(group.getId());
+        groupRepository.save(group);
 
         new File(String.format("src/main/resources/groups/%d",
                 groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
@@ -364,13 +364,13 @@ public class GroupHandler {
         new File(String.format("src/main/resources/groups/%d/lectures",
                 groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
 
-        creator.setSelectedGroup(groupe);
+        creator.setSelectedGroup(group);
         creator.setStatus(statusRepository.findById(1));
         userRepository.save(creator);
 
         boolean chosen = groupChosen(creator);
         boolean created = groupCreated(creator);
-        messageHandler.sendMessage(chatId, "Вы успешно создали группу с названием: " + groupe.getName());
+        messageHandler.sendMessage(chatId, Info.GROUP_CREATE_SUCCESSFUL(group));
         messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(creator), KeyboardMarkupProvider.groupsMenu(chosen, created));
     }
     // <--------- Команда /creategroup
@@ -389,7 +389,7 @@ public class GroupHandler {
 
         List<Groupe> groups = user.getGroupUsers().stream().map(GroupUser::getGroup).toList();
         InlineKeyboardMarkup inlineKeyboardMarkup = KeyboardMarkupProvider.addSelectGroupAnswers(groups);
-        messageHandler.sendMessageWithKeyboardMarkup(chatId,"Выберите группу", inlineKeyboardMarkup);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId,Info.GROUP_SELECT, inlineKeyboardMarkup);
     }
 
     protected void handleGroupSelectInput(long chatId, String stringGroupId) {
@@ -399,8 +399,7 @@ public class GroupHandler {
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
 
-        boolean chosen = groupChosen(user);
-        boolean created = groupCreated(user);
+        boolean chosen = groupChosen(user), created = groupCreated(user);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user), KeyboardMarkupProvider.groupsMenu(chosen, created));
     }
     // <--------- Команда /selectgroup
@@ -415,28 +414,28 @@ public class GroupHandler {
      * @param chatId идентификатор чата пользователя, который хочет выйти из группы
      * @param selectedGroup группа, из которой пользователь хочет выйти
      */
-    protected void leaveGroup(long chatId, Groupe selectedGroup) {
+    protected boolean leaveGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup == null) {
             messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
-            return;
+            return false;
         }
         User user = userRepository.findByChatId(chatId);
         if (user.getId() == selectedGroup.getOwner().getId()){
             if (selectedGroup.getMembers().size() == 1) {
                 deleteGroup(chatId, selectedGroup);
-                messageHandler.sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup));
-                return;
+                return false;
             }
             else if ((selectedGroup.getMembers().size() > 1)) {
-                messageHandler.sendMessage(chatId, Info.GROUP_EXIT_FAILED);
-                return;
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_EXIT_FAILED, KeyboardMarkupProvider.inlineContinueButton());
+                return false;
             }
         }
         user.setSelectedGroup(null);
         selectedGroup.removeMember(user);
         userRepository.save(user);
         groupRepository.save(selectedGroup);
-        messageHandler.sendMessage(chatId, "Вы успешно вышли из группы!");
+        messageHandler.sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup));
+        return true;
     }
     // <--------- Команда /leavegroup
 
@@ -464,7 +463,8 @@ public class GroupHandler {
                 userRepository.save(groupUser);
             }
         }
-        messageHandler.sendMessage(chatId, String.format("Группа \"%s\" успешно удалена", selectedGroup.getName()));
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_DELETE_SUCCESSFUL(selectedGroup),
+                KeyboardMarkupProvider.inlineContinueButton());
         groupRepository.deleteById(selectedGroup.getId());
         try {
             FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
@@ -482,13 +482,6 @@ public class GroupHandler {
         return groupRepository.findByOwnerId(user.getId()) != null;
     }
 
-    /**
-     * Определяет, является ли пользователь владельцем или администратором выбранной группы.
-     *
-     * @param selectedGroup группа, в которой проверяется статус пользователя
-     * @param user пользователь, чей статус проверяется
-     * @return строка с указанием статуса пользователя в группе Владелец/Админ
-     */
     private String isAdmin(Groupe selectedGroup, User user) {
         if (selectedGroup.getOwner().getId() == user.getId()) {
             return " (Владелец)";

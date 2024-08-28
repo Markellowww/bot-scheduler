@@ -17,12 +17,11 @@ import java.util.List;
  */
 
 public class KeyboardMarkupProvider {
-
+    // ---------> Reply
     public static ReplyKeyboardRemove keyboardRemove() {
         return new ReplyKeyboardRemove(true);
     }
 
-    // ---------> Reply
     public static ReplyKeyboardMarkup startMenu() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
@@ -47,6 +46,7 @@ public class KeyboardMarkupProvider {
     public static ReplyKeyboardMarkup showGroupsSettingsMenu(boolean isAdmin) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
         if (isAdmin) {
@@ -55,7 +55,7 @@ public class KeyboardMarkupProvider {
                 row1.add(KeyboardText.SHOW_SCHEDULE);
 
                 KeyboardRow row2 = new KeyboardRow();
-                row2.add("Назад");
+                row2.add(KeyboardText.BACK_TO_GROUPS);
                 row2.add(KeyboardText.LEAVE_GROUP);
 
                 rows.add(row1);
@@ -141,6 +141,13 @@ public class KeyboardMarkupProvider {
 
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter("Назад", "BACK_TO_MAIN_MENU");
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup inlineContinueButton() {
+        InlineKeyboardButton button = inlineButtonSetter("Продолжить", "BACK_TO_MAIN_GROUPS_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
         return inlineKeyboardMarkup;

@@ -1,16 +1,11 @@
 package io.tgbot.moaishelper.service;
 
-/*
- * @Author: Markelloww
- * Date: 28.08.2024
+/**
+ * @Authors: Markelloww & YDK
  */
 
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
-import io.tgbot.moaishelper.model.GroupRepository;
-import io.tgbot.moaishelper.model.StatusRepository;
-import io.tgbot.moaishelper.model.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -19,18 +14,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
 public class MessageHandler {
-    @Autowired
-    private UserRepository userRepository;
 
-    @Autowired
-    private GroupRepository groupRepository;
+    private final TelegramBot bot;
 
-    @Autowired
-    private StatusRepository statusRepository;
-
-    @Autowired
-    TelegramBot bot;
-
+    public MessageHandler(TelegramBot bot) {
+        this.bot = bot;
+    }
 
     /**
      * Отравляет начальное сообщение со стартовой клавиатурой.
