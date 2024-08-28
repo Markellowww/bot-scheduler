@@ -2,17 +2,13 @@ package io.tgbot.moaishelper.schedule;
 
 import com.google.gson.Gson;
 import io.tgbot.moaishelper.service.DayWeek;
-
+import static io.tgbot.moaishelper.service.DayWeek.dayOfWeek;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class ScheduleReader {
-    public static void main(String[] args) throws IOException {
-        System.out.println(thisWeekSchedule(1));
-    }
-
     public static String todaySchedule(long groupId) {
         try {
             int week = DayWeek.weekNum();
@@ -20,29 +16,37 @@ public class ScheduleReader {
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
             Gson gson = new Gson();
-            int dayOfWeek = DayWeek.dayOfWeek();
+            short day = DayWeek.dayOfWeek();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            return "";
+            return schedule.getDayLessons(dayOfWeek(day));
         }
-        catch (IOException _) {}
-        return "";
+        catch (IOException _) {
+            return "Файл с расписанием не добавлен";
+        }
     }
 
     public static String tomorrowSchedule(long groupId) {
         try {
-            int dayOfWeek = DayWeek.dayOfWeek();
-            int week = DayWeek.weekNum() + dayOfWeek / 6;
-            dayOfWeek = (dayOfWeek + 1) % 7;
+            short day = DayWeek.dayOfWeek();
+            int week = DayWeek.weekNum() + day / 6;
+            day = (short) ((day + 1) % 7);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
+            return schedule.getDayLessons(dayOfWeek(day));
         }
-        catch (IOException _) {}
-        return "";
+        catch (IOException _) {
+            return "Файл с расписанием не добавлен";
+        }
     }
 
+    /**
+     * Возвращает текст с расписанием на данную неделю
+     * @param groupId идентификатор группы
+     * @return текст расписания на текущую неделю
+     */
     public static String thisWeekSchedule(long groupId) {
         try {
             int week = DayWeek.weekNum();
@@ -51,12 +55,18 @@ public class ScheduleReader {
                     groupId, name)));
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            schedule.show();
+            return schedule.show();
         }
-        catch (IOException _) {}
-        return "";
+        catch (IOException _) {
+            return "Файл с расписанием не добавлен";
+        }
     }
 
+    /**
+     * Возвращает текст с расписанием на данную неделю
+     * @param groupId идентификатор группы
+     * @return текст расписания на следующую неделю
+     */
     public static String nextWeekSchedule(long groupId) {
         try {
             int week = (DayWeek.weekNum() + 1) % 2;
@@ -66,12 +76,18 @@ public class ScheduleReader {
 
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            schedule.show();
+            return schedule.show();
         }
-        catch (IOException _) {}
-        return "";
+        catch (IOException _) {
+            return "Файл с расписанием не добавлен";
+        }
     }
 
+    /**
+     * Возвращает название файла расписания
+     * @param week четность недели (0 - числитель, 1 - знаменатель)
+     * @return название недели
+     */
     private static String getFilename(int week) throws IOException {
         return week == 0 ? "Числитель" : "Знаменатель";
     }

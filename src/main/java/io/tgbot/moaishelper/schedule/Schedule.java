@@ -24,6 +24,11 @@ public class Schedule {
         schedule.putIfAbsent(dayOfWeek, new DayLessons());
     }
 
+    public String getDayLessons(String dayOfWeek) {
+        DayLessons day = schedule.get(dayOfWeek);
+        return day.show();
+    }
+
     /**
      * Добавляет урок в указанный день недели.
      *
@@ -60,11 +65,13 @@ public class Schedule {
     /**
      * Выводит расписание за все дни
      */
-    public void show() {
+    public String show() {
+        StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, DayLessons> daySchedule: schedule.entrySet()) {
-            System.out.println(daySchedule.getKey() + ":");
-            daySchedule.getValue().show();
+            builder.append(String.format("%s:\n",daySchedule.getKey()));
+            builder.append(daySchedule.getValue().show());
         }
+        return builder.toString();
     }
 
     private static class DayLessons {
@@ -99,15 +106,15 @@ public class Schedule {
         /**
          * Печатает список уроков за каждый день.
          */
-        public void show() {
+        public String show() {
             if (lessonList.isEmpty()) {
-                System.out.println("Нет уроков.");
+                return "Нет уроков.";
             }
-            else {
-                for (Lesson lesson : lessonList) {
-                    System.out.println(lesson);
-                }
+            StringBuilder builder = new StringBuilder();
+            for (Lesson lesson : lessonList) {
+                builder.append(String.format("%s\n", lesson));
             }
+            return builder.toString();
         }
     }
 

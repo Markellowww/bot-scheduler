@@ -1,28 +1,27 @@
 package io.tgbot.moaishelper.parser;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.tgbot.moaishelper.schedule.Schedule;
+import io.tgbot.moaishelper.service.DayWeek.*;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static io.tgbot.moaishelper.service.DayWeek.dayOfWeek;
 
 /**
  * @Authors: Markelloww & YDK
  */
 
 public class ExcelParser {
-    public static void main(String[] args) throws IOException {
-        createSchedule(1, readExcel("src/main/resources/groups/1/Schedule.xlsx")); // тут нужен нормальный путь
-    }
 
-    public static List<List<List<List<Object>>>> readExcel(String fileName) {
+    public static List<List<List<List<Object>>>> readSchedule(String fileName) {
         try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(fileName))) {
             XSSFSheet mySheet = myExcelBook.getSheetAt(0); // первая таблица
             XSSFRow currentRow; // текущая строка из excel
@@ -82,7 +81,6 @@ public class ExcelParser {
             Schedule schedule = new Schedule();
             for (short dayNum = 0; dayNum < 6; dayNum++) {
                 schedule.addDay(dayOfWeek(dayNum));
-                System.out.println(data.get(week).get(dayNum));
                 for (var subjectData : data.get(week).get(dayNum)) {
                     short pair = (short) subjectData.getFirst();
                     String subject = subjectData.get(1).toString();
@@ -92,35 +90,23 @@ public class ExcelParser {
                 }
             }
             schedules.put(week, schedule);
-            System.out.println();
         }
 
         try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Числитель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 0), writer);
         }
-        catch (IOException e) {
-            System.out.println("Не найдено расписание числителя");
+        catch (IOException _) {
         }
         try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 1), writer);
         }
+        catch (IOException _) {
+        }
     }
 
-    private static String dayOfWeek(short dayNum) {
-        return switch (dayNum) {
-            case 0 -> "Понедельник";
-            case 1 -> "Вторник";
-            case 2 -> "Среда";
-            case 3 -> "Четверг";
-            case 4 -> "Пятница";
-            case 5 -> "Суббота";
-            default -> "";
-        };
-    }
-
-    public static String lessonTime(short lessonNum) {
+    public static String lessonTime(short lessonNum) { // временный выход
         return switch (lessonNum) {
             case 1 -> "8:00 – 9:20";
             case 2 -> "9:30 – 10:50";
