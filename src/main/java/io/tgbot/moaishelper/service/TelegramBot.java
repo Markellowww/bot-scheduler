@@ -111,17 +111,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
             else {
-                if (messageText.equals(KeyboardText.CONTACTS)) {
-                    sendMessage(chatId, Info.TEXT_SUPPORT);
-                }
-                else if (messageText.equals(KeyboardText.NOTIFICATION_SETTING)) {
-                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
-                }
-                else if (messageText.equals(KeyboardText.GUIDE)) {
-                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                if (messageText.equals(KeyboardText.NOTIFICATION_SETTING)) {
+                    sendMessageWithKeyboardMarkup(chatId, "Ваши настройки уведомлений:", KeyboardMarkupProvider.notificationMenu());
                 }
                 else if (messageText.equals(KeyboardText.GO_TO_GROUPS)) {
-                    sendMessage(chatId, Info.TEXT_IN_DEVELOP);
+                    boolean chosen = groupChosen(user);
+                    boolean created = groupCreated(user);
+                    sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user), KeyboardMarkupProvider.groupsMenu(chosen, created));
+                }
+                else if (messageText.equals(KeyboardText.CONTACTS)) {
+                    sendMessageWithKeyboardMarkup(chatId, Info.TEXT_SUPPORT, KeyboardMarkupProvider.inlineGoBackButton());
+                }
+                else if (messageText.equals(KeyboardText.GUIDE)) {
+                    sendMessageWithKeyboardMarkup(chatId, Info.TEXT_IN_DEVELOP, KeyboardMarkupProvider.inlineGoBackButton());
                 }
                 else
                     switch (messageText) {
@@ -187,6 +189,24 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             String callbackData = update.getCallbackQuery().getData();
 
+            switch (callbackData) {
+                case "BACK_TO_MAIN_MENU": {
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    sendMessageWithKeyboardMarkup(chatId, "Назад", KeyboardMarkupProvider.startMenu());
+                    return;
+                }
+                case "CREATE_GROUP": {
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    handleCreateGroupCommand(chatId);
+                    return;
+                }
+                case "SELECT_GROUP": {
+                    deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    handleGroupSelectCommand(chatId);
+                    return;
+                }
+            }
+
             switch (user.getStatus().getId()) {
                 case 4: {
                     handleGroupSelectInput(chatId, callbackData);
@@ -194,6 +214,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 }
             }
+
             List<Long> data = Arrays.stream(callbackData.split(" ")).mapToLong(Long::parseLong)
                     .boxed().toList(); // данные вида "код <аргументы через пробел>"
             switch (data.get(0).intValue()) {
@@ -213,6 +234,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             }
         }
+    }
+
+    private boolean groupChosen(User user) {
+        if (user.getSelectedGroup() != null) {
+           return true;
+        }
+        return false;
+    }
+
+    private boolean groupCreated(User user) {
+        if (groupRepository.findByOwnerId(user.getId()) != null) {
+            return true;
+        }
+        return false;
     }
 
     // ---------> Команда /setadmin
@@ -473,6 +508,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     String.format("Пользователь %s успешно добавлен в группу \"%s\"!",
                             invitedUser.getUserName(), group.getName()));
             sendMessage(invitedUser.getChatId(), String.format("Вы вошли в группу \"%s\"", group.getName()));
+            invitedUser.setSelectedGroup(group);
+            userRepository.save(invitedUser);
             return;
         }
         sendMessage(invitedUser.getChatId(), "Вы уже состоите в этой группе");
@@ -518,7 +555,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         creator.setSelectedGroup(groupe);
         creator.setStatus(statusRepository.findById(1));
         userRepository.save(creator);
+
+        boolean chosen = groupChosen(creator);
+        boolean created = groupCreated(creator);
         sendMessage(chatId, "Вы успешно создали группу с названием: " + groupe.getName());
+        sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(creator), KeyboardMarkupProvider.groupsMenu(chosen, created));
     }
     // <--------- Команда /creategroup (ОТРЕФАКТОРИТЬ)
 
@@ -541,7 +582,10 @@ public class TelegramBot extends TelegramLongPollingBot {
         user.setSelectedGroup(selectedGroup);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
-        sendMessage(chatId, String.format("Вы выбрали группу \"%s\"", selectedGroup.getName()));
+
+        boolean chosen = groupChosen(user);
+        boolean created = groupCreated(user);
+        sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user), KeyboardMarkupProvider.groupsMenu(chosen, created));
     }
 
     /**

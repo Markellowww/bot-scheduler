@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.keyboard;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -15,10 +16,15 @@ import java.util.List;
 
 public class KeyboardMarkupProvider {
 
+    public static ReplyKeyboardRemove keyboardRemove() {
+        return new ReplyKeyboardRemove(true);
+    }
+
     // ---------> Reply
     public static ReplyKeyboardMarkup startMenu() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row1 = new KeyboardRow();
@@ -109,6 +115,13 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(callbackData);
         return button;
+    }
+
+    public static InlineKeyboardMarkup inlineGoBackButton() {
+        InlineKeyboardButton button = inlineButtonSetter("Назад", "BACK_TO_MAIN_MENU");
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        return inlineKeyboardMarkup;
     }
 
     public static InlineKeyboardMarkup scheduleMenu() {
