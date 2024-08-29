@@ -6,7 +6,6 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
-import io.tgbot.moaishelper.text.Info;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

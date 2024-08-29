@@ -3,7 +3,6 @@ package io.tgbot.moaishelper.service;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
-import io.tgbot.moaishelper.text.Info;
 import io.tgbot.moaishelper.text.KeyboardText;
 import io.tgbot.moaishelper.model.*;
 import org.springframework.context.annotation.Lazy;
@@ -21,6 +20,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static io.tgbot.moaishelper.text.Info.*;
 
 /**
  * @Authors: Markelloww & YDK
@@ -73,7 +74,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             User user = userRepository.findByChatId(chatId);
             String messageText = update.getMessage().getText();
 
-            if (user != null && user.getStatus().getId() != 1) { // ожидается ввод каких-то данных
+            if (messageText.equals("/start") || user == null) {
+                registerUser(update.getMessage());
+                messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
+                return;
+            }
+
+            if (user.getStatus().getId() != 1) {
                 switch (user.getStatus().getId()) {
                     case 2: {
                         groupHandler.handleGroupNameInput(chatId, messageText);
@@ -105,13 +112,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     default: {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.OPERATION_CANCELLED,
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, OPERATION_CANCELLED,
                                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
+                        break;
                     }
                 }
-            }
+            } 
             else {
                 if (messageText.equals(KeyboardText.NOTIFICATION_SETTING)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ваши настройки уведомлений:",
@@ -119,20 +127,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 else if (messageText.equals(KeyboardText.GO_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user),
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                 }
                 else if (messageText.equals(KeyboardText.CONTACTS)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.TEXT_SUPPORT,
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT,
                             KeyboardMarkupProvider.inlineGoBackButton());
                 }
                 else if (messageText.equals(KeyboardText.GUIDE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.TEXT_IN_DEVELOP,
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
                             KeyboardMarkupProvider.inlineGoBackButton());
                 }
                 else if (messageText.equals(KeyboardText.BACK_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user),
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                 }
                 else if (messageText.equals(KeyboardText.LEAVE_GROUP)) {
@@ -145,7 +153,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 else if (messageText.equals(KeyboardText.BACK_TO_MENU_GROUPS)) {
                     if (user.getSelectedGroup() == null) {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.ERROR,
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
                                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
                         return;
                     }
@@ -174,27 +182,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(KeyboardText.INVITE_USER)) {
                     groupHandler.handleInviteCommand(chatId);
                 }
+                else if (messageText.equals("/schedule")) {
+                    messageHandler.sendSchedule(chatId, user.getSelectedGroup().getId());
+                }
                 else {
-                    switch (messageText) {
-                        case "/start": {
-                            registerUser(update.getMessage());
-                            messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                            break;
-                        }
-                        // Под удаление ->
-                        case "/schedule": {
-                            messageHandler.sendSchedule(chatId, user.getSelectedGroup().getId());
-                            break;
-                        }
-                        // <- Под удаление
-                        default: {
-                            user.setStatus(statusRepository.findById(1));
-                            userRepository.save(user);
-                            messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                                    EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"),
-                                    KeyboardMarkupProvider.inlineGoBackButton());
-                        }
-                    }
+                    user.setStatus(statusRepository.findById(1));
+                    userRepository.save(user);
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"),
+                            KeyboardMarkupProvider.inlineGoBackButton());
+
                 }
             }
         }
@@ -213,7 +210,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "BACK_TO_MAIN_GROUPS_MENU": {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user),
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                     return;
                 }
@@ -273,7 +270,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     groupHandler.declineInvite(user, group, data.get(2));
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
-                        messageHandler.sendMessage(chatId, Info.INVITE_REQUEST_DENIED(group));
+                        messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
                     break;
                 }
             }

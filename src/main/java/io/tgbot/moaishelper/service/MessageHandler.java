@@ -19,9 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-
-import static org.apache.commons.io.FileUtils.getFile;
 
 @Component
 public class MessageHandler {
