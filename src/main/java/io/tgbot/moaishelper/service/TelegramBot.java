@@ -9,10 +9,7 @@ import io.tgbot.moaishelper.model.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.objects.Document;
-import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -108,7 +105,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     default: {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_SELECTED_ARGUMENT,
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.OPERATION_CANCELLED,
                                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
