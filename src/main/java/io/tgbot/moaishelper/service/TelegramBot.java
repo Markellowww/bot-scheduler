@@ -9,12 +9,16 @@ import io.tgbot.moaishelper.model.*;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.File;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -189,6 +193,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                             messageHandler.sendMessage(chatId, Info.TEXT_IN_DEVELOP);
                             break;
                         }
+                        case "/schedule": {
+                            messageHandler.sendSchedule(chatId, user.getSelectedGroup().getId());
+                            break;
+                        }
                         default: {
                             user.setStatus(statusRepository.findById(1));
                             userRepository.save(user);
@@ -272,6 +280,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 }
             }
+        }
+        else if (update.getMessage().getDocument() != null) {
+            long chatId = update.getMessage().getChatId();
+            messageHandler.downloadSchedule(update.getMessage(),
+                    userRepository.findByChatId(chatId).getSelectedGroup().getId());
         }
     }
 

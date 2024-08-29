@@ -7,10 +7,21 @@ package io.tgbot.moaishelper.service;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+
+import org.telegram.telegrambots.meta.api.objects.Document;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+
+import static org.apache.commons.io.FileUtils.getFile;
 
 @Component
 public class MessageHandler {
@@ -60,6 +71,47 @@ public class MessageHandler {
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
         return message;
+    }
+
+    /**
+     * Присылает файл excel с расписанием. Если его нет, оповещает пользователя об этом.
+     * @param chatId идентификатор чата пользователя
+     * @param groupId идентификатор группы с расписанием
+     */
+    protected void sendSchedule(long chatId, long groupId) {
+        File scheduleFile = new File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId));
+        if (scheduleFile.exists()) {
+            SendDocument schedule = new SendDocument();
+            schedule.setDocument(new InputFile(scheduleFile, "Расписание.xlsx"));
+            schedule.setChatId(chatId);
+            try {
+                bot.execute(schedule);
+            } catch (TelegramApiException _) {}
+            return;
+        }
+        sendMessage(chatId, "Расписание не заполнено");
+    }
+
+    /**
+     * Извлекает из сообщения файл с расписанием и сораняет в группу
+     * @param message сообщение с прикрепленным файлом
+     */
+    protected void downloadSchedule(Message message, long groupId) {
+        Document document = message.getDocument();
+        long chatId = message.getChatId();
+        if (document.getFileName().endsWith(".xlsx")) {
+            try {
+                GetFile getFile = new GetFile();
+                getFile.setFileId(document.getFileId());
+                org.telegram.telegrambots.meta.api.objects.File file = bot.execute(getFile);
+
+                bot.downloadFile(file, new
+                        java.io.File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId)));
+            } catch (TelegramApiException _) {
+            }
+            return;
+        }
+        sendMessage(chatId, "Неверный формат файла");
     }
 
     /**
