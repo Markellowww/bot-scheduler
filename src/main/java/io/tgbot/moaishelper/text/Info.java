@@ -9,6 +9,7 @@ import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 
 public class Info {
+    // общие ответы
     public static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
             """
                     Если у вас возникли проблемы либо касаемо работы бота, или есть какие-либо предложения:
@@ -19,44 +20,59 @@ public class Info {
 
     public static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
 
-    public static final String NO_GROUPS = EmojiParser.parseToUnicode("❗ Вы не состоите ни в одной группе ❗");
+    public static final String ERROR = EmojiParser.parseToUnicode("❗ Что-то пошло не так ❗");
 
-    public static final String USER_NOT_EXISTS = EmojiParser.parseToUnicode("❗ Данный пользователь не зарегистрирован в боте ❗");
-
-    public static final String USER_NOT_IN_GROUP = EmojiParser.parseToUnicode("❗ Данный пользователь не состоит в группе ❗");
-
-    public static final String USER_ALREADY_IN_GROUP = EmojiParser.parseToUnicode("❗ Данный пользователь уже состоит в группе ❗");
-
-    public static final String USER_ALREADY_NOT_ADMIN = EmojiParser.parseToUnicode("❗ Данный пользователь не является админом ❗");
-
-    public static final String USER_ALREADY_ADMIN = EmojiParser.parseToUnicode("❗ Данный пользователь уже является админом ❗");
-
-    public static final String USER_NOT_ADMIN_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь больше не админ! ✅");
-
-    public static final String USER_KICK_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь успешно исключен из группы! ✅");
-
-    public static final String USER_SET_ADMIN_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь успешно назначен админом группы! ✅");
-
-    public static final String USER_ALREADY_OWNER = EmojiParser.parseToUnicode("❗ Данный пользователь уже владеет одной группой ❗");
-
+    // ответы об отклонении операции
     public static final String NOT_SELECTED_ARGUMENT = EmojiParser.parseToUnicode("❗ Операция отменена ❗");
 
-    public static final String GROUP_EXIT_FAILED = EmojiParser.parseToUnicode("❗ Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку! ❗");
+    public static final String USER_NOT_EXISTS =
+            EmojiParser.parseToUnicode("❗ Данный пользователь не зарегистрирован в боте ❗");
+
+    public static final String USER_NOT_IN_GROUP =
+            EmojiParser.parseToUnicode("❗ Данный пользователь не состоит в группе ❗");
+
+    public static final String USER_ALREADY_NOT_ADMIN =
+            EmojiParser.parseToUnicode("❗ Данный пользователь не является админом ❗");
+
+    public static final String USER_ALREADY_IN_GROUP =
+            EmojiParser.parseToUnicode("❗ Данный пользователь уже состоит в группе ❗");
+
+    public static final String USER_ALREADY_ADMIN =
+            EmojiParser.parseToUnicode("❗ Данный пользователь уже является админом ❗");
+
+    public static final String USER_ALREADY_OWNER =
+            EmojiParser.parseToUnicode("❗ Данный пользователь уже владеет одной группой ❗");
+
+    public static final String GROUP_EXIT_FAILED =
+            EmojiParser.parseToUnicode(
+                    "❗ Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку! ❗");
 
     public static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("❗ Не выбрана текущая группа ❗");
 
-    public static final String ERROR = EmojiParser.parseToUnicode("❗ Что-то пошло не так ❗");
+    public static final String NO_GROUPS = EmojiParser.parseToUnicode("❗ Вы не состоите ни в одной группе ❗");
 
-    public static final String GROUP_CREATE = "Введите название для группы ✍️";
+    // ответы об успешной опреации
+    public static final String USER_NOT_ADMIN_SUCCESSFUL =
+            EmojiParser.parseToUnicode("Пользователь больше не админ! ✅");
+
+    public static final String USER_KICK_SUCCESSFUL =
+            EmojiParser.parseToUnicode("Пользователь успешно исключен из группы! ✅");
+
+    public static final String USER_SET_ADMIN_SUCCESSFUL =
+            EmojiParser.parseToUnicode("Пользователь успешно назначен админом группы! ✅");
 
     public static final String INVITE_SEND_SUCCESSFUL = "Приглашение успешно отправлено! ✅";
 
     public static final String GIVE_OWNER_SUCCESSFUL = "Пользователь успешно назначен владельцем группы!✅";
 
+    // сообщения указаний
+    public static final String GROUP_CREATE = "Введите название для группы ✍️";
+
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +
             "\n" +
             "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗";
 
+    // сообщения с аргументами
     public static String INVITE_REQUEST_DENIED(Groupe group) {
         return String.format("Вы отклонили приглашение в группу \"%s\"", group.getName());
     }
