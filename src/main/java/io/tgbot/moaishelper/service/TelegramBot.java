@@ -108,7 +108,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     default: {
-                        messageHandler.sendMessage(chatId, Info.NOT_SELECTED_ARGUMENT);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_SELECTED_ARGUMENT,
+                                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
                     }
@@ -158,6 +159,24 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(KeyboardText.SHOW_MEMBERS)) {
                     groupHandler.showMembers(chatId);
                 }
+                else if (messageText.equals(KeyboardText.DELETE_GROUP)) {
+                    groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                }
+                else if (messageText.equals(KeyboardText.GIVE_OWNER)) {
+                    groupHandler.handleOwnerCommand(chatId);
+                }
+                else if (messageText.equals(KeyboardText.REMOVE_ADMIN)) {
+                    groupHandler.handleRemoveAdminCommand(chatId);
+                }
+                else if (messageText.equals(KeyboardText.KICK_USER)) {
+                    groupHandler.handleKickCommand(chatId);
+                }
+                else if (messageText.equals(KeyboardText.SET_ADMIN)) {
+                    groupHandler.handleSetAdminCommand(chatId);
+                }
+                else if (messageText.equals(KeyboardText.INVITE_USER)) {
+                    groupHandler.handleInviteCommand(chatId);
+                }
                 else {
                     switch (messageText) {
                         case "/start": {
@@ -165,38 +184,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                             messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                             break;
                         }
-                        case "/deletegroup": {
-                            groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
-                            break;
-                        }
-                        case "/invite": {
-                            groupHandler.handleInviteCommand(chatId);
-                            break;
-                        }
-                        case "/giveowner": {
-                            groupHandler.handleOwnerCommand(chatId);
-                            break;
-                        }
-                        case "/setadmin": {
-                            groupHandler.handleSetAdminCommand(chatId);
-                            break;
-                        }
-                        case "/removeadmin": {
-                            groupHandler.handleRemoveAdminCommand(chatId);
-                            break;
-                        }
-                        case "/kick": {
-                            groupHandler.handleKickCommand(chatId);
-                            break;
-                        }
-                        case "/help": {
-                            messageHandler.sendMessage(chatId, Info.TEXT_IN_DEVELOP);
-                            break;
-                        }
+                        // Под удаление ->
                         case "/schedule": {
                             messageHandler.sendSchedule(chatId, user.getSelectedGroup().getId());
                             break;
                         }
+                        // <- Под удаление
                         default: {
                             user.setStatus(statusRepository.findById(1));
                             userRepository.save(user);
@@ -230,8 +223,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "BACK_TO_GROUP_MENU": {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_MENU(user),
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                    return;
+                }
+                case "BACK_TO_GROUP_SETTING_MENU": {
+                    boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
+                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
+                            KeyboardMarkupProvider.groupSettingsMenu(isOwner));
                     return;
                 }
                 case "CREATE_GROUP": {

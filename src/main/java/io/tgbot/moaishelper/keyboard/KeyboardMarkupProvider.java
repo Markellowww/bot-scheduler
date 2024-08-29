@@ -1,7 +1,9 @@
 package io.tgbot.moaishelper.keyboard;
 
 import io.tgbot.moaishelper.model.Groupe;
+import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.text.KeyboardText;
+import org.hibernate.loader.ast.spi.SingleUniqueKeyEntityLoader;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -86,14 +88,14 @@ public class KeyboardMarkupProvider {
 
         if (isOwner) {
             KeyboardRow row1 = new KeyboardRow();
+            row1.add(KeyboardText.SHOW_MEMBERS);
             row1.add(KeyboardText.DELETE_GROUP);
             row1.add(KeyboardText.GIVE_OWNER);
-            row1.add(KeyboardText.SHOW_MEMBERS);
 
             KeyboardRow row2 = new KeyboardRow();
+            row2.add(KeyboardText.SET_SCHEDULE);
             row2.add(KeyboardText.REMOVE_ADMIN);
             row2.add(KeyboardText.SET_ADMIN);
-            row2.add(KeyboardText.SET_SCHEDULE);
 
             KeyboardRow row3 = new KeyboardRow();
             row3.add(KeyboardText.BACK_TO_MENU_GROUPS  );
@@ -150,6 +152,25 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup addInviteAnswers(User invitor, Groupe group) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton acceptButton = new InlineKeyboardButton();
+        acceptButton.setText("Вступить");
+        acceptButton.setCallbackData(String.format("1 %d %d", group.getId(), invitor.getChatId()));
+
+        InlineKeyboardButton declineButton = new InlineKeyboardButton();
+        declineButton.setText("Отклонить");
+        declineButton.setCallbackData(String.format("2 %d %d", group.getId(), invitor.getChatId()));
+
+        rows.add(List.of(declineButton, acceptButton));
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter("Назад", "BACK_TO_MAIN_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -164,13 +185,19 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup inlineContinueButtonToGroupSettingMenu() {
+        InlineKeyboardButton button = inlineButtonSetter("Продолжить", "BACK_TO_GROUP_SETTING_MENU");
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        return inlineKeyboardMarkup;
+    }
+
     public static InlineKeyboardMarkup inlineContinueButtonToGroupMenu() {
         InlineKeyboardButton button = inlineButtonSetter("Продолжить", "BACK_TO_GROUP_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
         return inlineKeyboardMarkup;
     }
-
 
     public static InlineKeyboardMarkup scheduleMenu() {
         InlineKeyboardButton button1 = inlineButtonSetter("Сегодня", "TODAY");

@@ -7,6 +7,7 @@ package io.tgbot.moaishelper.service;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.text.Info;
+import io.tgbot.moaishelper.text.KeyboardText;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Key;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +50,13 @@ public class GroupHandler {
         User user = userRepository.findByChatId(chatId);
         Groupe selectedGroup = user.getSelectedGroup();
         if (selectedGroup == null) {
-            messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
         if (selectedGroup.getOwner().getId() != user.getId()) {
-            messageHandler.sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_OWNER(selectedGroup),
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
         messageHandler.sendMessage(chatId, "Введите @UserName человека, которого вы хотите назначить админом группы:");
@@ -66,23 +70,27 @@ public class GroupHandler {
         userRepository.save(user);
 
         if (userRepository.findByUserName(newOwnerName) == null) {
-            messageHandler.sendMessage(chatId, Info.USER_NOT_EXISTS);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_EXISTS,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         User newAdmin = userRepository.findByUserName(newOwnerName);
         Groupe group = user.getSelectedGroup();
         if (group.getMembers().stream().noneMatch(u -> u.getId() == newAdmin.getId())) {
-            messageHandler.sendMessage(chatId, "Пользователь не состоит в группе");
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_IN_GROUP,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         if (group.getAdmins().stream().anyMatch(admin -> admin.getId() == newAdmin.getId())) {
-            messageHandler.sendMessage(chatId, "Пользователь уже является админом группы");
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_ALREADY_ADMIN,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         group.setAdmin(newAdmin);
 
         groupRepository.save(group);
-        messageHandler.sendMessage(chatId, "Пользователь успешно назначен админом группы!");
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_SET_ADMIN_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
     // <--------- Команда /setadmin
 
@@ -91,11 +99,13 @@ public class GroupHandler {
         User user = userRepository.findByChatId(chatId);
         Groupe selectedGroup = user.getSelectedGroup();
         if (selectedGroup == null) {
-            messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
         if (selectedGroup.getOwner().getId() != user.getId()) {
-            messageHandler.sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_OWNER(selectedGroup),
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
         messageHandler.sendMessage(chatId, "Введите @UserName удаляемого админа:");
@@ -109,27 +119,32 @@ public class GroupHandler {
         userRepository.save(user);
 
         if (userRepository.findByUserName(newOwnerName) == null) {
-            messageHandler.sendMessage(chatId, Info.USER_NOT_EXISTS);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_EXISTS,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         User removedAdmin = userRepository.findByUserName(newOwnerName);
         Groupe group = user.getSelectedGroup();
         if (group.getMembers().stream().noneMatch(u -> u.getId() == removedAdmin.getId())) {
-            messageHandler.sendMessage(chatId, "Пользователь не состоит в группе");
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_IN_GROUP,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == removedAdmin.getId())) {
-            messageHandler.sendMessage(chatId, "Пользователь не является админом группы");
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_ALREADY_NOT_ADMIN,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         else if (group.getOwner().getId() == removedAdmin.getId()) {
-            messageHandler.sendMessage(chatId, "Владелец группы всегда является админом");
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.ERROR,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
         group.removeAdmin(removedAdmin);
 
         groupRepository.save(group);
-        messageHandler.sendMessage(chatId, "Пользователь больше не админ группы!");
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_ADMIN_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
     // <--------- Команда /removeadmin
 
@@ -137,14 +152,14 @@ public class GroupHandler {
     protected void handleOwnerCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         Groupe selectedGroup = user.getSelectedGroup();
-        // Проверяем выбрана или группа
         if (selectedGroup == null) {
-            messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        // Проверяем владелец ли он группы
         if (selectedGroup.getOwner().getId() != user.getId()) {
-            messageHandler.sendMessage(chatId, Info.NOT_OWNER(selectedGroup));
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_OWNER(selectedGroup),
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
         messageHandler.sendMessage(chatId, "Введите @UserName человека, которого вы хотите назначить владельцем группы:");
@@ -156,135 +171,128 @@ public class GroupHandler {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
-
-        // Проверяем есть ли такой человек в боте
-        if (userRepository.findByUserName(newOwnerName) != null) {
-            User newOwner = userRepository.findByUserName(newOwnerName);
-            Groupe group = user.getSelectedGroup();
-            //Проверяем состоит ли указанный пользователь в группе
-            if (group.getMembers().stream().noneMatch(u -> u.getId() == newOwner.getId())) {
-                messageHandler.sendMessage(chatId, "Пользователь не состоит в группе");
-                return;
-            }
-            // Проверяем является ли он владельцев уже каких-либо других групп
-            if (newOwner.getGroupUsers().stream().anyMatch(u -> u.getGroup().getOwner().getId() == newOwner.getId())) {
-                messageHandler.sendMessage(chatId, "Пользователь уже является владельцем группы, укажите другого");
-                return;
-            }
-            group.setOwner(newOwner);
-
-            groupRepository.save(group);
-            messageHandler.sendMessage(chatId, "Пользователь успешно назначен владельцем группы!");
+        if (userRepository.findByUserName(newOwnerName) == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_EXISTS,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
         }
-        else
-            messageHandler.sendMessage(chatId, Info.USER_NOT_EXISTS);
+        User newOwner = userRepository.findByUserName(newOwnerName);
+        Groupe group = user.getSelectedGroup();
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == newOwner.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_IN_GROUP,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        if (newOwner.getGroupUsers().stream().anyMatch(u -> u.getGroup().getOwner().getId() == newOwner.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_ALREADY_OWNER,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        group.setOwner(newOwner);
+        groupRepository.save(group);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GIVE_OWNER_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
     // <--------- Команда /giveowner
 
     // ---------> Команда /kick
     protected void handleKickCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
-        if (user.getSelectedGroup() != null) {
-            Groupe selectedGroup = user.getSelectedGroup();
-            if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
-                messageHandler.sendMessage(chatId, "Введите @UserName исключаемого из группы человека");
-                user.setStatus(statusRepository.findById(5));
-                userRepository.save(user);
-            }
-            else
-                messageHandler.sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
+        if (user.getSelectedGroup() == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
         }
-        else
-            messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+        Groupe selectedGroup = user.getSelectedGroup();
+        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_ADMIN(selectedGroup),
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
+        }
+        messageHandler.sendMessage(chatId, "Введите @UserName исключаемого из группы человека");
+        user.setStatus(statusRepository.findById(5));
+        userRepository.save(user);
     }
 
     protected void handleKickUserInput(long chatId, String removedUserName) {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
-
-        if (userRepository.findByUserName(removedUserName) != null) {
-            User removedUser = userRepository.findByUserName(removedUserName);
-            Groupe group = user.getSelectedGroup();
-            if (group.getMembers().stream().noneMatch(u -> u.getId() == removedUser.getId())) {
-                messageHandler.sendMessage(chatId, "Пользователь не состоит в группе");
-                return;
-            }
-            if (group.getOwner().getId() == removedUser.getId()) {
-                messageHandler.sendMessage(chatId, "Вы не можете исключить владельца");
-                return;
-            }
-            if (group.getAdmins().stream().anyMatch(a -> a.getId() == removedUser.getId())) {
-                messageHandler.sendMessage(chatId, "Вы не можете исключить админа");
-                return;
-            }
-            group.removeMember(removedUser);
-            groupRepository.save(group);
-            messageHandler.sendMessage(chatId, "Пользователь успешно исключен из группы!");
+        if (userRepository.findByUserName(removedUserName) == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_EXISTS,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
         }
-        else
-            messageHandler.sendMessage(chatId, Info.USER_NOT_EXISTS);
+        User removedUser = userRepository.findByUserName(removedUserName);
+        Groupe group = user.getSelectedGroup();
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == removedUser.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_IN_GROUP,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        if (group.getOwner().getId() == removedUser.getId()) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.ERROR,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        if (group.getAdmins().stream().anyMatch(a -> a.getId() == removedUser.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.ERROR,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        group.removeMember(removedUser);
+        groupRepository.save(group);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_KICK_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
     // <--------- Команда /kick
 
     // ---------> Команда /invite
     protected void handleInviteCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
-        if (user.getSelectedGroup() != null) {
-            Groupe selectedGroup = user.getSelectedGroup();
-            if (selectedGroup.getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId())) {
-                messageHandler.sendMessage(chatId, "Введите @UserName приглашаемого в группу человека");
-                user.setStatus(statusRepository.findById(3));
-                userRepository.save(user);
-            }
-            else
-                messageHandler.sendMessage(chatId, Info.NOT_ADMIN(selectedGroup));
+        if (user.getSelectedGroup() == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
         }
-        else
-            messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
+        Groupe selectedGroup = user.getSelectedGroup();
+        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.NOT_ADMIN(selectedGroup),
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
+        }
+        messageHandler.sendMessage(chatId, "Введите @UserName приглашаемого в группу человека");
+        user.setStatus(statusRepository.findById(3));
+        userRepository.save(user);
     }
 
     protected void handleInviteUserInput(long chatId, String invitedUserName) {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
-
-        if (userRepository.findByUserName(invitedUserName) != null) {
-            User invitedUser = userRepository.findByUserName(invitedUserName);
-            Groupe group = user.getSelectedGroup();
-            if (group.getMembers().stream().anyMatch(u -> u.getId() == invitedUser.getId())) {
-                messageHandler.sendMessage(chatId, "Пользователь уже состоит в группе");
-                return;
-            }
-            sendInviteMessage(invitedUser, user, group);
-            messageHandler.sendMessage(chatId, "Приглашение отправлено пользователю");
+        if (userRepository.findByUserName(invitedUserName) == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_NOT_EXISTS,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
+            return;
         }
-        else
-            messageHandler.sendMessage(chatId, Info.USER_NOT_EXISTS);
+        User invitedUser = userRepository.findByUserName(invitedUserName);
+        Groupe group = user.getSelectedGroup();
+        if (group.getMembers().stream().anyMatch(u -> u.getId() == invitedUser.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.USER_ALREADY_IN_GROUP,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
+            return;
+        }
+        sendInviteMessage(invitedUser, user, group);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.INVITE_SEND_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
 
     protected void sendInviteMessage(User invitedUser, User invitor, Groupe group) {
-        System.out.println(invitedUser);
-        SendMessage message = new SendMessage();
-        message.setChatId(invitedUser.getChatId());
-        message.setText(String.format("Пользователь %s приглашает Вас в группу \"%s\"",
-                invitor.getUserName(), group.getName()));
-        InlineKeyboardMarkup answerKeyBoard = new InlineKeyboardMarkup();
-
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-
-        InlineKeyboardButton acceptButton = new InlineKeyboardButton();
-        acceptButton.setText("Вступить");
-        acceptButton.setCallbackData(String.format("1 %d %d", group.getId(), invitor.getChatId()));
-
-        InlineKeyboardButton declineButton = new InlineKeyboardButton();
-        declineButton.setText("Отклонить");
-        declineButton.setCallbackData(String.format("2 %d %d", group.getId(), invitor.getChatId()));
-
-        rows.add(List.of(declineButton, acceptButton));
-        answerKeyBoard.setKeyboard(rows);
+        String text = String.format("Пользователь %s приглашает Вас в группу \"%s\"",
+                invitor.getUserName(), group.getName());
+        SendMessage message = messageHandler.createSendMassage(invitedUser.getChatId(), text);
+        InlineKeyboardMarkup answerKeyBoard = KeyboardMarkupProvider.addInviteAnswers(invitor, group);
         message.setReplyMarkup(answerKeyBoard);
-        System.out.println(message);
         try {
             bot.execute(message);
         } catch (TelegramApiException _) {}

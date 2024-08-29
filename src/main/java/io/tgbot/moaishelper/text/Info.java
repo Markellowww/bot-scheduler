@@ -21,7 +21,23 @@ public class Info {
 
     public static final String NO_GROUPS = EmojiParser.parseToUnicode("❗ Вы не состоите ни в одной группе ❗");
 
-    public static final String USER_NOT_EXISTS = EmojiParser.parseToUnicode("❗ Такой пользователь не зарегистрирован в боте ❗");
+    public static final String USER_NOT_EXISTS = EmojiParser.parseToUnicode("❗ Данный пользователь не зарегистрирован в боте ❗");
+
+    public static final String USER_NOT_IN_GROUP = EmojiParser.parseToUnicode("❗ Данный пользователь не состоит в группе ❗");
+
+    public static final String USER_ALREADY_IN_GROUP = EmojiParser.parseToUnicode("❗ Данный пользователь уже состоит в группе ❗");
+
+    public static final String USER_ALREADY_NOT_ADMIN = EmojiParser.parseToUnicode("❗ Данный пользователь не является админом ❗");
+
+    public static final String USER_ALREADY_ADMIN = EmojiParser.parseToUnicode("❗ Данный пользователь уже является админом ❗");
+
+    public static final String USER_NOT_ADMIN_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь больше не админ! ✅");
+
+    public static final String USER_KICK_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь успешно исключен из группы! ✅");
+
+    public static final String USER_SET_ADMIN_SUCCESSFUL = EmojiParser.parseToUnicode("Пользователь успешно назначен админом группы! ✅");
+
+    public static final String USER_ALREADY_OWNER = EmojiParser.parseToUnicode("❗ Данный пользователь уже владеет одной группой ❗");
 
     public static final String NOT_SELECTED_ARGUMENT = EmojiParser.parseToUnicode("❗ Операция отменена ❗");
 
@@ -32,6 +48,10 @@ public class Info {
     public static final String ERROR = EmojiParser.parseToUnicode("❗ Что-то пошло не так ❗");
 
     public static final String GROUP_CREATE = "Введите название для группы ✍️";
+
+    public static final String INVITE_SEND_SUCCESSFUL = "Приглашение успешно отправлено! ✅";
+
+    public static final String GIVE_OWNER_SUCCESSFUL = "Пользователь успешно назначен владельцем группы!✅";
 
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +
             "\n" +
