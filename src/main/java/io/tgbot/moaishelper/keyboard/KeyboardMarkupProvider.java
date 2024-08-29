@@ -67,7 +67,7 @@ public class KeyboardMarkupProvider {
             row1.add(KeyboardText.SHOW_SCHEDULE);
 
             KeyboardRow row2 = new KeyboardRow();
-            row2.add("Назад");
+            row2.add(KeyboardText.BACK_TO_GROUPS);
             row2.add(KeyboardText.LEAVE_GROUP);
 
             rows.add(row1);
@@ -81,31 +81,42 @@ public class KeyboardMarkupProvider {
     public static ReplyKeyboardMarkup groupSettingsMenu(boolean isOwner) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
         if (isOwner) {
             KeyboardRow row1 = new KeyboardRow();
             row1.add(KeyboardText.DELETE_GROUP);
             row1.add(KeyboardText.GIVE_OWNER);
+            row1.add(KeyboardText.SHOW_MEMBERS);
 
             KeyboardRow row2 = new KeyboardRow();
             row2.add(KeyboardText.REMOVE_ADMIN);
             row2.add(KeyboardText.SET_ADMIN);
+            row2.add(KeyboardText.SET_SCHEDULE);
+
+            KeyboardRow row3 = new KeyboardRow();
+            row3.add(KeyboardText.BACK_TO_MENU_GROUPS  );
+            row3.add(KeyboardText.KICK_USER);
+            row3.add(KeyboardText.INVITE_USER);
+
+            rows.add(row1);
+            rows.add(row2);
+            rows.add(row3);
+        }
+        else {
+            KeyboardRow row1 = new KeyboardRow();
+            row1.add(KeyboardText.KICK_USER);
+            row1.add(KeyboardText.INVITE_USER);
+            row1.add(KeyboardText.SET_SCHEDULE);
+
+            KeyboardRow row2 = new KeyboardRow();
+            row2.add(KeyboardText.BACK_TO_MENU_GROUPS);
+            row2.add(KeyboardText.SHOW_MEMBERS);
 
             rows.add(row1);
             rows.add(row2);
         }
-
-        KeyboardRow row3 = new KeyboardRow();
-        row3.add(KeyboardText.KICK_USER);
-        row3.add(KeyboardText.INVITE_USER);
-
-        KeyboardRow row4 = new KeyboardRow();
-        row4.add(KeyboardText.SHOW_MEMBERS);
-        row4.add(KeyboardText.SET_SCHEDULE);
-
-        rows.add(row3);
-        rows.add(row4);
 
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
@@ -146,12 +157,20 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup inlineContinueButton() {
+    public static InlineKeyboardMarkup inlineContinueButtonToMainMenu() {
         InlineKeyboardButton button = inlineButtonSetter("Продолжить", "BACK_TO_MAIN_GROUPS_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
         return inlineKeyboardMarkup;
     }
+
+    public static InlineKeyboardMarkup inlineContinueButtonToGroupMenu() {
+        InlineKeyboardButton button = inlineButtonSetter("Продолжить", "BACK_TO_GROUP_MENU");
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        return inlineKeyboardMarkup;
+    }
+
 
     public static InlineKeyboardMarkup scheduleMenu() {
         InlineKeyboardButton button1 = inlineButtonSetter("Сегодня", "TODAY");

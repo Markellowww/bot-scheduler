@@ -29,6 +29,8 @@ public class Info {
 
     public static final String GROUP_NOT_SELECTED = EmojiParser.parseToUnicode("❗ Не выбрана текущая группа ❗");
 
+    public static final String ERROR = EmojiParser.parseToUnicode("❗ Что-то пошло не так ❗");
+
     public static final String GROUP_CREATE = "Введите название для группы ✍️";
 
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +

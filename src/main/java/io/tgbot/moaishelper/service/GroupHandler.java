@@ -331,7 +331,8 @@ public class GroupHandler {
         String message = IntStream.range(0, groupUsers.size())
                 .mapToObj(i -> (i + 1) + ". @" + groupUsers.get(i).getUserName() + isAdmin(selectedGroup, groupUsers.get(i)))
                 .collect(Collectors.joining("\n"));
-        messageHandler.sendMessage(chatId, message);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, message,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
     }
 
     // <--------- Команда /members
@@ -414,28 +415,29 @@ public class GroupHandler {
      * @param chatId идентификатор чата пользователя, который хочет выйти из группы
      * @param selectedGroup группа, из которой пользователь хочет выйти
      */
-    protected boolean leaveGroup(long chatId, Groupe selectedGroup) {
+    protected void leaveGroup(long chatId, Groupe selectedGroup) {
         if (selectedGroup == null) {
             messageHandler.sendMessage(chatId, Info.GROUP_NOT_SELECTED);
-            return false;
+            return;
         }
         User user = userRepository.findByChatId(chatId);
         if (user.getId() == selectedGroup.getOwner().getId()){
             if (selectedGroup.getMembers().size() == 1) {
                 deleteGroup(chatId, selectedGroup);
-                return false;
+                return;
             }
             else if ((selectedGroup.getMembers().size() > 1)) {
-                messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_EXIT_FAILED, KeyboardMarkupProvider.inlineContinueButton());
-                return false;
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_EXIT_FAILED,
+                        KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+                return;
             }
         }
         user.setSelectedGroup(null);
         selectedGroup.removeMember(user);
         userRepository.save(user);
         groupRepository.save(selectedGroup);
-        messageHandler.sendMessage(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup));
-        return true;
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_EXIT_SUCCESSFUL(selectedGroup),
+                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
     }
     // <--------- Команда /leavegroup
 
@@ -464,7 +466,7 @@ public class GroupHandler {
             }
         }
         messageHandler.sendMessageWithKeyboardMarkup(chatId, Info.GROUP_DELETE_SUCCESSFUL(selectedGroup),
-                KeyboardMarkupProvider.inlineContinueButton());
+                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
         groupRepository.deleteById(selectedGroup.getId());
         try {
             FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",

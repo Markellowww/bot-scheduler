@@ -14,13 +14,13 @@ public class KeyboardText {
 
     public static final String GO_TO_GROUPS = EmojiParser.parseToUnicode(":school: Перейти к группам");
     public static final String BACK_TO_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться к группам");
+    public static final String BACK_TO_MENU_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться в меню группы");
 
 
-    public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("Управление группой");
+    public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("⚙️ Управление группой");
     public static final String SHOW_SCHEDULE = EmojiParser.parseToUnicode(":date: Показать расписание");
     public static final String LEAVE_GROUP = EmojiParser.parseToUnicode(":x: Покинуть группу");
-    public static final String SHOW_MEMBERS = EmojiParser.parseToUnicode("Показать участников");
-
+    public static final String SHOW_MEMBERS = EmojiParser.parseToUnicode(":memo: Показать участников");
     public static final String DELETE_GROUP = EmojiParser.parseToUnicode("Удалить группу");
     public static final String GIVE_OWNER = EmojiParser.parseToUnicode("Передать роль Владельца");
     public static final String SET_ADMIN = EmojiParser.parseToUnicode("Добавить админа");
