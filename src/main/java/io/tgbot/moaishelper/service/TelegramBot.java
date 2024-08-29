@@ -221,7 +221,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 case "GROUP_MENU": {
                     Groupe selectedGroup = user.getSelectedGroup();
-                    boolean isAdmin = selectedGroup.getAdmins().contains(user);
+                    boolean isAdmin = selectedGroup.getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
