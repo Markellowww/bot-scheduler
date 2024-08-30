@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.keyboard;
 
+import io.tgbot.moaishelper.model.GroupUser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.text.KeyboardText;
@@ -171,6 +172,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Возвращает клавиатуру с действиями подтверждения и отмены операции
+     * @return клавиатура с действиями подтверждения и отмены операции
+     */
     public static InlineKeyboardMarkup confirmDenyAnswers() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -190,24 +195,70 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup UserAnswers(User user, Groupe group) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+    /**
+     * Возвращает клавиатуру со всеми пользователями кроме владельца группы
+     * @param group группа
+     * @return клавиатура со всеми пользователями кроме владельца группы
+     */
+    public static InlineKeyboardMarkup userAnswers(Groupe group) { // все пользователи (для запросов владельца)
+        List<User> usersExceptOwner = group.getMembers()
+                .stream()
+                .filter(x -> x.getId() != group.getOwner().getId())
+                .toList();
 
+        return getInlineKeyboardMarkup(usersExceptOwner);
+    }
+
+    /**
+     * Возвращает клавиатуру со всеми админами кроме владельца
+     * @param group группа
+     * @return клавиатура со всеми админами кроме владельца
+     */
+    public static InlineKeyboardMarkup adminAnswers(Groupe group) { // только админы (операции владельца с админами)
+        List<User> adminsExceptOwner = group.getGroupUsers()
+                .stream()
+                .filter(x -> x.isAdmin() && x.getUser().getId() != group.getOwner().getId()) // админы без владельца
+                .map(GroupUser::getUser)
+                .toList();
+
+        return getInlineKeyboardMarkup(adminsExceptOwner);
+    }
+
+    /**
+     * Возвращает клавиатуру со всеми пользователями группы кроме владельца и админов
+     * @param group группа
+     * @return клавиатура со всеми пользователями группы кроме владельца и админов
+     */
+    public static InlineKeyboardMarkup membersAnswers(Groupe group) {
+        List<User> membersOnly = group.getGroupUsers()
+                .stream()
+                .filter(x -> !x.isAdmin())
+                .map(GroupUser::getUser)
+                .toList();
+
+        return getInlineKeyboardMarkup(membersOnly);
+    }
+
+    /**
+     * Создает клавиатуру с пользователями
+     * @param users список пользователей
+     * @return клавиатура с пользователями
+     */
+    private static InlineKeyboardMarkup getInlineKeyboardMarkup(List<User> users) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
-        for (User member: group.getMembers()) {
-            if (buttons.size() == 3) { // по 3 пользователя на ряд кнопок
-                rows.add(buttons);
-                buttons = new ArrayList<>();
-            }
-            if (member.getId() != user.getId()) { // если это не сам пользователь
+
+        for (int i = 0; i < Math.ceil(users.size() / 3.0); i++) {
+            List<InlineKeyboardButton> buttons = new ArrayList<>();
+            for (int j = 0; j < 3 && 3 * i + j < users.size(); j++) {
+                User admin = users.get(3 * i + j);
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(user.getUserName()); // значение кнопки
-                button.setCallbackData(String.valueOf(user.getId())); // передаваемое значение
+                button.setText(admin.getUserName());
+                button.setCallbackData(String.valueOf(admin.getId()));
                 buttons.add(button);
             }
+            rows.add(buttons);
         }
-        rows.add(buttons); // последний ряд
         inlineKeyboardMarkup.setKeyboard(rows);
 
         return inlineKeyboardMarkup;
