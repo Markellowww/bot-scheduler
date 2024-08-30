@@ -171,6 +171,48 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup confirmDenyAnswers() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton confirmButton = new InlineKeyboardButton();
+        confirmButton.setText("Подтвердить");
+        confirmButton.setCallbackData("accept");
+
+        InlineKeyboardButton denyButton = new InlineKeyboardButton();
+        denyButton.setText("Отменить");
+        denyButton.setCallbackData("deny");
+
+        rows.add(List.of(confirmButton, denyButton));
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup UserAnswers(User user, Groupe group) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        for (User member: group.getMembers()) {
+            if (buttons.size() == 3) { // по 3 пользователя на ряд кнопок
+                rows.add(buttons);
+                buttons = new ArrayList<>();
+            }
+            if (member.getId() != user.getId()) { // если это не сам пользователь
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText(user.getUserName()); // значение кнопки
+                button.setCallbackData(String.valueOf(user.getId())); // передаваемое значение
+                buttons.add(button);
+            }
+        }
+        rows.add(buttons); // последний ряд
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter("Назад", "BACK_TO_MAIN_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
