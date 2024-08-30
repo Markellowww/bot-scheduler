@@ -7,6 +7,9 @@ package io.tgbot.moaishelper.text;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
+import io.tgbot.moaishelper.service.GroupHandler;
+import io.tgbot.moaishelper.service.TelegramBot;
+
 
 public class Info {
 
@@ -21,10 +24,6 @@ public class Info {
     public static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
 
     public static final String ERROR = "❗ Что-то пошло не так ❗";
-
-    public static final String ENTER_USERNAME = "Введите @UserName человека, которого вы хотите назначить админом группы ✍️";
-
-    public static final String OPERATION_CANCELLED = "❗ Операция отменена ❗";
 
     public static String USER_DOESNT_EXISTS(String username) {
         return String.format("❗ Пользователь %s не зарегистрирован в боте ❗", username);
@@ -80,31 +79,33 @@ public class Info {
         return String.format("Группа \"%s\" была создана ✅", group.getName());
     }
 
-    public static String GROUP_DELETE_SUCCESSFUL(Groupe group) {
-        return String.format("Группа \"%s\" была удалена ✅", group.getName());
+    public static String GROUP_DELETE_SUCCESSFUL(String groupName) {
+        return String.format("Группа \"%s\" была удалена ✅", groupName);
     }
 
     public static String USER_NOT_ADMIN_SUCCESSFUL(String username){
         return String.format("Пользователь %s больше не админ ✅", username);
     }
 
-    public static final String USER_KICK_SUCCESSFUL(String username) {
+    public static String USER_KICK_SUCCESSFUL(String username) {
         return String.format("Пользователь %s успешно исключен из группы ✅", username);
     }
 
-    public static final String USER_SET_ADMIN_SUCCESSFUL(String username) {
+    public static String USER_SET_ADMIN_SUCCESSFUL(String username) {
         return String.format("Пользователь %s успешно назначен админом группы ✅", username);
     }
 
-    public static final String INVITE_SEND_SUCCESSFUL(String username) {
+    public static String INVITE_SEND_SUCCESSFUL(String username) {
         return String.format("Приглашение пользователю %s успешно отправлено ✅", username);
     }
 
-    public static final String GIVE_OWNER_SUCCESSFUL(String username) {
+    public static String GIVE_OWNER_SUCCESSFUL(String username) {
         return String.format("Пользователь %s успешно назначен владельцем группы ✅", username);
     }
 
     public static final String GROUP_CREATE = "Введите название для группы ✍️";
+
+    public static final String CHOOSE_MEMBER = EmojiParser.parseToUnicode("Выберите пользователя :point_down:");
 
     public static String INVITE_REQUEST_DENIED(Groupe group) {
         return String.format("Вы отклонили приглашение в группу \"%s\"", group.getName());
@@ -119,6 +120,13 @@ public class Info {
 
                     Или попросить прислать вам приглашение :inbox_tray:""");
         }
-        return String.format("Текущая группа: \"%s\"", user.getSelectedGroup().getName());
+        Groupe group = user.getSelectedGroup();
+        String role = GroupHandler.getRole(user, group);
+        int membersCount = group.getMembers().size();
+        String date = group.getCreatedAt().toString().substring(0, 10);
+        return EmojiParser.parseToUnicode(":school: ") + String.format("Текущая группа: %s\n\n", group.getName()) +
+                EmojiParser.parseToUnicode(":crown: ") + String.format("Ваша роль: %s\n\n", role) +
+                EmojiParser.parseToUnicode(":elephant: ") + String.format("Количество участников: %d\n\n", membersCount) +
+                EmojiParser.parseToUnicode(":clock3: ") + String.format("Дата создания группы (г/м/д): %s", date);
     }
 }

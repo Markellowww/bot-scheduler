@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.swing.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;

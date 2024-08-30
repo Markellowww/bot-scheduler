@@ -36,7 +36,7 @@ public class User {
 
     private String firstName;
 
-    @Column(unique = true, nullable = false) // уникально в Telegram
+    @Column(unique = true, nullable = false)
     private String userName;
 
     private Timestamp registeredAt;

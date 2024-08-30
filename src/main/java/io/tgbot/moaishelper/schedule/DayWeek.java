@@ -3,6 +3,10 @@ package io.tgbot.moaishelper.schedule;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * @Authors: Markelloww & YDK
+ */
+
 public class DayWeek {
     public static void main(String[] args) {
         System.out.println(dayOfWeek());

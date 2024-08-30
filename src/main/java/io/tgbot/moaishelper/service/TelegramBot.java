@@ -91,33 +91,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.handleInviteUserInput(chatId, messageText);
                         break;
                     }
-                    case 5: {
-                        messageText = messageHandler.checkForAtInMessage(messageText);
-                        groupHandler.handleKickUserInput(chatId, messageText);
-                        break;
-                    }
-                    case 6: {
-                        messageText = messageHandler.checkForAtInMessage(messageText);
-                        groupHandler.handleGiveOwnerInput(chatId, messageText);
-                        break;
-                    }
-                    case 7: {
-                        messageText = messageHandler.checkForAtInMessage(messageText);
-                        groupHandler.handleSetAdminInput(chatId, messageText);
-                        break;
-                    }
-                    case 8: {
-                        messageText = messageHandler.checkForAtInMessage(messageText);
-                        groupHandler.handleRemoveAdminInput(chatId, messageText);
-                        break;
-                    }
-                    default: {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, OPERATION_CANCELLED,
-                                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        break;
-                    }
                 }
             } 
             else {
@@ -222,6 +195,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "BACK_TO_GROUP_SETTING_MENU": {
+                    user.setStatus(statusRepository.findById(1));
+                    userRepository.save(user);
                     boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
@@ -252,6 +227,29 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case 4: {
                     groupHandler.handleGroupSelectInput(chatId, callbackData);
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+                    break;
+                }
+                case 5: {
+                    groupHandler.handleKickUserInput(chatId, callbackData);
+                    break;
+                }
+                case 6: {
+                    groupHandler.handleGiveOwnerInput(chatId, callbackData);
+                    break;
+                }
+                case 7: {
+                    groupHandler.handleSetAdminInput(chatId, callbackData);
+                    break;
+                }
+                case 8: {
+                    groupHandler.handleRemoveAdminInput(chatId, callbackData);
+                    break;
+                }
+                default: {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
+                            KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+                    user.setStatus(statusRepository.findById(1));
+                    userRepository.save(user);
                     break;
                 }
             }

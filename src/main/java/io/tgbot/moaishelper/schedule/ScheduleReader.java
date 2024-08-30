@@ -8,6 +8,10 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * @Authors: Markelloww & YDK
+ */
+
 public class ScheduleReader {
     public static String todaySchedule(long groupId) {
         try {

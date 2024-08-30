@@ -1,9 +1,5 @@
 package io.tgbot.moaishelper.service;
 
-/**
- * @Authors: Markelloww & YDK
- */
-
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import org.apache.commons.io.FileUtils;
@@ -12,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -20,6 +17,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.tgbot.moaishelper.text.Info.*;
+
+/**
+ * @Authors: Markelloww & YDK
+ */
 
 @Component
 public class GroupHandler {
@@ -56,7 +57,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, ENTER_USERNAME);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_MEMBER,
+                KeyboardMarkupProvider.membersAnswers(selectedGroup));
         user.setStatus(statusRepository.findById(7));
         userRepository.save(user);
     }
@@ -105,7 +107,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, "Введите @UserName удаляемого админа:");
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_MEMBER,
+                KeyboardMarkupProvider.adminAnswers(selectedGroup));
         user.setStatus(statusRepository.findById(8));
         userRepository.save(user);
     }
@@ -159,7 +162,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, "Введите @UserName человека, которого вы хотите назначить владельцем группы:");
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_MEMBER,
+                KeyboardMarkupProvider.userAnswers(selectedGroup));
         user.setStatus(statusRepository.findById(6));
         userRepository.save(user);
     }
@@ -206,7 +210,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, "Введите @UserName исключаемого из группы человека");
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_MEMBER,
+                KeyboardMarkupProvider.membersAnswers(selectedGroup));
         user.setStatus(statusRepository.findById(5));
         userRepository.save(user);
     }
@@ -434,7 +439,7 @@ public class GroupHandler {
             }
             else if ((selectedGroup.getMembers().size() > 1)) {
                 messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_EXIT_FAILED,
-                        KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+                        KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
                 return;
             }
         }
@@ -466,19 +471,21 @@ public class GroupHandler {
             return;
         }
         for (User groupUser : selectedGroup.getMembers()) {
-            if (user.getSelectedGroup().getId() == selectedGroup.getId()) {
+            Groupe userSelectedGroup = groupUser.getSelectedGroup();
+            if (userSelectedGroup != null && userSelectedGroup.getId() == selectedGroup.getId()) {
                 groupUser.setSelectedGroup(null);
                 userRepository.save(groupUser);
             }
         }
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_DELETE_SUCCESSFUL(selectedGroup),
-                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
-        groupRepository.deleteById(selectedGroup.getId());
+        String groupName = selectedGroup.getName();
         try {
             FileUtils.deleteDirectory(new File(String.format("src/main/resources/groups/%d",
                     selectedGroup.getId())));
         }
         catch (IOException _) {}
+        groupRepository.deleteById(selectedGroup.getId());
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_DELETE_SUCCESSFUL(groupName),
+                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
     }
     // <--------- Команда /deletegroup
 
@@ -498,5 +505,15 @@ public class GroupHandler {
             return " (Админ)";
         }
         return "";
+    }
+
+    public static String getRole(User user, Groupe group) {
+        if (group.getOwner().getId() == user.getId()) {
+            return "Владелец";
+        }
+        else if (group.getAdmins().stream().anyMatch(u -> u.getId() == user.getId())) {
+            return "Администратор";
+        }
+        return "Пользователь";
     }
 }

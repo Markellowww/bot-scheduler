@@ -1,9 +1,5 @@
 package io.tgbot.moaishelper.service;
 
-/**
- * @Authors: Markelloww & YDK
- */
-
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import org.springframework.stereotype.Component;
@@ -19,6 +15,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+
+/**
+ * @Authors: Markelloww & YDK
+ */
 
 @Component
 public class MessageHandler {

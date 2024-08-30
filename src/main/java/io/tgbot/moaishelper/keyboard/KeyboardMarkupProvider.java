@@ -4,10 +4,8 @@ import io.tgbot.moaishelper.model.GroupUser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.text.KeyboardText;
-import org.hibernate.loader.ast.spi.SingleUniqueKeyEntityLoader;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
@@ -21,10 +19,6 @@ import java.util.List;
 
 public class KeyboardMarkupProvider {
     // ---------> Reply
-    public static ReplyKeyboardRemove keyboardRemove() {
-        return new ReplyKeyboardRemove(true);
-    }
-
     public static ReplyKeyboardMarkup startMenu() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
@@ -183,11 +177,11 @@ public class KeyboardMarkupProvider {
 
         InlineKeyboardButton confirmButton = new InlineKeyboardButton();
         confirmButton.setText("Подтвердить");
-        confirmButton.setCallbackData("accept");
+        confirmButton.setCallbackData("ACCEPT");
 
         InlineKeyboardButton denyButton = new InlineKeyboardButton();
         denyButton.setText("Отменить");
-        denyButton.setCallbackData("deny");
+        denyButton.setCallbackData("DENY");
 
         rows.add(List.of(confirmButton, denyButton));
         inlineKeyboardMarkup.setKeyboard(rows);
@@ -200,7 +194,7 @@ public class KeyboardMarkupProvider {
      * @param group группа
      * @return клавиатура со всеми пользователями кроме владельца группы
      */
-    public static InlineKeyboardMarkup userAnswers(Groupe group) { // все пользователи (для запросов владельца)
+    public static InlineKeyboardMarkup userAnswers(Groupe group) {
         List<User> usersExceptOwner = group.getMembers()
                 .stream()
                 .filter(x -> x.getId() != group.getOwner().getId())
@@ -214,7 +208,7 @@ public class KeyboardMarkupProvider {
      * @param group группа
      * @return клавиатура со всеми админами кроме владельца
      */
-    public static InlineKeyboardMarkup adminAnswers(Groupe group) { // только админы (операции владельца с админами)
+    public static InlineKeyboardMarkup adminAnswers(Groupe group) {
         List<User> adminsExceptOwner = group.getGroupUsers()
                 .stream()
                 .filter(x -> x.isAdmin() && x.getUser().getId() != group.getOwner().getId()) // админы без владельца
@@ -251,14 +245,15 @@ public class KeyboardMarkupProvider {
         for (int i = 0; i < Math.ceil(users.size() / 3.0); i++) {
             List<InlineKeyboardButton> buttons = new ArrayList<>();
             for (int j = 0; j < 3 && 3 * i + j < users.size(); j++) {
-                User admin = users.get(3 * i + j);
-                InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(admin.getUserName());
-                button.setCallbackData(String.valueOf(admin.getId()));
+                User user = users.get(3 * i + j);
+                InlineKeyboardButton button = inlineButtonSetter(user.getUserName(),
+                        user.getUserName());
                 buttons.add(button);
             }
             rows.add(buttons);
         }
+        InlineKeyboardButton goBackButton = inlineButtonSetter("Вернуться", "BACK_TO_GROUP_SETTING_MENU");
+        rows.add(List.of(goBackButton));
         inlineKeyboardMarkup.setKeyboard(rows);
 
         return inlineKeyboardMarkup;
@@ -297,12 +292,10 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton button2 = inlineButtonSetter("Завтра", "TOMORROW");
         InlineKeyboardButton button3 = inlineButtonSetter("Текущая неделя", "THIS_WEEK");
         InlineKeyboardButton button4 = inlineButtonSetter("Следующая неделя", "NEXT_WEEK");
-        InlineKeyboardButton button5 = inlineButtonSetter("На семестр", "SEMESTER");
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(button1, button2),
-                Arrays.asList(button3, button4),
-                Arrays.asList(button5)
+                Arrays.asList(button3, button4)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -345,8 +338,8 @@ public class KeyboardMarkupProvider {
 
             return inlineKeyboardMarkup;
         }
-        // Выбрана группа + создана личная группа
-        else if (groupChosen && groupCreated) {
+        // Выбрана группа + создана личная группа или не выбрана группа + создана личная группа
+        else if ((groupChosen && groupCreated) || (!groupChosen && groupCreated)) {
             List<List<InlineKeyboardButton>> rows = Arrays.asList(
                     Arrays.asList(button2),
                     Arrays.asList(button3, button4)
