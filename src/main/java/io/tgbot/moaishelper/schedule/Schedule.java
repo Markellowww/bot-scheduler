@@ -25,7 +25,7 @@ public class Schedule {
     }
 
     public String getDayLessons(String dayOfWeek) {
-        DayLessons day = schedule.get(dayOfWeek);
+        DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
         return day.show();
     }
 

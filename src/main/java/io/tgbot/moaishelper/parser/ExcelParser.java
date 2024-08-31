@@ -20,8 +20,9 @@ import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
 
 public class ExcelParser {
 
-    public static List<List<List<List<Object>>>> readSchedule(String fileName) {
-        try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(fileName))) {
+    private static List<List<List<List<Object>>>> readSchedule(long groupId) {
+        String filename = String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId);
+        try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(filename))) {
             XSSFSheet mySheet = myExcelBook.getSheetAt(0); // первая таблица
             XSSFRow currentRow; // текущая строка из excel
 
@@ -65,16 +66,17 @@ public class ExcelParser {
             return data;
         }
         catch (FileNotFoundException e) { // если не найден файл
-            System.out.println("File not found: " + fileName);
+            System.out.println("File not found: ".concat(filename));
         }
         catch (IOException e) {
-            System.out.println("Error reading file: " + fileName);
+            System.out.println("Error reading file: ".concat(filename));
         }
         return List.of();
     }
 
-    public static void createSchedule(long groupId, List<List<List<List<Object>>>> data) throws IOException {
+    public static void createSchedule(long groupId) {
         Map<Short, Schedule> schedules = new LinkedHashMap<>();
+        List<List<List<List<Object>>>> data = readSchedule(groupId);
 
         for (short week = 0; week < 2; week++) {
             Schedule schedule = new Schedule();

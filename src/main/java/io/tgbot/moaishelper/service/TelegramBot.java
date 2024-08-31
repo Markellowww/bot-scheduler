@@ -3,8 +3,11 @@ package io.tgbot.moaishelper.service;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
+import io.tgbot.moaishelper.parser.ExcelParser;
+import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.KeyboardText;
 import io.tgbot.moaishelper.model.*;
+import org.apache.commons.io.FileUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -16,6 +19,8 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -155,8 +160,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(KeyboardText.INVITE_USER)) {
                     groupHandler.handleInviteCommand(chatId);
                 }
-                else if (messageText.equals("/schedule")) {
-                    messageHandler.sendSchedule(chatId, user.getSelectedGroup().getId());
+                else if (messageText.equals(KeyboardText.SHOW_SCHEDULE)) {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите интересующее Вас расписание", KeyboardMarkupProvider.scheduleMenu());
                 }
                 else {
                     user.setStatus(statusRepository.findById(1));
@@ -221,6 +227,30 @@ public class TelegramBot extends TelegramLongPollingBot {
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
+                case "TODAY": {
+                    long groupId = user.getSelectedGroup().getId();
+                    messageHandler.sendMessage(chatId, "Расписание на сегодня:\n".
+                            concat(ScheduleReader.todaySchedule(groupId)));
+                    return;
+                }
+                case "TOMORROW": {
+                    long groupId = user.getSelectedGroup().getId();
+                    messageHandler.sendMessage(chatId, "Расписание на завтра:\n".
+                            concat(ScheduleReader.tomorrowSchedule(groupId)));
+                    return;
+                }
+                case "THIS_WEEK": {
+                    long groupId = user.getSelectedGroup().getId();
+                    messageHandler.sendMessage(chatId, "Расписание на текущую неделю:\n".
+                            concat(ScheduleReader.thisWeekSchedule(groupId)));
+                    return;
+                }
+                case "NEXT_WEEK": {
+                    long groupId = user.getSelectedGroup().getId();
+                    messageHandler.sendMessage(chatId, "Расписание на следующую неделю:\n".
+                            concat(ScheduleReader.nextWeekSchedule(groupId)));
+                    return;
+                }
             }
 
             switch (user.getStatus().getId()) {
@@ -275,8 +305,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else if (update.getMessage().getDocument() != null) {
             long chatId = update.getMessage().getChatId();
+            long groupId = userRepository.findByChatId(chatId).getSelectedGroup().getId();
             messageHandler.downloadSchedule(update.getMessage(),
-                    userRepository.findByChatId(chatId).getSelectedGroup().getId());
+                    groupId);
+            ExcelParser.createSchedule(groupId);
+            try {
+                FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId)));
+            } catch (IOException _) {
+            }
         }
     }
 
