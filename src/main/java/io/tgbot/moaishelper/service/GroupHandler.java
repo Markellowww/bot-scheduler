@@ -303,7 +303,7 @@ public class GroupHandler {
         }
         group.addMember(invitedUser, false);
         groupRepository.save(group);
-        messageHandler.sendMessage(invitorChatId, USER_JOIN_TO_INVITOR(invitedUser, group);
+        messageHandler.sendMessage(invitorChatId, USER_JOIN_TO_INVITOR(invitedUser, group));
         messageHandler.sendMessageWithKeyboardMarkup(invitedUser.getChatId(), USER_JOIN_TO_INVITED(group),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
         invitedUser.setSelectedGroup(group);
