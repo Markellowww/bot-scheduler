@@ -97,7 +97,7 @@ public class Info {
 
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +
             "\n" +
-            "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗\n" +
+            "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗\n\n" +
             "❗ (Уведомления от групп приходят независимо от выбранной группы) ❗";
 
     public static String INVITE_REQUEST(User user, Groupe group) {
