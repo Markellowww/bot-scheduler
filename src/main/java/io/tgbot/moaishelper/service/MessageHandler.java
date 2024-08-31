@@ -2,6 +2,8 @@ package io.tgbot.moaishelper.service;
 
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
+import io.tgbot.moaishelper.model.Groupe;
+import io.tgbot.moaishelper.model.User;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -147,5 +149,11 @@ public class MessageHandler {
             return message.substring(1);
         }
         return message;
+    }
+
+    public static String notificationMessage(User user, Groupe group, String text) {
+        String emoji = EmojiParser.parseToUnicode(":incoming_envelope:");
+        return emoji + String.format(" Вам пришло сообщение из группы \"%s\" от пользователя @%s: \n\n", group.getName(), user.getUserName())
+                + text;
     }
 }

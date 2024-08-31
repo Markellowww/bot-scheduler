@@ -15,6 +15,7 @@ public class Keyboard {
     public static final String GO_TO_GROUPS = EmojiParser.parseToUnicode(":school: Перейти к группам");
     public static final String BACK_TO_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться к группам");
     public static final String BACK_TO_MENU_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться в меню группы");
+    public static final String NOTIFICATION_FOR_ALL = EmojiParser.parseToUnicode(":incoming_envelope: Сообщение группе");
 
     public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("⚙️ Управление группой");
     public static final String SHOW_SCHEDULE = EmojiParser.parseToUnicode(":date: К расписанию (IN DEVELOP)");

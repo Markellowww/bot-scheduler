@@ -51,6 +51,7 @@ public class KeyboardMarkupProvider {
         if (isAdmin) {
                 KeyboardRow row1 = new KeyboardRow();
                 row1.add(Keyboard.GROUP_HANDLER);
+                row1.add(Keyboard.NOTIFICATION_FOR_ALL);
                 row1.add(Keyboard.SHOW_SCHEDULE);
 
                 KeyboardRow row2 = new KeyboardRow();

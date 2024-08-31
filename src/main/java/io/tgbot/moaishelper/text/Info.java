@@ -77,7 +77,8 @@ public class Info {
 
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +
             "\n" +
-            "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗";
+            "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗\n" +
+            "❗ (Уведомления от групп приходят независимо от выбранной группы) ❗";
 
     public static String INVITE_REQUEST(User user, Groupe group) {
         return String.format("Пользователь %s приглашает Вас в группу \"%s\"",
@@ -125,11 +126,18 @@ public class Info {
         return String.format("Вы вошли в группу \"%s\" ✅", group.getName());
     }
 
-    public static final String GROUP_CREATE = "Введите название для группы ✍️";
+    public static String SEND_MESSAGE_SUCCESSFUL = "Сообщение было успешно отправлено всем участникам группы ✅";
 
-    public static final String ENTER_USERNAME = "Введите @Username пользователя ✍️";
+    public static final String ENTER_GROUP_NAME = "Введите название для группы ✍️";
+
+    public static final String ENTER_USER_NAME = "Введите @Username пользователя ✍️";
+
+    public static final String ENTER_MESSAGE = "Введите сообщение, которое будет отправлено группе ✍️";
 
     public static final String CHOOSE_MEMBER = EmojiParser.parseToUnicode("Выберите пользователя :point_down:");
+
+    public static final String CHOOSE_SCHEDULE = EmojiParser.parseToUnicode("Выберите интересующее Вас расписание :point_down:");
+
 
     public static String INVITE_REQUEST_DENIED(Groupe group) {
         return String.format("Вы отклонили приглашение в группу \"%s\"", group.getName());

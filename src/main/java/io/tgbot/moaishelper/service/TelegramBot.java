@@ -96,6 +96,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.handleInviteUserInput(chatId, messageText);
                         break;
                     }
+                    case 10: {
+                        groupHandler.handleMessageInput(chatId, messageText);
+                        break;
+                    }
                 }
             } 
             else {
@@ -161,8 +165,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     groupHandler.handleInviteCommand(chatId);
                 }
                 else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            "Выберите интересующее Вас расписание", KeyboardMarkupProvider.scheduleMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE,
+                            KeyboardMarkupProvider.scheduleMenu());
+                }
+                else if (messageText.equals(Keyboard.NOTIFICATION_FOR_ALL)) {
+                    groupHandler.handleMessageCommand(chatId);
                 }
                 else {
                     user.setStatus(statusRepository.findById(1));

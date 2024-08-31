@@ -8,12 +8,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static io.tgbot.moaishelper.service.MessageHandler.notificationMessage;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -146,6 +146,38 @@ public class GroupHandler {
     }
     // <--------- Команда /removeadmin
 
+    // ---------> Команда /message
+    protected void handleMessageCommand(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = user.getSelectedGroup();
+        if (selectedGroup == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
+        }
+        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        messageHandler.sendMessage(chatId, ENTER_MESSAGE);
+        user.setStatus(statusRepository.findById(10));
+        userRepository.save(user);
+    }
+
+    protected void handleMessageInput(long chatId, String textToSend) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+        Groupe selectedGroup = user.getSelectedGroup();
+        selectedGroup.getMembers().stream().filter(u -> u.getChatId() != chatId).forEach(u ->
+                messageHandler.sendMessage(u.getChatId(), notificationMessage(user, selectedGroup, textToSend))
+        );
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, SEND_MESSAGE_SUCCESSFUL,
+                KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+    }
+    // <--------- Команда /message
+
     // ---------> Команда /giveowner
     protected void handleOwnerCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
@@ -261,7 +293,7 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, ENTER_USERNAME);
+        messageHandler.sendMessage(chatId, ENTER_USER_NAME);
         user.setStatus(statusRepository.findById(3));
         userRepository.save(user);
     }
@@ -345,7 +377,7 @@ public class GroupHandler {
     protected void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
-            messageHandler.sendMessage(chatId, GROUP_CREATE);
+            messageHandler.sendMessage(chatId, ENTER_GROUP_NAME);
             user.setStatus(statusRepository.findById(2));
             userRepository.save(user);
         }
