@@ -93,7 +93,7 @@ public class KeyboardMarkupProvider {
             row2.add(KeyboardText.SET_ADMIN);
 
             KeyboardRow row3 = new KeyboardRow();
-            row3.add(KeyboardText.BACK_TO_MENU_GROUPS  );
+            row3.add(KeyboardText.BACK_TO_MENU_GROUPS);
             row3.add(KeyboardText.KICK_USER);
             row3.add(KeyboardText.INVITE_USER);
 
@@ -292,10 +292,12 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton button2 = inlineButtonSetter("Завтра", "TOMORROW");
         InlineKeyboardButton button3 = inlineButtonSetter("Текущая неделя", "THIS_WEEK");
         InlineKeyboardButton button4 = inlineButtonSetter("Следующая неделя", "NEXT_WEEK");
+        InlineKeyboardButton button5 = inlineButtonSetter("Вернуться", "GROUP_MENU");
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(button1, button2),
-                Arrays.asList(button3, button4)
+                Arrays.asList(button3, button4),
+                List.of(button5)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
