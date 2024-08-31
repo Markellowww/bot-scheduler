@@ -5,7 +5,7 @@ import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.parser.ExcelParser;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
-import io.tgbot.moaishelper.text.KeyboardText;
+import io.tgbot.moaishelper.text.Keyboard;
 import io.tgbot.moaishelper.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.context.annotation.Lazy;
@@ -99,37 +99,37 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             } 
             else {
-                if (messageText.equals(KeyboardText.NOTIFICATION_SETTING)) {
+                if (messageText.equals(Keyboard.NOTIFICATION_SETTING)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ваши настройки уведомлений:",
                             KeyboardMarkupProvider.notificationMenu());
                 }
-                else if (messageText.equals(KeyboardText.GO_TO_GROUPS)) {
+                else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                 }
-                else if (messageText.equals(KeyboardText.CONTACTS)) {
+                else if (messageText.equals(Keyboard.CONTACTS)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT,
                             KeyboardMarkupProvider.inlineGoBackButton());
                 }
-                else if (messageText.equals(KeyboardText.GUIDE)) {
+                else if (messageText.equals(Keyboard.GUIDE)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
                             KeyboardMarkupProvider.inlineGoBackButton());
                 }
-                else if (messageText.equals(KeyboardText.BACK_TO_GROUPS)) {
+                else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                 }
-                else if (messageText.equals(KeyboardText.LEAVE_GROUP)) {
+                else if (messageText.equals(Keyboard.LEAVE_GROUP)) {
                     groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                 }
-                else if (messageText.equals(KeyboardText.GROUP_HANDLER)) {
+                else if (messageText.equals(Keyboard.GROUP_HANDLER)) {
                     boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Управление группой",
                                 KeyboardMarkupProvider.groupSettingsMenu(isOwner));
                 }
-                else if (messageText.equals(KeyboardText.BACK_TO_MENU_GROUPS)) {
+                else if (messageText.equals(Keyboard.BACK_TO_MENU_GROUPS)) {
                     if (user.getSelectedGroup() == null) {
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
                                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
@@ -139,28 +139,28 @@ public class TelegramBot extends TelegramLongPollingBot {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                 }
-                else if (messageText.equals(KeyboardText.SHOW_MEMBERS)) {
+                else if (messageText.equals(Keyboard.SHOW_MEMBERS)) {
                     groupHandler.showMembers(chatId);
                 }
-                else if (messageText.equals(KeyboardText.DELETE_GROUP)) {
+                else if (messageText.equals(Keyboard.DELETE_GROUP)) {
                     groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                 }
-                else if (messageText.equals(KeyboardText.GIVE_OWNER)) {
+                else if (messageText.equals(Keyboard.GIVE_OWNER)) {
                     groupHandler.handleOwnerCommand(chatId);
                 }
-                else if (messageText.equals(KeyboardText.REMOVE_ADMIN)) {
+                else if (messageText.equals(Keyboard.REMOVE_ADMIN)) {
                     groupHandler.handleRemoveAdminCommand(chatId);
                 }
-                else if (messageText.equals(KeyboardText.KICK_USER)) {
+                else if (messageText.equals(Keyboard.KICK_USER)) {
                     groupHandler.handleKickCommand(chatId);
                 }
-                else if (messageText.equals(KeyboardText.SET_ADMIN)) {
+                else if (messageText.equals(Keyboard.SET_ADMIN)) {
                     groupHandler.handleSetAdminCommand(chatId);
                 }
-                else if (messageText.equals(KeyboardText.INVITE_USER)) {
+                else if (messageText.equals(Keyboard.INVITE_USER)) {
                     groupHandler.handleInviteCommand(chatId);
                 }
-                else if (messageText.equals(KeyboardText.SHOW_SCHEDULE)) {
+                else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId,
                             "Выберите интересующее Вас расписание", KeyboardMarkupProvider.scheduleMenu());
                 }

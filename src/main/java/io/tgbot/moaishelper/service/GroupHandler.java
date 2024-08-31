@@ -405,7 +405,8 @@ public class GroupHandler {
         userRepository.save(user);
 
         boolean chosen = groupChosen(user), created = groupCreated(user);
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), KeyboardMarkupProvider.groupsMenu(chosen, created));
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
+                KeyboardMarkupProvider.groupsMenu(chosen, created));
     }
     // <--------- Команда /selectgroup
 
