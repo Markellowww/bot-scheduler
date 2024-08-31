@@ -4,11 +4,8 @@ import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -263,7 +260,7 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, "Введите @UserName приглашаемого в группу человека");
+        messageHandler.sendMessage(chatId, ENTER_USERNAME);
         user.setStatus(statusRepository.findById(3));
         userRepository.save(user);
     }
@@ -284,43 +281,39 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
         }
+        if (invitedUser.getStatus().getId() != 1) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
+            return;
+        }
         sendInviteMessage(invitedUser, user, group);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, INVITE_SEND_SUCCESSFUL(invitedUserName),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
 
     protected void sendInviteMessage(User invitedUser, User invitor, Groupe group) {
-        String text = String.format("Пользователь %s приглашает Вас в группу \"%s\"",
-                invitor.getUserName(), group.getName());
-        SendMessage message = messageHandler.createSendMassage(invitedUser.getChatId(), text);
-        InlineKeyboardMarkup answerKeyBoard = KeyboardMarkupProvider.addInviteAnswers(invitor, group);
-        message.setReplyMarkup(answerKeyBoard);
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException _) {}
+        messageHandler.sendMessageWithKeyboardMarkup(invitedUser.getChatId(), INVITE_REQUEST(invitor, group),
+                    KeyboardMarkupProvider.addInviteAnswers(invitor, group));
     }
 
     protected void addUserToGroup(User invitedUser, Groupe group, long invitorChatId) {
-        System.out.println(invitorChatId);
-        if (group.getMembers().stream().noneMatch(u -> u.getId() == invitedUser.getId())) {
-            group.addMember(invitedUser, false);
-            groupRepository.save(group);
-            messageHandler.sendMessage(invitorChatId,
-                    String.format("Пользователь %s успешно добавлен в группу \"%s\"!",
-                            invitedUser.getUserName(), group.getName()));
-            messageHandler.sendMessage(invitedUser.getChatId(), String.format("Вы вошли в группу \"%s\"", group.getName()));
-            invitedUser.setSelectedGroup(group);
-            userRepository.save(invitedUser);
+        if (group.getMembers().stream().anyMatch(u -> u.getId() == invitedUser.getId())) {
+            messageHandler.sendMessage(invitedUser.getChatId(), USER_ALREADY_IN_GROUP(group));
             return;
         }
-        messageHandler.sendMessage(invitedUser.getChatId(), "Вы уже состоите в этой группе");
+        group.addMember(invitedUser, false);
+        groupRepository.save(group);
+        messageHandler.sendMessage(invitorChatId, USER_JOIN_TO_INVITOR(invitedUser, group);
+        messageHandler.sendMessageWithKeyboardMarkup(invitedUser.getChatId(), USER_JOIN_TO_INVITED(group),
+                KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+        invitedUser.setSelectedGroup(group);
+        userRepository.save(invitedUser);
     }
 
     protected void declineInvite(User invitedUser, Groupe group, long invitorChatId) {
-        if (group.getMembers().stream().noneMatch(u -> u.getId() == invitedUser.getId()))
-            messageHandler.sendMessage(invitorChatId,
-                    String.format("Пользователь %s отклонил приглашение в группу \"%s\"!",
-                            invitedUser.getUserName(), group.getName()));
+        if (group.getMembers().stream().noneMatch(u -> u.getId() == invitedUser.getId())) {
+            messageHandler.sendMessage(invitorChatId, INVITE_SEND_ACCEPT(invitedUser, group));
+        }
     }
     // <--------- Команда /invite
 

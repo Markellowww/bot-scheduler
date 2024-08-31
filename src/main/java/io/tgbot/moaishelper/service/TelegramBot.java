@@ -227,30 +227,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case 4: {
                     groupHandler.handleGroupSelectInput(chatId, callbackData);
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    break;
+                    return;
                 }
                 case 5: {
                     groupHandler.handleKickUserInput(chatId, callbackData);
-                    break;
+                    return;
                 }
                 case 6: {
                     groupHandler.handleGiveOwnerInput(chatId, callbackData);
-                    break;
+                    return;
                 }
                 case 7: {
                     groupHandler.handleSetAdminInput(chatId, callbackData);
-                    break;
+                    return;
                 }
                 case 8: {
                     groupHandler.handleRemoveAdminInput(chatId, callbackData);
-                    break;
-                }
-                default: {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
-                            KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
-                    break;
+                    return;
                 }
             }
 
@@ -269,6 +262,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
                         messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
+                    break;
+                }
+                default: {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
+                            KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+                    user.setStatus(statusRepository.findById(1));
+                    userRepository.save(user);
                     break;
                 }
             }

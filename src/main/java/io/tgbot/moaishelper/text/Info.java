@@ -8,7 +8,6 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.service.GroupHandler;
-import io.tgbot.moaishelper.service.TelegramBot;
 
 
 public class Info {
@@ -49,6 +48,10 @@ public class Info {
         return String.format("❗ Пользователь %s уже владеет одной группой ❗", username);
     }
 
+    public static String USER_ALREADY_IN_GROUP(Groupe group) {
+        return String.format("❗ Вы состоите в группе \"%s\" ❗", group.getName());
+    }
+
     public static final String GROUP_EXIT_FAILED = "❗ Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку ❗";
 
     public static final String GROUP_NOT_SELECTED = "❗ Не выбрана текущая группа ❗";
@@ -67,9 +70,19 @@ public class Info {
         return String.format("❗ Вы не являетесь владельцем группы \"%s\" ❗", group.getName());
     }
 
+    public static String INVITE_SEND_ACCEPT(User user, Groupe group) {
+        return  String.format("❗ Пользователь %s отклонил приглашение в группу \"%s\" ❗",
+                user.getUserName(), group.getName());
+    }
+
     public static final String GROUP_SELECT = EmojiParser.parseToUnicode("Выберите группу из списка :school:\n") +
             "\n" +
             "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗";
+
+    public static String INVITE_REQUEST(User user, Groupe group) {
+        return String.format("Пользователь %s приглашает Вас в группу \"%s\"",
+                user.getUserName(), group.getName());
+    }
 
     public static String GROUP_EXIT_SUCCESSFUL(Groupe group) {
         return String.format("Вы успешно вышли из группы \"%s\" ✅", group.getName());
@@ -103,7 +116,18 @@ public class Info {
         return String.format("Пользователь %s успешно назначен владельцем группы ✅", username);
     }
 
+    public static String USER_JOIN_TO_INVITOR(User user, Groupe group) {
+        return String.format("Пользователь %s успешно добавлен в группу \"%s\" ✅",
+                user.getUserName(), group.getName());
+    }
+
+    public static String USER_JOIN_TO_INVITED(Groupe group) {
+        return String.format("Вы вошли в группу \"%s\" ✅", group.getName());
+    }
+
     public static final String GROUP_CREATE = "Введите название для группы ✍️";
+
+    public static final String ENTER_USERNAME = "Введите @Username пользователя ✍️";
 
     public static final String CHOOSE_MEMBER = EmojiParser.parseToUnicode("Выберите пользователя :point_down:");
 
