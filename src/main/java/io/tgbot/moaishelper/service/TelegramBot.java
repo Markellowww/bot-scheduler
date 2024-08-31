@@ -100,6 +100,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.handleMessageInput(chatId, messageText);
                         break;
                     }
+                    default: {
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                                EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"),
+                                KeyboardMarkupProvider.inlineGoBackButton());
+                    }
                 }
             } 
             else {
