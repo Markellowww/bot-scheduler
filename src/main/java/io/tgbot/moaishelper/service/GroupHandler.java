@@ -84,7 +84,7 @@ public class GroupHandler {
             return;
         }
         group.setAdmin(newAdmin);
-
+        messageHandler.sendMessage(newAdmin.getChatId(), NOTIFICATION_ADD_ADMIN(group));
         groupRepository.save(group);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_SET_ADMIN_SUCCESSFUL(adminName),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
@@ -139,6 +139,7 @@ public class GroupHandler {
             return;
         }
         group.removeAdmin(removedAdmin);
+        messageHandler.sendMessage(removedAdmin.getChatId(), NOTIFICATION_REMOVE_ADMIN(group));
 
         groupRepository.save(group);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_NOT_ADMIN_SUCCESSFUL(adminName),
@@ -220,6 +221,7 @@ public class GroupHandler {
             return;
         }
         group.setOwner(newOwner);
+        messageHandler.sendMessage(newOwner.getChatId(), NOTIFICATION_GIVE_OWNER(group));
         groupRepository.save(group);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, GIVE_OWNER_SUCCESSFUL(newOwnerName),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
@@ -273,6 +275,7 @@ public class GroupHandler {
             return;
         }
         group.removeMember(removedUser);
+        messageHandler.sendMessage(removedUser.getChatId(), NOTIFICATION_KICK_USER(user, group));
         groupRepository.save(group);
         messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_KICK_SUCCESSFUL(removedUserName),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
@@ -507,8 +510,15 @@ public class GroupHandler {
         for (User groupUser : selectedGroup.getMembers()) {
             Groupe userSelectedGroup = groupUser.getSelectedGroup();
             if (userSelectedGroup != null && userSelectedGroup.getId() == selectedGroup.getId()) {
-                groupUser.setSelectedGroup(null);
-                userRepository.save(groupUser);
+                if (groupUser.getGroupUsers() != null && !groupUser.getGroupUsers().isEmpty()) {
+                    Groupe group = groupUser.getGroupUsers().getFirst().getGroup();
+                    groupUser.setSelectedGroup(group);
+                    userRepository.save(groupUser);
+                }
+                else {
+                    groupUser.setSelectedGroup(null);
+                    userRepository.save(groupUser);
+                }
             }
         }
         String groupName = selectedGroup.getName();
@@ -517,6 +527,12 @@ public class GroupHandler {
                     selectedGroup.getId())));
         }
         catch (IOException _) {}
+        List<User> members = selectedGroup.getMembers();
+        for (User member : members) {
+            if (member.getId() != selectedGroup.getOwner().getId()) {
+                messageHandler.sendMessage(member.getChatId(), NOTIFICATION_DELETE_GROUP(selectedGroup));
+            }
+        }
         groupRepository.deleteById(selectedGroup.getId());
         messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_DELETE_SUCCESSFUL(groupName),
                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());

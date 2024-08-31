@@ -25,27 +25,27 @@ public class Info {
     public static final String ERROR = "❗ Что-то пошло не так ❗";
 
     public static String USER_DOESNT_EXISTS(String username) {
-        return String.format("❗ Пользователь %s не зарегистрирован в боте ❗", username);
+        return String.format("❗ Пользователь @%s не зарегистрирован в боте ❗", username);
     }
 
     public static String USER_IS_NOT_IN_GROUP(String username) {
-        return String.format("❗ Пользователь %s не состоит в группе ❗", username);
+        return String.format("❗ Пользователь @%s не состоит в группе ❗", username);
     }
 
     public static String USER_IS_NOT_ADMIN(String username) {
-        return String.format("❗ Пользователь %s не является админом ❗", username);
+        return String.format("❗ Пользователь @%s не является админом ❗", username);
     }
 
     public static String USER_ALREADY_IN_GROUP(String username) {
-        return String.format("❗ Пользователь %s уже состоит в группе ❗", username);
+        return String.format("❗ Пользователь @%s уже состоит в группе ❗", username);
     }
 
     public static String USER_ALREADY_ADMIN(String username) {
-        return String.format("❗ Пользователь %s уже является админом ❗", username);
+        return String.format("❗ Пользователь @%s уже является админом ❗", username);
     }
 
     public static String USER_ALREADY_OWNER(String username) {
-        return String.format("❗ Пользователь %s уже владеет одной группой ❗", username);
+        return String.format("❗ Пользователь @%s уже владеет одной группой ❗", username);
     }
 
     public static String USER_ALREADY_IN_GROUP(Groupe group) {
@@ -62,6 +62,26 @@ public class Info {
         return String.format("❗ Вы уже являетесь владельцем группы \"%s\" ❗", group.getName());
     }
 
+    public static String NOTIFICATION_REMOVE_ADMIN(Groupe group) {
+        return String.format("❗ Владелец группы \"%s\" забрал у Вас права администратора ❗", group.getName());
+    }
+
+    public static String NOTIFICATION_KICK_USER(User user, Groupe group) {
+        return String.format("❗ Пользователь @%s исключил Вас из группы \"%s\" ❗", user.getUserName(), group.getName());
+    }
+
+    public static String NOTIFICATION_GIVE_OWNER(Groupe group) {
+        return String.format("❗ Теперь вы новый владелец группы \"%s\" ❗", group.getName());
+    }
+
+    public static String NOTIFICATION_ADD_ADMIN(Groupe group) {
+        return String.format("❗ Вы были назначены администратором группы \"%s\" ❗", group.getName());
+    }
+
+    public static String NOTIFICATION_DELETE_GROUP(Groupe group) {
+        return String.format("❗ Группа \"%s\" была удалена владельцем ❗", group.getName());
+    }
+
     public static String NOT_ADMIN(Groupe group) {
         return String.format("❗ Вы не являетесь администратором группы \"%s\" ❗", group.getName());
     }
@@ -71,7 +91,7 @@ public class Info {
     }
 
     public static String INVITE_SEND_ACCEPT(User user, Groupe group) {
-        return  String.format("❗ Пользователь %s отклонил приглашение в группу \"%s\" ❗",
+        return  String.format("❗ Пользователь @%s отклонил приглашение в группу \"%s\" ❗",
                 user.getUserName(), group.getName());
     }
 
@@ -81,7 +101,7 @@ public class Info {
             "❗ (Уведомления от групп приходят независимо от выбранной группы) ❗";
 
     public static String INVITE_REQUEST(User user, Groupe group) {
-        return String.format("Пользователь %s приглашает Вас в группу \"%s\"",
+        return String.format("Пользователь @%s приглашает Вас в группу \"%s\"",
                 user.getUserName(), group.getName());
     }
 
@@ -98,27 +118,27 @@ public class Info {
     }
 
     public static String USER_NOT_ADMIN_SUCCESSFUL(String username){
-        return String.format("Пользователь %s больше не админ ✅", username);
+        return String.format("Пользователь @%s больше не админ ✅", username);
     }
 
     public static String USER_KICK_SUCCESSFUL(String username) {
-        return String.format("Пользователь %s успешно исключен из группы ✅", username);
+        return String.format("Пользователь @%s успешно исключен из группы ✅", username);
     }
 
     public static String USER_SET_ADMIN_SUCCESSFUL(String username) {
-        return String.format("Пользователь %s успешно назначен админом группы ✅", username);
+        return String.format("Пользователь @%s успешно назначен админом группы ✅", username);
     }
 
     public static String INVITE_SEND_SUCCESSFUL(String username) {
-        return String.format("Приглашение пользователю %s успешно отправлено ✅", username);
+        return String.format("Приглашение пользователю @%s успешно отправлено ✅", username);
     }
 
     public static String GIVE_OWNER_SUCCESSFUL(String username) {
-        return String.format("Пользователь %s успешно назначен владельцем группы ✅", username);
+        return String.format("Пользователь @%s успешно назначен владельцем группы ✅", username);
     }
 
     public static String USER_JOIN_TO_INVITOR(User user, Groupe group) {
-        return String.format("Пользователь %s успешно добавлен в группу \"%s\" ✅",
+        return String.format("Пользователь @%s успешно добавлен в группу \"%s\" ✅",
                 user.getUserName(), group.getName());
     }
 
