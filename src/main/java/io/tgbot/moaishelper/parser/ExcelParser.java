@@ -4,6 +4,7 @@ package io.tgbot.moaishelper.parser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.tgbot.moaishelper.schedule.Schedule;
+import io.tgbot.moaishelper.service.MessageHandler;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -74,7 +75,7 @@ public class ExcelParser {
         return List.of();
     }
 
-    public static void createSchedule(long groupId) {
+    public static boolean createSchedule(long groupId) {
         Map<Short, Schedule> schedules = new LinkedHashMap<>();
         List<List<List<List<Object>>>> data = readSchedule(groupId);
 
@@ -102,9 +103,11 @@ public class ExcelParser {
         try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 1), writer);
+            return true;
         }
         catch (IOException _) {
         }
+        return false;
     }
 
     public static String lessonTime(short lessonNum) { // временный выход

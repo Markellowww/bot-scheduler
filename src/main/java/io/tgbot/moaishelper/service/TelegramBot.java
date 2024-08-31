@@ -164,6 +164,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(Keyboard.INVITE_USER)) {
                     groupHandler.handleInviteCommand(chatId);
                 }
+                else if (messageText.equals(Keyboard.SET_SCHEDULE)) {
+                    groupHandler.handleScheduleSetCommand(chatId);
+                }
                 else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE,
                             KeyboardMarkupProvider.scheduleMenu());
@@ -328,14 +331,12 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else if (update.getMessage().getDocument() != null) {
             long chatId = update.getMessage().getChatId();
-            long groupId = userRepository.findByChatId(chatId).getSelectedGroup().getId();
-            messageHandler.downloadSchedule(update.getMessage(),
-                    groupId);
-            ExcelParser.createSchedule(groupId);
-            try {
-                FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId)));
-            } catch (IOException _) {
+            if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
+                Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+                groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
             }
+            else
+                messageHandler.sendMessage(chatId, "Извините, не ожидал никаких файлов");
         }
     }
 

@@ -146,6 +146,10 @@ public class Info {
         return String.format("Вы вошли в группу \"%s\" ✅", group.getName());
     }
 
+    public static String SCHEDULE_SET_SUCCESSFUL(Groupe group) {
+        return String.format("Расписание группы \"%s\" успешно установлено ✅", group.getName());
+    }
+
     public static String SEND_MESSAGE_SUCCESSFUL = "Сообщение было успешно отправлено всем участникам группы ✅";
 
     public static final String ENTER_GROUP_NAME = "Введите название для группы ✍️";

@@ -4,6 +4,7 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
+import io.tgbot.moaishelper.text.Info;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -77,7 +78,7 @@ public class MessageHandler {
      * @param chatId идентификатор чата пользователя
      * @param groupId идентификатор группы с расписанием
      */
-    protected void sendSchedule(long chatId, long groupId) {
+    protected void uploadSchedule(long chatId, long groupId) {
         File scheduleFile = new File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId));
         if (scheduleFile.exists()) {
             SendDocument schedule = new SendDocument();
@@ -91,11 +92,21 @@ public class MessageHandler {
         sendMessage(chatId, "Расписание не заполнено");
     }
 
+    protected void uploadScheduleTemplate(long chatId) {
+        File scheduleFile = new File("src/main/resources/Schedule.xlsx");
+        SendDocument schedule = new SendDocument();
+        schedule.setDocument(new InputFile(scheduleFile, "Расписание.xlsx"));
+        schedule.setChatId(chatId);
+        try {
+            bot.execute(schedule);
+        } catch (TelegramApiException _) {}
+    }
+
     /**
      * Извлекает из сообщения файл с расписанием и сораняет в группу
      * @param message сообщение с прикрепленным файлом
      */
-    protected void downloadSchedule(Message message, long groupId) {
+    protected boolean downloadSchedule(Message message, long groupId) {
         Document document = message.getDocument();
         long chatId = message.getChatId();
         if (document.getFileName().endsWith(".xlsx")) {
@@ -106,11 +117,14 @@ public class MessageHandler {
 
                 bot.downloadFile(file, new
                         java.io.File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId)));
+                return true;
             } catch (TelegramApiException _) {
+                sendMessage(chatId, Info.ERROR);
             }
-            return;
+            return false;
         }
         sendMessage(chatId, "Неверный формат файла");
+        return false;
     }
 
     /**

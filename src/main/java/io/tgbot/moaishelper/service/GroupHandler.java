@@ -2,8 +2,10 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.parser.ExcelParser;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.io.File;
@@ -178,7 +180,45 @@ public class GroupHandler {
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
     }
     // <--------- Команда /message
+    protected void handleScheduleSetCommand(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = user.getSelectedGroup();
+        if (selectedGroup == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
+        }
+        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
 
+        user.setStatus(statusRepository.findById(11));
+        userRepository.save(user);
+        messageHandler.sendMessage(chatId, "Пожалуйста, заполните шаблон расписания и пришлите его обратно");
+        messageHandler.uploadScheduleTemplate(chatId);
+    }
+
+    protected void handleScheduleFileInput(Message message, long chatId, Groupe group) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+        if (messageHandler.downloadSchedule(message, group.getId())) {
+            messageHandler.deleteMessage(chatId, message.getMessageId());
+            if (ExcelParser.createSchedule(group.getId())) {
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_SET_SUCCESSFUL(group),
+                        KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
+                try {
+                    FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx",
+                            group.getId())));
+                } catch (IOException _) {
+                }
+            }
+            else
+                messageHandler.sendMessage(chatId, ERROR);
+        }
+    }
     // ---------> Команда /giveowner
     protected void handleOwnerCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
@@ -566,4 +606,5 @@ public class GroupHandler {
         }
         return "Пользователь";
     }
+
 }
