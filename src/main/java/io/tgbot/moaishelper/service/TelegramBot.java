@@ -261,18 +261,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 case 5: {
                     groupHandler.handleKickUserInput(chatId, callbackData);
+                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 6: {
                     groupHandler.handleGiveOwnerInput(chatId, callbackData);
+                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 7: {
                     groupHandler.handleSetAdminInput(chatId, callbackData);
+                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 8: {
                     groupHandler.handleRemoveAdminInput(chatId, callbackData);
+                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
             }

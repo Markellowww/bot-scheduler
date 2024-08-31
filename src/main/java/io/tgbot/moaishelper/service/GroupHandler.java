@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -171,19 +172,19 @@ public class GroupHandler {
         userRepository.save(user);
         if (userRepository.findByUserName(newOwnerName) == null) {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_DOESNT_EXISTS(newOwnerName),
-                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
         }
         User newOwner = userRepository.findByUserName(newOwnerName);
         Groupe group = user.getSelectedGroup();
         if (group.getMembers().stream().noneMatch(u -> u.getId() == newOwner.getId())) {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_IN_GROUP(newOwnerName),
-                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
         }
         if (newOwner.getGroupUsers().stream().anyMatch(u -> u.getGroup().getOwner().getId() == newOwner.getId())) {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ALREADY_OWNER(newOwnerName),
-                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
         }
         group.setOwner(newOwner);
@@ -305,7 +306,7 @@ public class GroupHandler {
         groupRepository.save(group);
         messageHandler.sendMessage(invitorChatId, USER_JOIN_TO_INVITOR(invitedUser, group));
         messageHandler.sendMessageWithKeyboardMarkup(invitedUser.getChatId(), USER_JOIN_TO_INVITED(group),
-                KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
         invitedUser.setSelectedGroup(group);
         userRepository.save(invitedUser);
     }
@@ -441,6 +442,13 @@ public class GroupHandler {
         selectedGroup.removeMember(user);
         userRepository.save(user);
         groupRepository.save(selectedGroup);
+
+        user = userRepository.findByChatId(chatId);
+        if (user.getGroupUsers() != null && !user.getGroupUsers().isEmpty()) {
+            Groupe group = user.getGroupUsers().getFirst().getGroup();
+            user.setSelectedGroup(group);
+            userRepository.save(user);
+        }
         messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_EXIT_SUCCESSFUL(selectedGroup),
                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
     }
