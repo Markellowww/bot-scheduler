@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.schedule;
 
+import com.vdurmont.emoji.EmojiParser;
 import lombok.Getter;
 
 import java.util.*;
@@ -68,7 +69,7 @@ public class Schedule {
     public String show() {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, DayLessons> daySchedule: schedule.entrySet()) {
-            builder.append(String.format("%s:\n",daySchedule.getKey()));
+            builder.append(String.format("\n%s:\n",daySchedule.getKey()));
             builder.append(daySchedule.getValue().show());
         }
         return builder.toString();
@@ -139,8 +140,11 @@ public class Schedule {
          */
         @Override
         public String toString() {
-            return "Предмет: " + lessonName + ". Время: " + time + ". Кабинет: " + auditorium +
-                    ". Преподаватель: " + teacher;
+            return "----------------------------------------\n" +
+                    EmojiParser.parseToUnicode(":books: ") + lessonName + "\n" +
+                    EmojiParser.parseToUnicode(" :clock3: ") + time + "\n" +
+                    EmojiParser.parseToUnicode(":briefcase: ") + teacher + "\n" +
+                    EmojiParser.parseToUnicode(":door: ") + auditorium;
         }
     }
 }

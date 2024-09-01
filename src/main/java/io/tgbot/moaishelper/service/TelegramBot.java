@@ -258,7 +258,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Расписание на сегодня:\n".
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на сегодня:</b>\n".
                             concat(ScheduleReader.todaySchedule(groupId)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -267,7 +267,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Расписание на завтра:\n".
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на завтра:</b>\n".
                             concat(ScheduleReader.tomorrowSchedule(groupId)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -276,7 +276,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Расписание на текущую неделю:\n".
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на текущую неделю:</b>\n".
                             concat(ScheduleReader.thisWeekSchedule(groupId)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -285,7 +285,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Расписание на следующую неделю:\n".
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на следующую неделю:</b>\n".
                             concat(ScheduleReader.nextWeekSchedule(groupId)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;

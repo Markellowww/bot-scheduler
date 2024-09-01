@@ -7,6 +7,7 @@ import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.text.Info;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -55,6 +56,15 @@ public class MessageHandler {
     protected void sendMessageWithKeyboardMarkup(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
         SendMessage message = createSendMassage(chatId, textToSend);
         message.setReplyMarkup(keyboardMarkup);
+        try {
+            bot.execute(message);
+        } catch (TelegramApiException _) {}
+    }
+
+    protected void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
+        SendMessage message = createSendMassage(chatId, textToSend);
+        message.setReplyMarkup(keyboardMarkup);
+        message.setParseMode(ParseMode.HTML);
         try {
             bot.execute(message);
         } catch (TelegramApiException _) {}
