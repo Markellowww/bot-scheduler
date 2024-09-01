@@ -28,12 +28,12 @@ public class KeyboardMarkupProvider {
         List<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row1 = new KeyboardRow();
-        row1.add(Keyboard.NOTIFICATION_SETTING);
+//        row1.add(Keyboard.NOTIFICATION_SETTING);
         row1.add(Keyboard.GO_TO_GROUPS);
 
         KeyboardRow row2 = new KeyboardRow();
         row2.add(Keyboard.CONTACTS);
-        row2.add(Keyboard.GUIDE);
+//        row2.add(Keyboard.GUIDE);
 
         rows.add(row1);
         rows.add(row2);
@@ -84,8 +84,8 @@ public class KeyboardMarkupProvider {
         keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
+        KeyboardRow row1 = new KeyboardRow();
         if (isOwner) {
-            KeyboardRow row1 = new KeyboardRow();
             row1.add(Keyboard.SHOW_MEMBERS);
             row1.add(Keyboard.DELETE_GROUP);
             row1.add(Keyboard.GIVE_OWNER);
@@ -105,7 +105,6 @@ public class KeyboardMarkupProvider {
             rows.add(row3);
         }
         else {
-            KeyboardRow row1 = new KeyboardRow();
             row1.add(Keyboard.KICK_USER);
             row1.add(Keyboard.INVITE_USER);
             row1.add(Keyboard.SET_SCHEDULE);

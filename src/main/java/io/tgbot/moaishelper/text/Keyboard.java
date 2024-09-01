@@ -31,6 +31,6 @@ public class Keyboard {
     public static final String KICK_USER = EmojiParser.parseToUnicode(":x:Удалить пользователя");
     public static final String INVITE_USER = EmojiParser.parseToUnicode("✅ Пригласить пользователя");
 
-    public static final String SET_SCHEDULE = EmojiParser.parseToUnicode("⚙️ Установить расписание (IN DEVELOP)");
+    public static final String SET_SCHEDULE = EmojiParser.parseToUnicode("⚙️ Установить расписание");
 
 }
