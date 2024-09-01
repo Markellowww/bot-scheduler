@@ -194,7 +194,7 @@ public class GroupHandler {
             return;
         }
 
-        user.setStatus(statusRepository.findById(11));
+        user.setStatus(statusRepository.findById(10));
         userRepository.save(user);
         messageHandler.sendMessage(chatId, "Пожалуйста, заполните шаблон расписания и пришлите его обратно");
         messageHandler.uploadScheduleTemplate(chatId);
