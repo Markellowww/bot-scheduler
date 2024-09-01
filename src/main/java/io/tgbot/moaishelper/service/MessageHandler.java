@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @Authors: Markelloww & YDK
@@ -138,6 +139,15 @@ public class MessageHandler {
         try {
             bot.execute(message);
         } catch (TelegramApiException _) {}
+    }
+
+    protected void sendMessageForAll(Iterable<User> users, String textToSend) {
+        for (User user : users) {
+            SendMessage message = createSendMassage(user.getChatId(), textToSend);
+            try {
+                bot.execute(message);
+            } catch (TelegramApiException _) {}
+        }
     }
 
     /**

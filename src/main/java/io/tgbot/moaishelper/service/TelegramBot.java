@@ -3,11 +3,9 @@ package io.tgbot.moaishelper.service;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
-import io.tgbot.moaishelper.parser.ExcelParser;
+import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
-import io.tgbot.moaishelper.model.*;
-import org.apache.commons.io.FileUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -18,9 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-
-import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,6 +79,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                 messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                 return;
             }
+            else if (messageText.equals("/all")) {
+                if (chatId == 989138081L || chatId == 5254745148L) {
+                    user.setStatus(statusRepository.findById(11));
+                    userRepository.save(user);
+                    messageHandler.sendMessage(chatId, "Все ок, можно вводить сообщение");
+                    return;
+                }
+            }
 
             if (user.getStatus().getId() != 1) {
                 switch (user.getStatus().getId()) {
@@ -96,8 +99,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.handleInviteUserInput(chatId, messageText);
                         break;
                     }
-                    case 10: {
+                    case 9: {
                         groupHandler.handleMessageInput(chatId, messageText);
+                        break;
+                    }
+                    case 11: {
+                        if (!messageText.equalsIgnoreCase("отмена"))
+                            messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
                         break;
                     }
                     default: {
@@ -338,7 +348,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else if (update.getMessage().getDocument() != null) {
             long chatId = update.getMessage().getChatId();
-            if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
+            if (userRepository.findByChatId(chatId).getStatus().getId() == 10) {
                 Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
                 groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
             }

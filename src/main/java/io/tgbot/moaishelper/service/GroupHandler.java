@@ -164,7 +164,7 @@ public class GroupHandler {
             return;
         }
         messageHandler.sendMessage(chatId, ENTER_MESSAGE);
-        user.setStatus(statusRepository.findById(10));
+        user.setStatus(statusRepository.findById(9));
         userRepository.save(user);
     }
 
