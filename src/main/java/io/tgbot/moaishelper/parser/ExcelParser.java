@@ -1,15 +1,16 @@
 package io.tgbot.moaishelper.parser;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.tgbot.moaishelper.schedule.Schedule;
-import io.tgbot.moaishelper.service.MessageHandler;
+
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -20,6 +21,11 @@ import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
  */
 
 public class ExcelParser {
+    public static boolean parse(long groupId) {
+        if (readLessonTime(groupId))
+            return createSchedule(groupId);
+        return false;
+    }
 
     private static List<List<List<List<Object>>>> readSchedule(long groupId) {
         String filename = String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId);
@@ -33,10 +39,10 @@ public class ExcelParser {
                 short rowIndex = 3; // текущая строка по индексу (см шаблон)
                 List<List<List<Object>>> weekData = new ArrayList<>();
 
-                for (short day = 1; day < 7; day++, rowIndex += 2) {
+                for (short day = 1; day < 8; day++, rowIndex += 2) {
                     List<List<Object>> dayData = new ArrayList<>();
 
-                    for (short pair = 1; pair < 8; pair++, rowIndex++) {
+                    for (short pair = 1; pair < 11; pair++, rowIndex++) {
                         cellIndex = (short) (1 + 5 * week);
                         currentRow = mySheet.getRow(rowIndex);
                         List<Object> subjectData = new ArrayList<>();
@@ -72,23 +78,37 @@ public class ExcelParser {
         catch (IOException e) {
             System.out.println("Error reading file: ".concat(filename));
         }
+        catch (Throwable _) {
+            return List.of();
+        }
         return List.of();
     }
 
-    public static boolean createSchedule(long groupId) {
+    private static boolean createSchedule(long groupId) {
         Map<Short, Schedule> schedules = new LinkedHashMap<>();
         List<List<List<List<Object>>>> data = readSchedule(groupId);
+        List<String> timetable;
+        try {
+            Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/Время.json",
+                    groupId)));
 
+            Gson gson = new Gson();
+            timetable = gson.fromJson(reader, Map.class).values().stream().toList();
+        }
+        catch (IOException _) {
+            return false;
+        }
         for (short week = 0; week < 2; week++) {
             Schedule schedule = new Schedule();
-            for (short dayNum = 0; dayNum < 6; dayNum++) {
+            for (short dayNum = 0; dayNum < 7; dayNum++) {
                 schedule.addDay(dayOfWeek(dayNum));
                 for (var subjectData : data.get(week).get(dayNum)) {
-                    short pair = (short) subjectData.getFirst();
+                    Short pair = (Short) subjectData.getFirst();
+                    String t = timetable.get(pair - 1);
                     String subject = subjectData.get(1).toString();
                     String teacher = subjectData.get(2).toString();
                     String auditorium = subjectData.get(3).toString();
-                    schedule.addLesson(dayOfWeek(dayNum), subject, lessonTime(pair), teacher, auditorium);
+                    schedule.addLesson(dayOfWeek(dayNum), subject, t, teacher, auditorium);
                 }
             }
             schedules.put(week, schedule);
@@ -99,6 +119,7 @@ public class ExcelParser {
             gson.toJson(schedules.get((short) 0), writer);
         }
         catch (IOException _) {
+            return false;
         }
         try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -110,17 +131,37 @@ public class ExcelParser {
         return false;
     }
 
-    public static String lessonTime(short lessonNum) { // временный выход
-        return switch (lessonNum) {
-            case 1 -> "8:00 – 9:20";
-            case 2 -> "9:30 – 10:50";
-            case 3 -> "11.10 – 12:30";
-            case 4 -> "12:40 – 14:00";
-            case 5 -> "14:10 – 15:30";
-            case 6 -> "15:40 – 17:00";
-            case 7 -> "17:10 – 18:30";
-            case 8 -> "18:40 – 20:00";
-            default -> "";
-        };
+    private static boolean readLessonTime(long groupId) {
+        String filename = String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId);
+        try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(filename))) {
+            XSSFSheet mySheet = myExcelBook.getSheetAt(1); // вторая таблица
+            XSSFRow currentRow;
+            Map<Short, String> timetable = new LinkedHashMap<>();
+            for (short pair = 1; pair < 11; pair++) {
+                currentRow = mySheet.getRow(pair);
+                String time = currentRow.getCell(1).toString();
+                if (time.isEmpty())
+                    time = "Время не указано";
+                timetable.put(pair, time);
+            }
+            try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Время.json")) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(timetable, writer);
+            }
+            catch (IOException _) {
+                return false;
+            }
+            return true;
+        }
+        catch (FileNotFoundException e) { // если не найден файл
+            System.out.println("File not found: ".concat(filename));
+        }
+        catch (IOException e) {
+            System.out.println("Error reading file: ".concat(filename));
+        }
+        catch (Throwable _) {
+            return false;
+        }
+        return false;
     }
 }

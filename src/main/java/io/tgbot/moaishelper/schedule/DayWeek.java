@@ -35,6 +35,7 @@ public class DayWeek {
             case 3 -> "Четверг";
             case 4 -> "Пятница";
             case 5 -> "Суббота";
+            case 6 -> "Воскресенье";
             default -> "";
         };
     }

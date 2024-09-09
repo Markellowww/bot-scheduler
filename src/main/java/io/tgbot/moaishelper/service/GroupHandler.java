@@ -206,7 +206,7 @@ public class GroupHandler {
         userRepository.save(user);
         if (messageHandler.downloadSchedule(message, group.getId())) {
             messageHandler.deleteMessage(chatId, message.getMessageId());
-            if (ExcelParser.createSchedule(group.getId())) {
+            if (ExcelParser.parse(group.getId())) {
                 messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_SET_SUCCESSFUL(group),
                         KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
                 try {
