@@ -32,7 +32,7 @@ public class ScheduleReader {
     public static String tomorrowSchedule(long groupId) {
         try {
             short day = DayWeek.dayOfWeek();
-            int week = DayWeek.weekNum() + day / 6;
+            int week = (DayWeek.weekNum() + day / 6) % 2;
             day = (short) ((day + 1) % 7);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
