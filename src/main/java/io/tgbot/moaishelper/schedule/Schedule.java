@@ -27,7 +27,7 @@ public class Schedule {
 
     public String getDayLessons(String dayOfWeek) {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
-        return day.show();
+        return day.show(dayOfWeek);
     }
 
     /**
@@ -69,8 +69,8 @@ public class Schedule {
     public String show() {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, DayLessons> daySchedule: schedule.entrySet()) {
-            builder.append(String.format("\n%s:\n",daySchedule.getKey()));
-            builder.append(daySchedule.getValue().show());
+            builder.append(daySchedule.getValue().show(daySchedule.getKey()));
+            builder.append("\n");
         }
         return builder.toString();
     }
@@ -107,13 +107,25 @@ public class Schedule {
         /**
          * Печатает список уроков за каждый день.
          */
-        public String show() {
+        public String show(String dayOfWeek) {
+            String tab = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
             if (lessonList.isEmpty()) {
-                return "Нет уроков.";
+                return "Нет занятий.";
             }
             StringBuilder builder = new StringBuilder();
+            builder.append(String.format("<b>%s</b>\n", dayOfWeek.toUpperCase()));
             for (Lesson lesson : lessonList) {
-                builder.append(String.format("%s\n", lesson));
+                if (lessonList.getLast() == lesson) {
+                    builder.append(String.format("%s\n",
+                            "┃ \n" +
+                                    "┗━━━" + EmojiParser.parseToUnicode(":books: ") + lesson.auditorium + "\n" +
+                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lesson.time + "\n" +
+                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher + "\n" +
+                                    tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + lesson.auditorium));
+                }
+                else {
+                    builder.append(String.format("%s\n", lesson));
+                }
             }
             return builder.toString();
         }
@@ -140,11 +152,12 @@ public class Schedule {
          */
         @Override
         public String toString() {
-            return "----------------------------------------\n" +
-                    EmojiParser.parseToUnicode(":books: ") + lessonName + "\n" +
-                    EmojiParser.parseToUnicode(" :clock3: ") + time + "\n" +
-                    EmojiParser.parseToUnicode(":briefcase: ") + teacher + "\n" +
-                    EmojiParser.parseToUnicode(":door: ") + auditorium;
+            String tab = "\t\t\t\t\t\t\t\t\t\t\t\t";
+            return "┃ \n" +
+                    "┣━━━" +  EmojiParser.parseToUnicode(":books: ") + lessonName + "\n" +
+                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + time + "\n" +
+                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + teacher + "\n" +
+                    "┃" + tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + auditorium;
         }
     }
 }

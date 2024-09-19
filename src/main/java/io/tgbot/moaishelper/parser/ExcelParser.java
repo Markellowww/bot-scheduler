@@ -121,7 +121,7 @@ public class ExcelParser {
         catch (IOException _) {
             return false;
         }
-        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
+        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/groups/81/Знаменатель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 1), writer);
             return true;

@@ -8,10 +8,6 @@ import java.time.temporal.ChronoUnit;
  */
 
 public class DayWeek {
-    public static void main(String[] args) {
-        System.out.println(dayOfWeek());
-        System.out.println(weekNum());
-    }
 
     public static short dayOfWeek() {
         return (short) (LocalDate.now().getDayOfWeek().getValue() - 1);

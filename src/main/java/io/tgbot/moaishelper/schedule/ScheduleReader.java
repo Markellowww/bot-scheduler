@@ -3,6 +3,8 @@ package io.tgbot.moaishelper.schedule;
 import com.google.gson.Gson;
 
 import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
+import static io.tgbot.moaishelper.text.Info.SCHEDULE_EMPTY;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -25,7 +27,7 @@ public class ScheduleReader {
             return schedule.getDayLessons(dayOfWeek(day));
         }
         catch (IOException _) {
-            return "Файл с расписанием не добавлен";
+            return SCHEDULE_EMPTY;
         }
     }
 
@@ -42,7 +44,7 @@ public class ScheduleReader {
             return schedule.getDayLessons(dayOfWeek(day));
         }
         catch (IOException _) {
-            return "Файл с расписанием не добавлен";
+            return SCHEDULE_EMPTY;
         }
     }
 
@@ -62,7 +64,7 @@ public class ScheduleReader {
             return schedule.show();
         }
         catch (IOException _) {
-            return "Файл с расписанием не добавлен";
+            return SCHEDULE_EMPTY;
         }
     }
 
@@ -83,7 +85,7 @@ public class ScheduleReader {
             return schedule.show();
         }
         catch (IOException _) {
-            return "Файл с расписанием не добавлен";
+            return SCHEDULE_EMPTY;
         }
     }
 

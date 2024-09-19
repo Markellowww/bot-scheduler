@@ -58,6 +58,8 @@ public class Info {
 
     public static final String GROUP_LIST_EMPTY = "❗ Вы не состоите ни в одной группе ❗";
 
+    public static final String SCHEDULE_EMPTY = "❗ Вы не установили расписание❗";
+
     public static String TEXT_GROUP_EXISTS(Groupe group) {
         return String.format("❗ Вы уже являетесь владельцем группы \"%s\" ❗", group.getName());
     }
