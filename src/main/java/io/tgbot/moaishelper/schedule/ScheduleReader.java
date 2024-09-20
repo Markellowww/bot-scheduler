@@ -15,6 +15,11 @@ import java.nio.file.Paths;
  */
 
 public class ScheduleReader {
+    /**
+     * Возвращает текст с расписанием на сегодня
+     * @param groupId идентификатор группы
+     * @return текст расписания на сегодня
+     */
     public static String todaySchedule(long groupId) {
         try {
             int week = DayWeek.weekNum();
@@ -31,6 +36,11 @@ public class ScheduleReader {
         }
     }
 
+    /**
+     * Возвращает текст с расписанием на завтра
+     * @param groupId идентификатор группы
+     * @return текст расписания на завтра
+     */
     public static String tomorrowSchedule(long groupId) {
         try {
             short day = DayWeek.dayOfWeek();

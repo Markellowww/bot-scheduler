@@ -10,7 +10,7 @@ public class Keyboard {
 
     public static final String GUIDE = EmojiParser.parseToUnicode(":closed_book: Руководство (IN DEVELOP)");
     public static final String CONTACTS = EmojiParser.parseToUnicode(":telephone_receiver: Контакты");
-    public static final String NOTIFICATION_SETTING = EmojiParser.parseToUnicode(":bell: Настройки уведомлений (IN DEVELOP)");
+    public static final String NOTIFICATION_SETTING = EmojiParser.parseToUnicode(":bell: Настройки уведомлений");
 
     public static final String GO_TO_GROUPS = EmojiParser.parseToUnicode(":school: Перейти к группам");
     public static final String BACK_TO_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться к группам");

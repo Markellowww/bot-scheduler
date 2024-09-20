@@ -9,8 +9,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static io.tgbot.moaishelper.text.Button.*;
@@ -21,6 +23,11 @@ import static io.tgbot.moaishelper.text.Button.*;
 
 public class KeyboardMarkupProvider {
     // ---------> Reply
+
+    /**
+     * Создает стартовое меню
+     * @return стартовое меню
+     */
     public static ReplyKeyboardMarkup startMenu() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
@@ -28,7 +35,7 @@ public class KeyboardMarkupProvider {
         List<KeyboardRow> rows = new ArrayList<>();
 
         KeyboardRow row1 = new KeyboardRow();
-//        row1.add(Keyboard.NOTIFICATION_SETTING);
+        row1.add(Keyboard.NOTIFICATION_SETTING);
         row1.add(Keyboard.GO_TO_GROUPS);
 
         KeyboardRow row2 = new KeyboardRow();
@@ -42,6 +49,11 @@ public class KeyboardMarkupProvider {
         return keyboardMarkup;
     }
 
+    /**
+     * Создает меню для взаимодействия с группой пользователей и админов
+     * @param isAdmin является ли админом
+     * @return меню для взаимодействия с группой пользователей и админов
+     */
     public static ReplyKeyboardMarkup showGroupsSettingsMenu(boolean isAdmin) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
@@ -78,6 +90,11 @@ public class KeyboardMarkupProvider {
         return keyboardMarkup;
     }
 
+    /**
+     * Создает меню настроек для владельца и админов группы
+     * @param isOwner является ли владельцем группы
+     * @return меню для владельца и админов группы
+     */
     public static ReplyKeyboardMarkup groupSettingsMenu(boolean isOwner) {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
         keyboardMarkup.setResizeKeyboard(true);
@@ -123,12 +140,24 @@ public class KeyboardMarkupProvider {
     // <--------- Reply
 
     // ---------> Inline
+
+    /**
+     * Создает кнопку с заданным текстом и возвращаемыми данными
+     * @param text текст для кнопки
+     * @param callbackData данные, возвращаемые при нажатии на кнопку
+     * @return кнопка с заданным текстом и возвращаемыми данными
+     */
     private static InlineKeyboardButton inlineButtonSetter(String text, String callbackData) {
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(callbackData);
         return button;
     }
 
+    /**
+     * Создает клавиатуру для выбора групп
+     * @param groups список групп
+     * @return клавиатура для выбора групп
+     */
     public static InlineKeyboardMarkup addSelectGroupAnswers(List<Groupe> groups) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -149,6 +178,12 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру для принятия/отклонения приглашения в группу
+     * @param invitor пригласивший пользователь
+     * @param group группа для приглашения
+     * @return клавиатура для принятия/отклонения приглашения в группу
+     */
     public static InlineKeyboardMarkup addInviteAnswers(User invitor, Groupe group) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
@@ -261,6 +296,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру
+     * @return
+     */
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter(BACK, "BACK_TO_MAIN_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -268,6 +307,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру с кнопкой для перехода в главное меню
+     * @return клавиатура с кнопкой для перехода в главное меню
+     */
     public static InlineKeyboardMarkup inlineContinueButtonToMainMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_MAIN_GROUPS_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -275,6 +318,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру с кнопкой для перехода в меню настроек группы
+     * @return клавиатура с кнопкой для перехода в меню настроек группы
+     */
     public static InlineKeyboardMarkup inlineContinueButtonToGroupSettingMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_GROUP_SETTING_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -282,6 +329,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру с кнопкой для перехода в меню группы
+     * @return клавиатура с кнопкой для перехода в меню группы
+     */
     public static InlineKeyboardMarkup inlineContinueButtonToGroupMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_GROUP_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -289,6 +340,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру для запроса расписания группы
+     * @return клавиатура для запроса расписания группы
+     */
     public static InlineKeyboardMarkup scheduleMenu() {
         InlineKeyboardButton button1 = inlineButtonSetter(TODAY, "TODAY");
         InlineKeyboardButton button2 = inlineButtonSetter(TOMORROW, "TOMORROW");
@@ -308,6 +363,10 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру для настроек уведомлений
+     * @return клавиатура для настроек уведомлений
+     */
     public static InlineKeyboardMarkup notificationMenu() {
         InlineKeyboardButton button1 = inlineButtonSetter(ON_OFF_EVERYDAY, "ON/OFF_EVERYDAY");
         InlineKeyboardButton button2 = inlineButtonSetter(ON_OFF_NEXT, "ON/OFF_NEXT");
@@ -324,6 +383,46 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    /**
+     * Создает клавиатуру для выбора часового пояса
+     * @return клавиатура для выбора часового пояса
+     */
+    public static InlineKeyboardMarkup timezonesMenu() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton button1 = inlineButtonSetter("UTC +2\n(Калининград)", "3 -1");
+        InlineKeyboardButton button2 = inlineButtonSetter("UTC +3\n(Москва)", "3 0");
+        InlineKeyboardButton button3 = inlineButtonSetter("UTC +4\n(Самара)", "3 1");
+        rows.add(List.of(button1, button2, button3));
+
+        InlineKeyboardButton button4 = inlineButtonSetter("UTC +5\n(Екатеринбург)", "3 2");
+        InlineKeyboardButton button5 = inlineButtonSetter("UTC +6\n(Омск)", "3 3");
+        InlineKeyboardButton button6 = inlineButtonSetter("UTC +7\n(Новосибирск)", "3 4");
+        rows.add(List.of(button4, button5, button6));
+
+        InlineKeyboardButton button7 = inlineButtonSetter("UTC +8\n(Иркутск)", "3 5");
+        InlineKeyboardButton button8 = inlineButtonSetter("UTC +9\n(Якутск)", "3 6");
+        InlineKeyboardButton button9 = inlineButtonSetter("UTC +10\nВладивосток", "3 7");
+        rows.add(List.of(button7, button8, button9));
+
+        InlineKeyboardButton button10 = inlineButtonSetter("UTC +11\n(Магадан)", "3 8");
+        InlineKeyboardButton button11 = inlineButtonSetter("UTC +12\n(Анадырь)", "3 9");
+        rows.add(List.of(button10, button11));
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    /**
+     *
+     * @param groupChosen есть ли выбранная группа
+     * @param groupCreated создавал ли пользователь группу
+     * @return меню для взаимодействия с группами
+     */
     public static InlineKeyboardMarkup groupsMenu(boolean groupChosen, boolean groupCreated) {
         InlineKeyboardButton button1 = inlineButtonSetter(CREATE_GROUP, "CREATE_GROUP");
         InlineKeyboardButton button2 = inlineButtonSetter(GROUP_MENU, "GROUP_MENU");
