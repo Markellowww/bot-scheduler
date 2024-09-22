@@ -110,7 +110,7 @@ public class Schedule {
         public String show(String dayOfWeek) {
             String tab = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
             if (lessonList.isEmpty()) {
-                return "Нет занятий.";
+                return String.format("<b>%s:</b>\nНет занятий.\n", dayOfWeek.toUpperCase());
             }
             StringBuilder builder = new StringBuilder();
             builder.append(String.format("<b>%s</b>\n", dayOfWeek.toUpperCase()));
