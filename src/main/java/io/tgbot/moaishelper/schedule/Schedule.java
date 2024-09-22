@@ -118,7 +118,7 @@ public class Schedule {
                 if (lessonList.getLast() == lesson) {
                     builder.append(String.format("%s\n",
                             "┃ \n" +
-                                    "┗━━━" + EmojiParser.parseToUnicode(":books: ") + lesson.auditorium + "\n" +
+                                    "┗━━━" + EmojiParser.parseToUnicode(":books: ") + lesson.lessonName + "\n" +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lesson.time + "\n" +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher + "\n" +
                                     tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + lesson.auditorium));
