@@ -19,7 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @Authors: Markelloww & YDK
@@ -62,12 +61,29 @@ public class MessageHandler {
     }
 
     protected void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
-        SendMessage message = createSendMassage(chatId, textToSend);
-        message.setReplyMarkup(keyboardMarkup);
-        message.setParseMode(ParseMode.HTML);
-        try {
-            bot.execute(message);
-        } catch (TelegramApiException _) {}
+        if (textToSend.length() >= 4096) {
+            int index = textToSend.length() / 2;
+            String secondHalfText = textToSend.substring(index);
+            index += secondHalfText.indexOf("<b>");
+            SendMessage firstHalf = createSendMassage(chatId, textToSend.substring(0, index));
+            firstHalf.setReplyMarkup(keyboardMarkup);
+            firstHalf.setParseMode(ParseMode.HTML);
+            SendMessage secondHalf = createSendMassage(chatId, textToSend.substring(index));
+            secondHalf.setReplyMarkup(keyboardMarkup);
+            secondHalf.setParseMode(ParseMode.HTML);
+            try {
+                bot.execute(firstHalf);
+                bot.execute(secondHalf);
+            } catch (TelegramApiException _) {}
+        }
+        else {
+            SendMessage message = createSendMassage(chatId, textToSend);
+            message.setReplyMarkup(keyboardMarkup);
+            message.setParseMode(ParseMode.HTML);
+            try {
+                bot.execute(message);
+            } catch (TelegramApiException _) {}
+        }
     }
 
     /**
@@ -145,7 +161,7 @@ public class MessageHandler {
      * @param textToSend текст сообщения, которое нужно отправить
      */
     protected void sendMessage(long chatId, String textToSend) {
-        SendMessage message = createSendMassage(chatId,textToSend);
+        SendMessage message = createSendMassage(chatId, textToSend);
         try {
             bot.execute(message);
         } catch (TelegramApiException _) {}

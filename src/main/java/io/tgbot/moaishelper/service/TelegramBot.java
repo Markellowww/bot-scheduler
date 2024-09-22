@@ -279,7 +279,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на текущую неделю:</b>\n\n".
                             concat(ScheduleReader.thisWeekSchedule(groupId)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
-                    System.out.println(ScheduleReader.thisWeekSchedule(groupId).length());
                     return;
                 }
                 case "NEXT_WEEK": {
