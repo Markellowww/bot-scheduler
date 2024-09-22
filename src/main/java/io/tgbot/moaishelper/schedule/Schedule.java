@@ -118,9 +118,11 @@ public class Schedule {
                 if (lessonList.getLast() == lesson) {
                     builder.append(String.format("%s\n",
                             "┃ \n" +
-                                    "┗━━━" + EmojiParser.parseToUnicode(":books: ") + lesson.lessonName + "\n" +
+                                    "┗━━━" + EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n",
+                                    lesson.lessonName) +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lesson.time + "\n" +
-                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher + "\n" +
+                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher +
+                                    "\n" +
                                     tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + lesson.auditorium));
                 }
                 else {
@@ -154,7 +156,7 @@ public class Schedule {
         public String toString() {
             String tab = "\t\t\t\t\t\t\t\t\t\t\t\t";
             return "┃ \n" +
-                    "┣━━━" +  EmojiParser.parseToUnicode(":books: ") + lessonName + "\n" +
+                    "┣━━━" +  EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n", lessonName) +
                     "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + time + "\n" +
                     "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + teacher + "\n" +
                     "┃" + tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + auditorium;
