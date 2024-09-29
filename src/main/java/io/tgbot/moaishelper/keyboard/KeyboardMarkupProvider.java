@@ -418,10 +418,56 @@ public class KeyboardMarkupProvider {
     }
 
     /**
-     *
+     * Создает клавиатуру для выбора часов уведомлений
+     * @return клавиатура для выбора часов уведомлений
+     */
+    public static InlineKeyboardMarkup hoursMenu() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            for (int j = 0; j < 3; j++) {
+                InlineKeyboardButton button = inlineButtonSetter(String.valueOf(i * 3 + j),
+                        String.format("4 %d", 3 * i + j));
+                row.add(button);
+            }
+            rows.add(row);
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    /**
+     * Создает клавиатуру для выбора минут уведомлений
+     * @return клавиатура для выбора минут уведомлений
+     */
+    public static InlineKeyboardMarkup minutesMenu() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            InlineKeyboardButton button = inlineButtonSetter(String.valueOf(i * 15),
+                    String.format("5 %d", i * 15));
+            row.add(button);
+        }
+        rows.add(row);
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    /**
+     * Создает клавиатуру для взаимодействия с группами
      * @param groupChosen есть ли выбранная группа
      * @param groupCreated создавал ли пользователь группу
-     * @return меню для взаимодействия с группами
+     * @return клавиатура для взаимодействия с группами
      */
     public static InlineKeyboardMarkup groupsMenu(boolean groupChosen, boolean groupCreated) {
         InlineKeyboardButton button1 = inlineButtonSetter(CREATE_GROUP, "CREATE_GROUP");

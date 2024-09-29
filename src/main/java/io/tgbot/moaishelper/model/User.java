@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Authors: Markelloww & YDK
@@ -34,11 +35,13 @@ public class User {
     @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
     private Status status;
 
+    @Column(nullable = false)
     private String firstName;
 
     @Column(unique = true, nullable = false)
     private String userName;
 
+    @Column(nullable = false)
     private Timestamp registeredAt;
 
     public User(long chatId, String firstName, String userName, Timestamp registeredAt) {
@@ -66,4 +69,17 @@ public class User {
     }
 
     public void setStatus(Status status) {this.status = status;}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return this.id == user.id && this.chatId == user.chatId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, chatId);
+    }
 }

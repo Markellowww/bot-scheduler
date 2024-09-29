@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZoneId;
 
 /**
  * @Authors: Markelloww & YDK
@@ -20,14 +21,14 @@ public class ScheduleReader {
      * @param groupId идентификатор группы
      * @return текст расписания на сегодня
      */
-    public static String todaySchedule(long groupId) {
+    public static String todaySchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = DayWeek.weekNum();
+            int week = DayWeek.weekNum(zoneId);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
             Gson gson = new Gson();
-            short day = DayWeek.dayOfWeek();
+            short day = DayWeek.dayOfWeek(zoneId);
             Schedule schedule = gson.fromJson(reader, Schedule.class);
             return schedule.getDayLessons(dayOfWeek(day));
         }
@@ -41,10 +42,10 @@ public class ScheduleReader {
      * @param groupId идентификатор группы
      * @return текст расписания на завтра
      */
-    public static String tomorrowSchedule(long groupId) {
+    public static String tomorrowSchedule(long groupId, ZoneId zoneId) {
         try {
-            short day = DayWeek.dayOfWeek();
-            int week = (DayWeek.weekNum() + day / 6) % 2;
+            short day = DayWeek.dayOfWeek(zoneId);
+            int week = (DayWeek.weekNum(zoneId) + day / 6) % 2;
             day = (short) ((day + 1) % 7);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
@@ -63,9 +64,9 @@ public class ScheduleReader {
      * @param groupId идентификатор группы
      * @return текст расписания на текущую неделю
      */
-    public static String thisWeekSchedule(long groupId) {
+    public static String thisWeekSchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = DayWeek.weekNum();
+            int week = DayWeek.weekNum(zoneId);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
@@ -83,9 +84,9 @@ public class ScheduleReader {
      * @param groupId идентификатор группы
      * @return текст расписания на следующую неделю
      */
-    public static String nextWeekSchedule(long groupId) {
+    public static String nextWeekSchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = (DayWeek.weekNum() + 1) % 2;
+            int week = (DayWeek.weekNum(zoneId) + 1) % 2;
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));

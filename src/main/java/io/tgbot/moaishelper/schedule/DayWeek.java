@@ -1,6 +1,8 @@
 package io.tgbot.moaishelper.schedule;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -9,12 +11,12 @@ import java.time.temporal.ChronoUnit;
 
 public class DayWeek {
 
-    public static short dayOfWeek() {
-        return (short) (LocalDate.now().getDayOfWeek().getValue() - 1);
+    public static short dayOfWeek(ZoneId zone) {
+        return (short) (ZonedDateTime.now(zone).getDayOfWeek().getValue() - 1);
     }
 
-    public static short weekNum() {
-        LocalDate today = LocalDate.now();
+    public static short weekNum(ZoneId zone) {
+        ZonedDateTime today = ZonedDateTime.now(zone);
         LocalDate september2;
         if (today.getMonthValue() >= 9)
             september2 = LocalDate.of(today.getYear(), 9, 2);

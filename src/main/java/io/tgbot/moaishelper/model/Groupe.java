@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @Authors: Markelloww & YDK
@@ -24,7 +25,7 @@ public class Groupe { // французское слово, group[s] - ключ�
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GroupUser> groupUsers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ownerId", referencedColumnName = "id", nullable = false)
     private User owner;
 
@@ -85,5 +86,19 @@ public class Groupe { // французское слово, group[s] - ключ�
 
     public List<User> getMembers() {
         return groupUsers.stream().map(GroupUser::getUser).toList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Groupe groupe = (Groupe) o;
+        return this.id == groupe.id && this.groupUsers.equals(groupe.groupUsers) && this.name.equals(groupe.name) &&
+                this.createdAt.equals(groupe.createdAt) && this.owner.equals(groupe.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, groupUsers, name, createdAt, owner);
     }
 }

@@ -6,8 +6,10 @@ import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
+import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -17,6 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.sql.Timestamp;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +31,11 @@ import static io.tgbot.moaishelper.text.Info.*;
  */
 
 @Component
+@EnableTransactionManagement
 public class TelegramBot extends TelegramLongPollingBot {
 
     private final UserRepository userRepository;
+    private final UserSettingsRepository settingsRepository;
     private final GroupRepository groupRepository;
     private final StatusRepository statusRepository;
     private final GroupHandler groupHandler;
@@ -42,7 +47,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                        @Lazy MessageHandler messageHandler,
                        StatusRepository statusRepository,
                        GroupRepository groupRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository, UserSettingsRepository settingsRepository) {
         this.config = config;
         List<BotCommand> listOfCommands = new ArrayList<>();
         CommandInitializer.init(listOfCommands);
@@ -50,11 +55,13 @@ public class TelegramBot extends TelegramLongPollingBot {
             this.execute(new SetMyCommands(listOfCommands, new BotCommandScopeDefault(), null));
         }
         catch (TelegramApiException _) {}
+
         this.groupHandler = groupHandler;
         this.messageHandler = messageHandler;
         this.statusRepository = statusRepository;
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.settingsRepository = settingsRepository;
     }
 
     @Override
@@ -204,6 +211,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             User user = userRepository.findByChatId(chatId);
+            ZoneId zone = ZoneId.of(settingsRepository.findById(user.getId()).getTimeZoneId());
             String callbackData = update.getCallbackQuery().getData();
 
             switch (callbackData) {
@@ -259,7 +267,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на сегодня:</b>\n\n".
-                            concat(ScheduleReader.todaySchedule(groupId)),
+                            concat(ScheduleReader.todaySchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
@@ -268,7 +276,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на завтра:</b>\n\n".
-                            concat(ScheduleReader.tomorrowSchedule(groupId)),
+                            concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
@@ -277,7 +285,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на текущую неделю:</b>\n\n".
-                            concat(ScheduleReader.thisWeekSchedule(groupId)),
+                            concat(ScheduleReader.thisWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
@@ -286,7 +294,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на следующую неделю:</b>\n\n".
-                            concat(ScheduleReader.nextWeekSchedule(groupId)),
+                            concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
@@ -364,7 +372,8 @@ public class TelegramBot extends TelegramLongPollingBot {
      *
      * @param msg объект сообщения, содержащий информацию о пользователе и чате
      */
-    private void registerUser(Message msg) {
+    @Transactional
+    protected void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();
         if (userRepository.findByChatId(chatId) == null) {
@@ -372,6 +381,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     new Timestamp(System.currentTimeMillis()));
             user.setStatus(statusRepository.findById(1));
             userRepository.save(user);
+
+            UserSettings settings = new UserSettings(userRepository.findByChatId(user.getChatId()));
+            settingsRepository.save(settings);
             return;
         }
         User user = userRepository.findByChatId(chatId);

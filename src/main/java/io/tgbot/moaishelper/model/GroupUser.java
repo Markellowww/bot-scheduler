@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 /**
  * @Authors: Markelloww & YDK
  */
@@ -11,16 +13,14 @@ import lombok.Setter;
 @Entity
 @Getter
 public class GroupUser {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
     @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "groupID", referencedColumnName = "id", nullable = false)
+    @Id
     private Groupe group;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "userID", referencedColumnName = "id", nullable = false)
+    @Id
     private User user;
 
     @Setter
@@ -35,4 +35,16 @@ public class GroupUser {
         this.admin = admin;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupUser that = (GroupUser) o;
+        return this.group.getId() == that.group.getId() && this.user.getId() == that.user.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(group.getId(), user.getId());
+    }
 }
