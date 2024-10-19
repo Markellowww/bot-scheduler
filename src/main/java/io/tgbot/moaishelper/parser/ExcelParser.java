@@ -69,7 +69,6 @@ public class ExcelParser {
                 }
                 data.add(weekData); // добавляем неделю в общее расписание
             }
-
             return data;
         }
         catch (FileNotFoundException e) { // если не найден файл
@@ -113,7 +112,6 @@ public class ExcelParser {
             }
             schedules.put(week, schedule);
         }
-
         try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Числитель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 0), writer);
@@ -121,7 +119,7 @@ public class ExcelParser {
         catch (IOException _) {
             return false;
         }
-        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/groups/81/Знаменатель.json")) {
+        try (Writer writer = new FileWriter("src/main/resources/groups/" + groupId + "/Знаменатель.json")) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedules.get((short) 1), writer);
             return true;

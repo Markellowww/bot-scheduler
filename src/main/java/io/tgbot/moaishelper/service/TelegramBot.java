@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -40,11 +41,13 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final StatusRepository statusRepository;
     private final GroupHandler groupHandler;
     private final MessageHandler messageHandler;
+    private final SettingsHandler settingsHandler;
     private final BotConfig config;
 
     public TelegramBot(BotConfig config,
                        @Lazy GroupHandler groupHandler,
                        @Lazy MessageHandler messageHandler,
+                       @Lazy SettingsHandler settingsHandler,
                        StatusRepository statusRepository,
                        GroupRepository groupRepository,
                        UserRepository userRepository, UserSettingsRepository settingsRepository) {
@@ -58,6 +61,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         this.groupHandler = groupHandler;
         this.messageHandler = messageHandler;
+        this.settingsHandler = settingsHandler;
         this.statusRepository = statusRepository;
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
@@ -128,8 +132,9 @@ public class TelegramBot extends TelegramLongPollingBot {
             } 
             else {
                 if (messageText.equals(Keyboard.NOTIFICATION_SETTING)) {
+                    boolean notificationsEnabled = settingsRepository.findById(user.getId()).isNotificationsEnabled();
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ваши настройки уведомлений:",
-                            KeyboardMarkupProvider.notificationMenu());
+                            KeyboardMarkupProvider.notificationMenu(notificationsEnabled));
                 }
                 else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
@@ -211,26 +216,25 @@ public class TelegramBot extends TelegramLongPollingBot {
         else if (update.hasCallbackQuery()) {
             long chatId = update.getCallbackQuery().getMessage().getChatId();
             User user = userRepository.findByChatId(chatId);
+            messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+
             ZoneId zone = ZoneId.of(settingsRepository.findById(user.getId()).getTimeZoneId());
             String callbackData = update.getCallbackQuery().getData();
 
             switch (callbackData) {
                 case "BACK_TO_MAIN_MENU": {
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Назад",
                             KeyboardMarkupProvider.startMenu());
                     return;
                 }
                 case "BACK_TO_MAIN_GROUPS_MENU": {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
                             KeyboardMarkupProvider.groupsMenu(chosen, created));
                     return;
                 }
                 case "BACK_TO_GROUP_MENU": {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -239,25 +243,21 @@ public class TelegramBot extends TelegramLongPollingBot {
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
                     boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
                             KeyboardMarkupProvider.groupSettingsMenu(isOwner));
                     return;
                 }
                 case "CREATE_GROUP": {
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     groupHandler.handleCreateGroupCommand(chatId);
                     return;
                 }
                 case "SELECT_GROUP": {
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     groupHandler.handleGroupSelectCommand(chatId);
                     return;
                 }
                 case "GROUP_MENU": {
                     Groupe selectedGroup = user.getSelectedGroup();
                     boolean isAdmin = selectedGroup.getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -265,7 +265,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "TODAY": {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на сегодня:</b>\n\n".
                             concat(ScheduleReader.todaySchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
@@ -274,7 +273,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "TOMORROW": {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на завтра:</b>\n\n".
                             concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
@@ -283,7 +281,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "THIS_WEEK": {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на текущую неделю:</b>\n\n".
                             concat(ScheduleReader.thisWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
@@ -292,10 +289,43 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "NEXT_WEEK": {
                     long groupId = user.getSelectedGroup().getId();
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на следующую неделю:</b>\n\n".
                             concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                    return;
+                }
+                case "CHANGE_NOTIFICATIONS": {
+                    settingsHandler.switchNotifications(user);
+
+                    boolean notificationsEnabled = settingsRepository.findById(user.getId()).isNotificationsEnabled();
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ваши настройки уведомлений:",
+                            KeyboardMarkupProvider.notificationMenu(notificationsEnabled));
+                    return;
+                }
+                case "TIMEZONE_SETTINGS": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите часовой пояс",
+                            KeyboardMarkupProvider.timezonesMenu());
+                    return;
+                }
+                case "NOTIFICATIONS_TIME": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
+                    return;
+                }
+                case "HOUR_SETTINGS": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите часы уведомлений", KeyboardMarkupProvider.hoursMenu());
+                    return;
+                }
+                case "MINUTE_SETTINGS": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите минуты уведомлений", KeyboardMarkupProvider.minutesMenu());
+                    return;
+                }
+                case "BACK_TO_SETTINGS": {
+                    boolean notificationsEnabled = settingsRepository.findById(user.getId()).isNotificationsEnabled();
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Настройки уведомлений:",
+                            KeyboardMarkupProvider.notificationMenu(notificationsEnabled));
                     return;
                 }
             }
@@ -303,27 +333,22 @@ public class TelegramBot extends TelegramLongPollingBot {
             switch (user.getStatus().getId()) {
                 case 4: {
                     groupHandler.handleGroupSelectInput(chatId, callbackData);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 5: {
                     groupHandler.handleKickUserInput(chatId, callbackData);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 6: {
                     groupHandler.handleGiveOwnerInput(chatId, callbackData);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 7: {
                     groupHandler.handleSetAdminInput(chatId, callbackData);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
                 case 8: {
                     groupHandler.handleRemoveAdminInput(chatId, callbackData);
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     return;
                 }
             }
@@ -334,20 +359,44 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case 1: { // код принятия приглашения
                     Groupe group = groupRepository.findById(data.get(1)).get();
                     groupHandler.addUserToGroup(user, group, data.get(2));
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     break;
                 }
                 case 2: { // код отклонения приглашения
                     Groupe group = groupRepository.findById(data.get(1)).get();
                     groupHandler.declineInvite(user, group, data.get(2));
-                    messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
                     if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
                         messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
+                    break;
+                }
+                case 3: { // код изменения часовой зоны
+                    int hourDifferenceWithMoscow = data.get(1).intValue();
+                    settingsHandler.handleTimeZoneInput(user, hourDifferenceWithMoscow);
+
+                    boolean notificationsEnabled = settingsRepository.findById(user.getId()).isNotificationsEnabled();
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Настройки уведомлений:",
+                            KeyboardMarkupProvider.notificationMenu(notificationsEnabled));
+                    break;
+                }
+                case 4: {
+                    int hours = data.get(1).intValue();
+                    settingsHandler.handleHoursInput(user, (short) hours);
+
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
+                    break;
+                }
+                case 5: {
+                    int minutes = data.get(1).intValue();
+                    settingsHandler.handleMinutesInput(user, (short) minutes);
+
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
                     break;
                 }
                 default: {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
                             KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
                     break;
@@ -372,7 +421,6 @@ public class TelegramBot extends TelegramLongPollingBot {
      *
      * @param msg объект сообщения, содержащий информацию о пользователе и чате
      */
-    @Transactional
     protected void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();

@@ -417,14 +417,16 @@ public class KeyboardMarkupProvider {
      * Создает клавиатуру для настроек уведомлений
      * @return клавиатура для настроек уведомлений
      */
-    public static InlineKeyboardMarkup notificationMenu() {
-        InlineKeyboardButton button1 = inlineButtonSetter(ON_OFF_EVERYDAY, "ON/OFF_EVERYDAY");
-        InlineKeyboardButton button2 = inlineButtonSetter(ON_OFF_NEXT, "ON/OFF_NEXT");
-        InlineKeyboardButton button3 = inlineButtonSetter(BACK, "BACK_TO_MAIN_MENU");
+    public static InlineKeyboardMarkup notificationMenu(boolean notificationsEnabled) {
+        InlineKeyboardButton button1 = inlineButtonSetter(NOTIFICATIONS_TIME, "NOTIFICATIONS_TIME");
+        InlineKeyboardButton button2 = inlineButtonSetter(TIMEZONE_SETTINGS, "TIMEZONE_SETTINGS");
+        InlineKeyboardButton button3 = inlineButtonSetter(notificationsEnabled ? NOTIFICATIONS_OFF : NOTIFICATIONS_ON,
+                "CHANGE_NOTIFICATIONS");
+        InlineKeyboardButton button4 = inlineButtonSetter(BACK, "BACK_TO_MAIN_MENU");
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
-                Arrays.asList(button1, button2),
-                Arrays.asList(button3)
+                Arrays.asList(button1, button2, button3),
+                List.of(button4)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -467,6 +469,20 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup timeMenu() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        InlineKeyboardButton button1 = inlineButtonSetter(HOUR_SETTINGS, "HOUR_SETTINGS");
+        InlineKeyboardButton button2 = inlineButtonSetter(MINUTE_SETTINGS, "MINUTE_SETTINGS");
+        rows.add(List.of(button1, button2));
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
     /**
      * Создает клавиатуру для выбора часов уведомлений
      * @return клавиатура для выбора часов уведомлений
@@ -484,7 +500,7 @@ public class KeyboardMarkupProvider {
             rows.add(row);
         }
 
-        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "NOTIFICATIONS_TIME");
         rows.add(List.of(back));
 
         inlineKeyboardMarkup.setKeyboard(rows);
@@ -506,7 +522,7 @@ public class KeyboardMarkupProvider {
         }
         rows.add(row);
 
-        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SETTINGS");
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "NOTIFICATIONS_TIME");
         rows.add(List.of(back));
 
         inlineKeyboardMarkup.setKeyboard(rows);

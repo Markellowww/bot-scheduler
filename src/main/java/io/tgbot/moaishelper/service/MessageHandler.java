@@ -121,8 +121,9 @@ public class MessageHandler {
 
     protected void uploadScheduleTemplate(long chatId) {
         File scheduleFile = new File("src/main/resources/Schedule.xlsx");
+        System.out.println(scheduleFile.getAbsolutePath());
         SendDocument schedule = new SendDocument();
-        schedule.setDocument(new InputFile(scheduleFile, "Расписание.xlsx"));
+        schedule.setDocument(new InputFile(scheduleFile, "2.xlsx"));
         schedule.setChatId(chatId);
         try {
             bot.execute(schedule);
@@ -130,7 +131,7 @@ public class MessageHandler {
     }
 
     /**
-     * Извлекает из сообщения файл с расписанием и сораняет в группу
+     * Извлекает из сообщения файл с расписанием и сохраняет в группу
      * @param message сообщение с прикрепленным файлом
      */
     protected boolean downloadSchedule(Message message, long groupId) {
