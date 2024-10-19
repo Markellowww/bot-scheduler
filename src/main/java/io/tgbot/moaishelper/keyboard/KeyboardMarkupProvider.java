@@ -3,16 +3,15 @@ package io.tgbot.moaishelper.keyboard;
 import io.tgbot.moaishelper.model.GroupUser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
+import io.tgbot.moaishelper.schedule.DayWeek;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static io.tgbot.moaishelper.text.Button.*;
@@ -23,7 +22,6 @@ import static io.tgbot.moaishelper.text.Button.*;
 
 public class KeyboardMarkupProvider {
     // ---------> Reply
-
     /**
      * Создает стартовое меню
      * @return стартовое меню
@@ -137,10 +135,27 @@ public class KeyboardMarkupProvider {
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
     }
+
+    public static ReplyKeyboardMarkup setSchedule() {
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(true);
+        List<KeyboardRow> rows = new ArrayList<>();
+
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(Keyboard.EXCEL_SPREADSHEET);
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(Keyboard.MANUAL_MODIFICATION);
+
+        rows.add(row1);
+        rows.add(row2);
+
+        keyboardMarkup.setKeyboard(rows);
+        return keyboardMarkup;
+    }
     // <--------- Reply
 
     // ---------> Inline
-
     /**
      * Создает кнопку с заданным текстом и возвращаемыми данными
      * @param text текст для кнопки
@@ -151,6 +166,41 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton button = new InlineKeyboardButton(text);
         button.setCallbackData(callbackData);
         return button;
+    }
+
+    public static InlineKeyboardMarkup excelScheduleSettings() {
+        InlineKeyboardButton takeTemplate = inlineButtonSetter(TAKE_TEMPLATE, "TAKE_TEMPLATE");
+        InlineKeyboardButton sendTemplate = inlineButtonSetter(SEND_TEMPLATE, "SEND_TEMPLATE");
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_SETTINGS");
+
+        List<List<InlineKeyboardButton>> rows = Arrays.asList(
+                Arrays.asList(takeTemplate, sendTemplate),
+                Arrays.asList(back)
+        );
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup manualScheduleSettings() {
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            String dayName = DayWeek.dayOfWeek((short) i);
+            String dayData = DayWeek.dayOfWeekData((short) i);
+            InlineKeyboardButton button = inlineButtonSetter(dayName, dayData);
+            rows.add(Arrays.asList(button));
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_SETTINGS");
+        rows.add(Arrays.asList(back));
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
     }
 
     /**

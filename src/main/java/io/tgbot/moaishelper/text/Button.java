@@ -5,8 +5,6 @@ package io.tgbot.moaishelper.text;
  * Date: 31.08.2024
  */
 
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-
 public class Button {
     public static final String JOIN = "Вступить";
 
@@ -32,4 +30,6 @@ public class Button {
     public static final String GROUP_MENU = "Меню группы";
     public static final String SELECT_GROUP = "Выбрать группу";
 
+    public static final String TAKE_TEMPLATE = "Получить шаблон";
+    public static final String SEND_TEMPLATE = "Отправить шаблон";
 }

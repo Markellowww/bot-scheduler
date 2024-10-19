@@ -37,4 +37,17 @@ public class DayWeek {
             default -> "";
         };
     }
+
+    public static String dayOfWeekData(short dayNum) {
+        return switch (dayNum) {
+            case 0 -> "MONDAY";
+            case 1 -> "TUESDAY";
+            case 2 -> "WEDNESDAY";
+            case 3 -> "THURSDAY";
+            case 4 -> "FRIDAY";
+            case 5 -> "SATURDAY";
+            case 6 -> "SUNDAY";
+            default -> "";
+        };
+    }
 }
