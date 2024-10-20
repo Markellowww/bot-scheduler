@@ -550,8 +550,10 @@ public class GroupHandler {
         for (User groupUser : selectedGroup.getMembers()) {
             Groupe userSelectedGroup = groupUser.getSelectedGroup();
             if (userSelectedGroup != null && userSelectedGroup.getId() == selectedGroup.getId()) {
-                if (groupUser.getGroupUsers() != null && !groupUser.getGroupUsers().isEmpty()) {
+                if (groupUser.getGroupUsers() != null && groupUser.getGroupUsers().size() > 1) {
                     Groupe group = groupUser.getGroupUsers().getFirst().getGroup();
+                    if (group.equals(selectedGroup))
+                        group = groupUser.getGroupUsers().get(1).getGroup();
                     groupUser.setSelectedGroup(group);
                     userRepository.save(groupUser);
                 }
