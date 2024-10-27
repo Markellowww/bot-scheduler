@@ -1,6 +1,5 @@
 package io.tgbot.moaishelper.service;
 
-import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
@@ -92,7 +91,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (chatId == 989138081L || chatId == 5254745148L) {
                     user.setStatus(statusRepository.findById(11));
                     userRepository.save(user);
-                    messageHandler.sendMessage(chatId, "Все ок, можно вводить сообщение");
+                    messageHandler.sendMessage(chatId, ENTER_MESSAGE_FOR_ALL);
                     return;
                 }
             }
@@ -113,7 +112,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     case 11: {
-                        if (!messageText.equalsIgnoreCase("отмена"))
+                        if (!messageText.equalsIgnoreCase("ОТМЕНА"))
                             messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -122,8 +121,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     default: {
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                                EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:"),
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR,
                                 KeyboardMarkupProvider.inlineGoBackButton());
                     }
                 }
@@ -405,11 +403,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     break;
                 }
                 default: { // что-то невероятное
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
-                            KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
-
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
+                    userError(chatId);
                     break;
                 }
             }
@@ -421,7 +415,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
             }
             else {
-                messageHandler.sendMessage(chatId, ERROR);
+                userError(chatId);
             }
         }
     }
@@ -433,7 +427,7 @@ public class TelegramBot extends TelegramLongPollingBot {
      *
      * @param msg объект сообщения, содержащий информацию о пользователе и чате
      */
-    protected void registerUser(Message msg) {
+    private void registerUser(Message msg) {
         var chatId = msg.getChatId();
         var chat = msg.getChat();
         if (userRepository.findByChatId(chatId) == null) {
@@ -449,6 +443,20 @@ public class TelegramBot extends TelegramLongPollingBot {
         User user = userRepository.findByChatId(chatId);
         user.setUserName(chat.getUserName());
         user.setFirstName(chat.getFirstName());
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+    }
+
+    /**
+     * Сбрасывает статус пользователя и возвращает стартовую клавиатуру
+     * если произошла ошибка.
+     *
+     * @param chatId идентификатор пользователя, у которого произошла ошибка
+     */
+    private void userError(long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
+                KeyboardMarkupProvider.inlineGoBackButton());
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
     }

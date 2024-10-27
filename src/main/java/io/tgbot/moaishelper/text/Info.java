@@ -183,6 +183,10 @@ public class Info {
 
     public static final String ENTER_GROUP_NAME = "Введите название для группы ✍️";
 
+    public static final String ENTER_MESSAGE_FOR_ALL =
+            "Введите сообщение, которое будет отправлено всем пользователем бота ✍️\n\n" +
+            "❗ Для отмены напишите \"ОТМЕНА\" ❗";
+
     public static final String ENTER_USER_NAME = "Введите @Username пользователя ✍️";
 
     public static final String ENTER_MESSAGE = "Введите сообщение, которое будет отправлено группе ✍️";
