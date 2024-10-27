@@ -144,8 +144,10 @@ public class KeyboardMarkupProvider {
 
         KeyboardRow row1 = new KeyboardRow();
         row1.add(Keyboard.EXCEL_SPREADSHEET);
+        row1.add(Keyboard.MANUAL_MODIFICATION);
+
         KeyboardRow row2 = new KeyboardRow();
-        row2.add(Keyboard.MANUAL_MODIFICATION);
+        row2.add(Keyboard.BACK_TO_GROUP_SETTINGS);
 
         rows.add(row1);
         rows.add(row2);
@@ -363,6 +365,13 @@ public class KeyboardMarkupProvider {
      */
     public static InlineKeyboardMarkup inlineContinueButtonToMainMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_MAIN_GROUPS_MENU");
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup inlineGoBackButtonToScheduleMenu() {
+        InlineKeyboardButton button = inlineButtonSetter(REJECT, "BACK_TO_SCHEDULE_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
         return inlineKeyboardMarkup;

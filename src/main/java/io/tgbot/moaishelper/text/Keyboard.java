@@ -14,10 +14,10 @@ public class Keyboard {
 
     public static final String GO_TO_GROUPS = EmojiParser.parseToUnicode(":school: Перейти к группам");
     public static final String BACK_TO_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться к группам");
+    public static final String BACK_TO_GROUP_SETTINGS = EmojiParser.parseToUnicode(":school: Вернуться назад");
     public static final String BACK_TO_MENU_GROUPS = EmojiParser.parseToUnicode(":school: Вернуться в меню группы");
     public static final String NOTIFICATION_FOR_ALL = EmojiParser.parseToUnicode(":incoming_envelope: Сообщение группе");
 
-    public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("⚙️ Управление группой");
     public static final String SHOW_SCHEDULE = EmojiParser.parseToUnicode(":date: К расписанию");
     public static final String LEAVE_GROUP = EmojiParser.parseToUnicode(":x: Покинуть группу");
     public static final String SHOW_MEMBERS = EmojiParser.parseToUnicode(":memo: Показать участников");
@@ -34,6 +34,5 @@ public class Keyboard {
     public static final String SET_SCHEDULE = EmojiParser.parseToUnicode("⚙️ Установить расписание");
     public static final String EXCEL_SPREADSHEET = EmojiParser.parseToUnicode("⚙️ Excel-таблицей");
     public static final String MANUAL_MODIFICATION = EmojiParser.parseToUnicode("⚙️ Ручной изменение");
-    public static final String GET_TEMPLATE = EmojiParser.parseToUnicode("⚙️ Получить шаблон");
-    public static final String SEND_TEMPLATE = EmojiParser.parseToUnicode("⚙️ Отправить шаблон");
+    public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("⚙️ Управление группой");
 }

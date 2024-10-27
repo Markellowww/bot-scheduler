@@ -180,9 +180,11 @@ public class GroupHandler {
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
     }
     // <--------- Команда /message
+
     protected void handleScheduleSetCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         Groupe selectedGroup = user.getSelectedGroup();
+
         if (selectedGroup == null) {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_NOT_SELECTED,
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
@@ -193,11 +195,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
-
-        user.setStatus(statusRepository.findById(10));
-        userRepository.save(user);
-        messageHandler.sendMessage(chatId, "Пожалуйста, заполните шаблон расписания и пришлите его обратно");
-        messageHandler.uploadScheduleTemplate(chatId);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_WARNING,
+                KeyboardMarkupProvider.excelScheduleSettings());
     }
 
     protected void handleScheduleFileInput(Message message, long chatId, Groupe group) {

@@ -1,13 +1,13 @@
 package io.tgbot.moaishelper.service;
 
+import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import static io.tgbot.moaishelper.text.Info.GROUP_NOT_SELECTED;
+import static io.tgbot.moaishelper.text.Info.USER_NOTIFICATION_SETTINGS;
 
 @Component
 public class SettingsHandler {
@@ -31,6 +31,18 @@ public class SettingsHandler {
         this.userSettingsRepository = settingsRepository;
         this.bot = bot;
         this.messageHandler = messageHandler;
+    }
+
+    public void showNotificationMenu(long chatId, User user, UserSettings settings) {
+        boolean notificationsEnabled = settings.isNotificationsEnabled();
+        String notificationStatus = settings.isNotificationsEnabled() ?
+                "Включены ✅" : EmojiParser.parseToUnicode("Выключены :x:");
+        String timeSend = settings.getNotificationHours() + ":" + settings.getNotificationMinutes();
+        String timeZone = settings.getTimeZoneId();
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                USER_NOTIFICATION_SETTINGS(notificationStatus, timeSend, timeZone),
+                KeyboardMarkupProvider.notificationMenu(notificationsEnabled));
     }
 
     protected void switchNotifications(User user) {

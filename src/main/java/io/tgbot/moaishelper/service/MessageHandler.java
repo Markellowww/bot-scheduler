@@ -123,7 +123,7 @@ public class MessageHandler {
         File scheduleFile = new File("src/main/resources/Schedule.xlsx");
         System.out.println(scheduleFile.getAbsolutePath());
         SendDocument schedule = new SendDocument();
-        schedule.setDocument(new InputFile(scheduleFile, "2.xlsx"));
+        schedule.setDocument(new InputFile(scheduleFile, "ScheduleTemplate.xlsx"));
         schedule.setChatId(chatId);
         try {
             bot.execute(schedule);

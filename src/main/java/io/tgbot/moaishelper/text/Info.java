@@ -20,9 +20,19 @@ public class Info {
 
                     :smiley_cat:GitHub: Markelloww, KrivosheyYuriy""");
 
-    public static final String TEXT_IN_DEVELOP = EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
+    public static final String TEXT_IN_DEVELOP =
+            EmojiParser.parseToUnicode("В разработке :disappointed_relieved:");
 
     public static final String ERROR = "❗ Что-то пошло не так ❗";
+
+    public static final String USER_ERROR =
+            EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:");
+
+    public static final String SCHEDULE_WARNING = EmojiParser.parseToUnicode(
+            """
+                    ❗️ При отправке Excel-таблицы расписание будет полностью перезаписано ❗️
+
+                    Вы можете подкорректировать расписание с помощью ручного изменения""");
 
     public static String USER_DOESNT_EXISTS(String username) {
         return String.format("❗ Пользователь @%s не зарегистрирован в боте ❗", username);
@@ -52,13 +62,16 @@ public class Info {
         return String.format("❗ Вы состоите в группе \"%s\" ❗", group.getName());
     }
 
-    public static final String GROUP_EXIT_FAILED = "❗ Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку ❗";
+    public static final String GROUP_EXIT_FAILED =
+            "❗ Вы не сможете выйти из группы, пока не передадите права владения ей другому человеку ❗";
 
     public static final String GROUP_NOT_SELECTED = "❗ Не выбрана текущая группа ❗";
 
     public static final String GROUP_LIST_EMPTY = "❗ Вы не состоите ни в одной группе ❗";
 
     public static final String SCHEDULE_EMPTY = "❗ Вы не установили расписание❗";
+
+    public static final String CHOOSE_NOTIFICATION_SEND_TIME = "❗ Выберите время, в которое будут приходить ежедневные уведомления❗";
 
     public static String TEXT_GROUP_EXISTS(Groupe group) {
         return String.format("❗ Вы уже являетесь владельцем группы \"%s\" ❗", group.getName());
@@ -101,6 +114,20 @@ public class Info {
             "\n" +
             "❗ Учтите, выбрав группу, вы будете получать информацию касаемо только выбранной группы ❗\n\n" +
             "❗ (Уведомления от групп приходят независимо от выбранной группы) ❗";
+
+    public static String USER_NOTIFICATION_SETTINGS(String notificationStatus, String timeSend, String timeZone) {
+        String tab = "\t\t\t\t\t";
+        return "⚙️ Ваши настройки уведомлений: ⚙️\n" +
+                "┃\n" +
+                "┣━" + EmojiParser.parseToUnicode(":bell: Ежедневные уведомления:\n") +
+                "┃" + tab + "┗━" + notificationStatus + "\n" +
+                "┃\n" +
+                "┣━" + EmojiParser.parseToUnicode(":date: Время отправки:\n") +
+                "┃" + tab + "┗━" + timeSend + "\n" +
+                "┃\n" +
+                "┗━" + EmojiParser.parseToUnicode(":clock3: Часовой пояс:\n") +
+                "    " + tab + "┗━" + timeZone;
+    }
 
     public static String INVITE_REQUEST(User user, Groupe group) {
         return String.format("Пользователь @%s приглашает Вас в группу \"%s\"",
@@ -160,10 +187,17 @@ public class Info {
 
     public static final String ENTER_MESSAGE = "Введите сообщение, которое будет отправлено группе ✍️";
 
-    public static final String CHOOSE_MEMBER = EmojiParser.parseToUnicode("Выберите пользователя :point_down:");
+    public static final String CHOOSE_MEMBER =
+            EmojiParser.parseToUnicode("Выберите пользователя :point_down:");
 
-    public static final String CHOOSE_SCHEDULE = EmojiParser.parseToUnicode("Выберите интересующее Вас расписание :point_down:");
+    public static final String CHOOSE_SCHEDULE =
+            EmojiParser.parseToUnicode("Выберите интересующее Вас расписание :point_down:");
 
+    public static final String SCHEDULE_OPTION =
+            EmojiParser.parseToUnicode("Выберите способ изменения расписания :point_down:");
+
+    public static final String WAITING_FOR_EXCEL_FILE =
+            EmojiParser.parseToUnicode("Ожидаю от вас заполненный файл с расписанием :point_down:");
 
     public static String INVITE_REQUEST_DENIED(Groupe group) {
         return String.format("Вы отклонили приглашение в группу \"%s\"", group.getName());
