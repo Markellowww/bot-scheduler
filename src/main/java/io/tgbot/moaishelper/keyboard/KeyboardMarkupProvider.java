@@ -218,7 +218,7 @@ public class KeyboardMarkupProvider {
                 Groupe groupe = groups.get(3 * i + j);
                 InlineKeyboardButton button = new InlineKeyboardButton();
                 button.setText(groupe.getName());
-                button.setCallbackData(String.valueOf(groupe.getId()));
+                button.setCallbackData(String.format("6 %d", groupe.getId()));
                 buttons.add(button);
             }
             rows.add(buttons);
@@ -281,13 +281,13 @@ public class KeyboardMarkupProvider {
      * @param group группа
      * @return клавиатура со всеми пользователями кроме владельца группы
      */
-    public static InlineKeyboardMarkup userAnswers(Groupe group) {
+    public static InlineKeyboardMarkup userAnswers(long commandId, Groupe group) {
         List<User> usersExceptOwner = group.getMembers()
                 .stream()
                 .filter(x -> x.getId() != group.getOwner().getId())
                 .toList();
 
-        return getInlineKeyboardMarkup(usersExceptOwner);
+        return getInlineKeyboardMarkup(commandId, usersExceptOwner);
     }
 
     /**
@@ -295,14 +295,14 @@ public class KeyboardMarkupProvider {
      * @param group группа
      * @return клавиатура со всеми админами кроме владельца
      */
-    public static InlineKeyboardMarkup adminAnswers(Groupe group) {
+    public static InlineKeyboardMarkup adminAnswers(long commandId, Groupe group) {
         List<User> adminsExceptOwner = group.getGroupUsers()
                 .stream()
                 .filter(x -> x.isAdmin() && x.getUser().getId() != group.getOwner().getId()) // админы без владельца
                 .map(GroupUser::getUser)
                 .toList();
 
-        return getInlineKeyboardMarkup(adminsExceptOwner);
+        return getInlineKeyboardMarkup(commandId, adminsExceptOwner);
     }
 
     /**
@@ -310,14 +310,14 @@ public class KeyboardMarkupProvider {
      * @param group группа
      * @return клавиатура со всеми пользователями группы кроме владельца и админов
      */
-    public static InlineKeyboardMarkup membersAnswers(Groupe group) {
+    public static InlineKeyboardMarkup membersAnswers(long commandId, Groupe group) {
         List<User> membersOnly = group.getGroupUsers()
                 .stream()
                 .filter(x -> !x.isAdmin())
                 .map(GroupUser::getUser)
                 .toList();
 
-        return getInlineKeyboardMarkup(membersOnly);
+        return getInlineKeyboardMarkup(commandId, membersOnly);
     }
 
     /**
@@ -325,7 +325,7 @@ public class KeyboardMarkupProvider {
      * @param users список пользователей
      * @return клавиатура с пользователями
      */
-    private static InlineKeyboardMarkup getInlineKeyboardMarkup(List<User> users) {
+    private static InlineKeyboardMarkup getInlineKeyboardMarkup(long commandId, List<User> users) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
@@ -334,7 +334,7 @@ public class KeyboardMarkupProvider {
             for (int j = 0; j < 3 && 3 * i + j < users.size(); j++) {
                 User user = users.get(3 * i + j);
                 InlineKeyboardButton button = inlineButtonSetter(user.getUserName(),
-                        user.getUserName());
+                        String.format("%d %d", commandId, user.getId())); // изменено
                 buttons.add(button);
             }
             rows.add(buttons);
