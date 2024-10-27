@@ -351,66 +351,60 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
             }
-            switch (user.getStatus().getId()) {
-                case 4: {
-                    groupHandler.handleGroupSelectInput(chatId, callbackData);
-                    return;
-                }
-                case 5: {
-                    groupHandler.handleKickUserInput(chatId, callbackData);
-                    return;
-                }
-                case 6: {
-                    groupHandler.handleGiveOwnerInput(chatId, callbackData);
-                    return;
-                }
-                case 7: {
-                    groupHandler.handleSetAdminInput(chatId, callbackData);
-                    return;
-                }
-                case 8: {
-                    groupHandler.handleRemoveAdminInput(chatId, callbackData);
-                    return;
-                }
-            }
 
             List<Long> data = Arrays.stream(callbackData.split(" ")).mapToLong(Long::parseLong)
                     .boxed().toList(); // данные вида "код <аргументы через пробел>"
             switch (data.get(0).intValue()) {
-                case 1: { // код принятия приглашения
+                case 1: { // принятие приглашения в группу
                     Groupe group = groupRepository.findById(data.get(1)).get();
                     groupHandler.addUserToGroup(user, group, data.get(2));
                     break;
                 }
-                case 2: { // код отклонения приглашения
+                case 2: { // отклонение приглашения в группу
                     Groupe group = groupRepository.findById(data.get(1)).get();
                     groupHandler.declineInvite(user, group, data.get(2));
                     if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
                         messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
                     break;
                 }
-                case 3: { // код изменения часовой зоны
+                case 3: { // изменение часовой зоны
                     int hourDifferenceWithMoscow = data.get(1).intValue();
                     settingsHandler.handleTimeZoneInput(user, hourDifferenceWithMoscow);
                     settingsHandler.showNotificationMenu(chatId, user, settingsRepository.findById(user.getId()));
                     break;
                 }
-                case 4: {
-                    int hours = data.get(1).intValue();
-                    settingsHandler.handleHoursInput(user, (short) hours);
-
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            CHOOSE_NOTIFICATION_SEND_TIME, KeyboardMarkupProvider.timeMenu());
+                case 4: { // часы уведомлений
+                    short hours = data.get(1).shortValue();
+                    settingsHandler.handleHoursInput(user, hours);
                     break;
                 }
-                case 5: {
-                    int minutes = data.get(1).intValue();
-                    settingsHandler.handleMinutesInput(user, (short) minutes);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            CHOOSE_NOTIFICATION_SEND_TIME, KeyboardMarkupProvider.timeMenu());
+                case 5: { // минуты уведомлений
+                    short minutes = data.get(1).shortValue();
+                    settingsHandler.handleMinutesInput(user, minutes);
                     break;
                 }
-                default: {
+                // сделать так, чтобы кнопки имели коды команд
+                case 6: { // выбор группы
+                    groupHandler.handleGroupSelectInput(chatId, data.get(1));
+                    break;
+                }
+                case 7: { // удаление пользователя из группы
+                    groupHandler.handleKickUserInput(chatId, data.get(1));
+                    break;
+                }
+                case 8: { // передача прав владельца
+                    groupHandler.handleGiveOwnerInput(chatId, data.get(1));
+                    break;
+                }
+                case 9: { // назначение админа
+                    groupHandler.handleSetAdminInput(chatId, data.get(1));
+                    break;
+                }
+                case 10: { // снятие админа
+                    groupHandler.handleRemoveAdminInput(chatId, data.get(1));
+                    break;
+                }
+                default: { // что-то невероятное
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
                             KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
 
@@ -426,8 +420,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
                 groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
             }
-            else
-                messageHandler.sendMessage(chatId, "Извините, не ожидал никаких файлов");
+            else {
+                messageHandler.sendMessage(chatId, ERROR);
+            }
         }
     }
 

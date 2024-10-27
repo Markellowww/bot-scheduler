@@ -61,11 +61,15 @@ public class SettingsHandler {
         UserSettings settings = userSettingsRepository.findById(user.getId());
         settings.setNotificationHours(hours);
         userSettingsRepository.save(settings);
+        messageHandler.sendMessageWithKeyboardMarkup(user.getChatId(),
+                "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
     }
 
     protected void handleMinutesInput(User user, short minutes) {
         UserSettings settings = userSettingsRepository.findById(user.getId());
         settings.setNotificationMinutes(minutes);
         userSettingsRepository.save(settings);
+        messageHandler.sendMessageWithKeyboardMarkup(user.getChatId(),
+                "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
     }
 }
