@@ -26,6 +26,10 @@ public class GroupUser {
     @Setter
     private boolean admin;
 
+    @OneToOne
+    @PrimaryKeyJoinColumn
+    private AdminScheduleSettings settings;
+
     public GroupUser() {
     }
 
@@ -33,6 +37,8 @@ public class GroupUser {
         this.group = group;
         this.user = user;
         this.admin = admin;
+        this.settings = new AdminScheduleSettings();
+        this.settings.setGroupUser(this);
     }
 
     @Override
