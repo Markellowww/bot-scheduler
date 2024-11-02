@@ -35,6 +35,10 @@ public class User {
     @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
     private Status status;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private UserSettings settings;
+
     @Column(nullable = false)
     private String firstName;
 
@@ -49,6 +53,8 @@ public class User {
         this.firstName = firstName;
         this.userName = userName;
         this.registeredAt = registeredAt;
+        this.settings = new UserSettings();
+        this.settings.setUser(this);
     }
 
     @Override

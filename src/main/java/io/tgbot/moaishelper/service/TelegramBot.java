@@ -435,9 +435,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                     new Timestamp(System.currentTimeMillis()));
             user.setStatus(statusRepository.findById(1));
             userRepository.save(user);
-
-            UserSettings settings = new UserSettings(userRepository.findByChatId(user.getChatId()));
-            settingsRepository.save(settings);
             return;
         }
         User user = userRepository.findByChatId(chatId);

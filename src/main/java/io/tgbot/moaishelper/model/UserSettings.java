@@ -8,10 +8,13 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@NoArgsConstructor
 public class UserSettings {
     @Id
     private long id;
+
+    @OneToOne
+    @MapsId
+    private User user;
 
     @Column(nullable = false)
     private String timeZoneId;
@@ -25,8 +28,7 @@ public class UserSettings {
     @Column(nullable = false)
     private short notificationMinutes;
 
-    public UserSettings(User user) {
-        this.id = user.getId();
+    public UserSettings() {
         this.timeZoneId = "Europe/Moscow";
         this.notificationsEnabled = true;
         this.notificationHours = 12;
@@ -47,6 +49,10 @@ public class UserSettings {
 
     public void setNotificationMinutes(short notificationMinutes) {
         this.notificationMinutes = notificationMinutes;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
