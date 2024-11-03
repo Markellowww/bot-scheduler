@@ -26,7 +26,7 @@ public class GroupUser {
     @Setter
     private boolean admin;
 
-    @OneToOne
+    @OneToOne(mappedBy = "groupUser", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private AdminScheduleSettings settings;
 
@@ -37,8 +37,10 @@ public class GroupUser {
         this.group = group;
         this.user = user;
         this.admin = admin;
-        this.settings = new AdminScheduleSettings();
-        this.settings.setGroupUser(this);
+    }
+
+    public void setSettings(AdminScheduleSettings settings) {
+        this.settings = settings;
     }
 
     @Override

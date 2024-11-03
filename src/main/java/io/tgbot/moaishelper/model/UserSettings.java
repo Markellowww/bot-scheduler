@@ -12,7 +12,7 @@ public class UserSettings {
     @Id
     private long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     private User user;
 

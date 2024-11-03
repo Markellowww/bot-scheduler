@@ -6,16 +6,9 @@ import lombok.Getter;
 @Entity
 @Getter
 public class AdminScheduleSettings {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long groupId;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
-
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @MapsId
+    @Id
     private GroupUser groupUser;
 
     @Column

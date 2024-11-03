@@ -66,6 +66,7 @@ public class Groupe { // французское слово, group[s] - ключ�
         for (GroupUser groupUser : groupUsers) {
             if (groupUser.getUser().getId() == user.getId()) {
                 groupUser.setAdmin(true);
+                groupUser.setSettings(new AdminScheduleSettings());
                 return;
             }
         }
@@ -75,6 +76,7 @@ public class Groupe { // французское слово, group[s] - ключ�
         for (GroupUser groupUser : groupUsers) {
             if (groupUser.getUser().getId() == user.getId()) {
                 groupUser.setAdmin(false);
+                groupUser.setSettings(null);
                 return;
             }
         }
