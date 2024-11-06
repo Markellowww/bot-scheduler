@@ -22,7 +22,7 @@ public class Groupe { // французское слово, group[s] - ключ�
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "id.group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GroupUser> groupUsers = new ArrayList<>();
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)

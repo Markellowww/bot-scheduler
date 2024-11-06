@@ -405,7 +405,6 @@ public class GroupHandler {
         Groupe createdGroup = groupRepository.findByOwnerId(creator.getId());
         GroupUser owner = createdGroup.getGroupUsers().getFirst();
         owner.setSettings(new AdminScheduleSettings());
-        owner.getSettings().setGroupUser(owner);
         groupRepository.save(createdGroup);
 
         new File(String.format("src/main/resources/groups/%d",

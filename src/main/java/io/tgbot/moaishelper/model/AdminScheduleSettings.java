@@ -1,16 +1,14 @@
 package io.tgbot.moaishelper.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
 import lombok.Getter;
+import lombok.Setter;
 
-@Entity
+import java.io.Serializable;
+
 @Getter
-public class AdminScheduleSettings {
-    @OneToOne(fetch = FetchType.EAGER)
-    @MapsId
-    @Id
-    private GroupUser groupUser;
-
+@Setter
+public class AdminScheduleSettings implements Serializable {
     @Column
     private Boolean weekNum;
 
@@ -21,24 +19,8 @@ public class AdminScheduleSettings {
     private Short lessonNum;
 
     public AdminScheduleSettings() {
-        lessonNum = null;
-        weekNum = null;
-        weekDay = null;
-    }
-
-    public void setWeekNum(Boolean weekNum) {
-        this.weekNum = weekNum;
-    }
-
-    public void setGroupUser(GroupUser groupUser) {
-        this.groupUser = groupUser;
-    }
-
-    public void setWeekDay(Short weekDay) {
-        this.weekDay = weekDay;
-    }
-
-    public void setLessonNum(Short lessonNum) {
-        this.lessonNum = lessonNum;
+        this.weekNum = false;
+        this.weekDay = null;
+        this.lessonNum = null;
     }
 }
