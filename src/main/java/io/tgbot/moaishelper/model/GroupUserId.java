@@ -11,11 +11,11 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 public class GroupUserId implements Serializable {
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "groupId", nullable = false)
     private Groupe group;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "userId", nullable = false)
     private User user;
 

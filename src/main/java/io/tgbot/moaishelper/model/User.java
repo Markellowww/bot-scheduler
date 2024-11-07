@@ -31,7 +31,7 @@ public class User {
     @JoinColumn(name = "selectedGroupId", referencedColumnName = "id")
     private Groupe selectedGroup;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
     private Status status;
 
