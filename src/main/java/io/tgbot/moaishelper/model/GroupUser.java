@@ -1,9 +1,10 @@
 package io.tgbot.moaishelper.model;
 
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Objects;
 
 /**
  * @Authors: Markelloww & YDK
@@ -12,8 +13,15 @@ import lombok.Setter;
 @Entity
 @Getter
 public class GroupUser {
-    @EmbeddedId
-    private GroupUserId id;
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "groupId", referencedColumnName = "id", nullable = false)
+    @Id
+    private Groupe group;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "userId", nullable = false)
+    @Id
+    private User user;
 
     @Setter
     private boolean admin;
@@ -24,17 +32,18 @@ public class GroupUser {
     }
 
     public GroupUser(Groupe group, User user, boolean admin) {
-        this.id = new GroupUserId(group, user);
+        this.group = group;
+        this.user = user;
         this.settings = new AdminScheduleSettings();
         this.admin = admin;
     }
 
     public Groupe getGroup() {
-        return id.getGroup();
+        return group;
     }
 
     public User getUser() {
-        return id.getUser();
+        return user;
     }
 
     public void setSettings(AdminScheduleSettings settings) {
@@ -46,11 +55,11 @@ public class GroupUser {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GroupUser that = (GroupUser) o;
-        return this.id.equals(that.id);
+        return this.group.equals(that.group) && this.user.equals(that.user);
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hash(group, user);
     }
 }

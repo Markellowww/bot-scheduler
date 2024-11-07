@@ -21,7 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToMany(mappedBy = "id.user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<GroupUser> groupUsers = new ArrayList<>();
 
     @Column(unique = true, nullable = false)
@@ -31,11 +31,11 @@ public class User {
     @JoinColumn(name = "selectedGroupId", referencedColumnName = "id")
     private Groupe selectedGroup;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
     private Status status;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @PrimaryKeyJoinColumn
     private UserSettings settings;
 
