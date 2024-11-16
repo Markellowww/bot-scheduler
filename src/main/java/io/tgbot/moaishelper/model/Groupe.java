@@ -17,7 +17,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Groupe { // французское слово, group[s] - ключевые в SQL!!!
+public class Groupe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

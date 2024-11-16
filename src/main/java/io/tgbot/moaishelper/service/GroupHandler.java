@@ -28,18 +28,15 @@ public class GroupHandler {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final StatusRepository statusRepository;
-    private final TelegramBot bot;
     private final MessageHandler messageHandler;
 
     public GroupHandler(UserRepository userRepository,
                         GroupRepository groupRepository,
                         StatusRepository statusRepository,
-                        TelegramBot bot,
                         MessageHandler messageHandler) {
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.statusRepository = statusRepository;
-        this.bot = bot;
         this.messageHandler = messageHandler;
     }
 
@@ -151,7 +148,7 @@ public class GroupHandler {
         userRepository.save(user);
     }
 
-    protected void handleMessageInput(long chatId, String textToSend) { // тут надо сделать проверку админки
+    protected void handleMessageInput(long chatId, String textToSend) {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
@@ -164,24 +161,6 @@ public class GroupHandler {
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
     }
     // <--------- Команда /message
-
-    protected void handleScheduleSetCommand(long chatId) {
-        User user = userRepository.findByChatId(chatId);
-        Groupe selectedGroup = user.getSelectedGroup();
-
-        if (selectedGroup == null) {
-            messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_NOT_SELECTED,
-                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
-            return;
-        }
-        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
-            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
-                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
-            return;
-        }
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_WARNING,
-                KeyboardMarkupProvider.excelScheduleSettings());
-    }
 
     protected void handleScheduleFileInput(Message message, long chatId, Groupe group) {
         User user = userRepository.findByChatId(chatId);

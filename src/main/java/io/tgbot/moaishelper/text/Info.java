@@ -28,11 +28,16 @@ public class Info {
     public static final String USER_ERROR =
             EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:");
 
-    public static final String SCHEDULE_WARNING = EmojiParser.parseToUnicode(
+    public static final String SCHEDULE_EXCEL_WARNING = EmojiParser.parseToUnicode(
             """
                     ❗️ При отправке Excel-таблицы расписание будет полностью перезаписано ❗️
 
                     Вы можете подкорректировать расписание с помощью ручного изменения""");
+
+    public static String SCHEDULE_MANUAL_WARNING(final boolean isNumerator) {
+        String value = isNumerator ? "Числитель" : "Знаменатель";
+        return String.format("❗Сейчас выбрано: %s❗", value);
+    }
 
     public static String USER_DOESNT_EXISTS(String username) {
         return String.format("❗ Пользователь @%s не зарегистрирован в боте ❗", username);
@@ -188,6 +193,8 @@ public class Info {
             "❗ Для отмены напишите \"ОТМЕНА\" ❗";
 
     public static final String ENTER_USER_NAME = "Введите @Username пользователя ✍️";
+
+    public static final String TIME_SELECTION = "Выберите подходящие Вам настройки ✍️";
 
     public static final String ENTER_MESSAGE = "Введите сообщение, которое будет отправлено группе ✍️";
 

@@ -1,8 +1,6 @@
 package io.tgbot.moaishelper.keyboard;
 
-import io.tgbot.moaishelper.model.GroupUser;
-import io.tgbot.moaishelper.model.Groupe;
-import io.tgbot.moaishelper.model.User;
+import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.DayWeek;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -348,10 +346,6 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
-    /**
-     * Создает клавиатуру
-     * @return
-     */
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter(BACK, "BACK_TO_MAIN_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -586,6 +580,42 @@ public class KeyboardMarkupProvider {
 
             return inlineKeyboardMarkup;
         }
+    }
+
+    public static InlineKeyboardMarkup chooseDayOfWeek() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            InlineKeyboardButton button = inlineButtonSetter(DayWeek.dayOfWeek((short) i),
+                    DayWeek.dayOfWeekData((short) i));
+            rows.add(List.of(button));
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_SETTINGS");
+        InlineKeyboardButton change = inlineButtonSetter(CHANGE_NUM, "CHANGE_WEEK_NUM");
+
+        rows.add(List.of(back, change));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup changeScheduleOption() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton removeLesson = inlineButtonSetter(REMOVE_LESSON, "REMOVE_LESSON");
+        InlineKeyboardButton addLesson = inlineButtonSetter(ADD_LESSON, "ADD_LESSON");
+        rows.add(List.of(removeLesson, addLesson));
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "MANUAL_SCHEDULE_MODIFICATION");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
     }
     // <--------- Inline
 }

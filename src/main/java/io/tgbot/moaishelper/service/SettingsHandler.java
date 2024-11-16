@@ -4,9 +4,11 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.generics.TelegramBot;
 
 import java.util.Map;
 
+import static io.tgbot.moaishelper.text.Info.TIME_SELECTION;
 import static io.tgbot.moaishelper.text.Info.USER_NOTIFICATION_SETTINGS;
 
 @Component
@@ -37,7 +39,11 @@ public class SettingsHandler {
         boolean notificationsEnabled = settings.isNotificationsEnabled();
         String notificationStatus = settings.isNotificationsEnabled() ?
                 "Включены ✅" : EmojiParser.parseToUnicode("Выключены :x:");
-        String timeSend = settings.getNotificationHours() + ":" + settings.getNotificationMinutes();
+
+        String hours = String.format("%02d", settings.getNotificationHours());
+        String minutes = String.format("%02d", settings.getNotificationMinutes());
+
+        String timeSend = hours + ":" + minutes;
         String timeZone = settings.getTimeZoneId();
 
         messageHandler.sendMessageWithKeyboardMarkup(chatId,
@@ -62,7 +68,7 @@ public class SettingsHandler {
         settings.setNotificationHours(hours);
         userSettingsRepository.save(settings);
         messageHandler.sendMessageWithKeyboardMarkup(user.getChatId(),
-                "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
+                TIME_SELECTION, KeyboardMarkupProvider.timeMenu());
     }
 
     protected void handleMinutesInput(User user, short minutes) {
@@ -70,6 +76,6 @@ public class SettingsHandler {
         settings.setNotificationMinutes(minutes);
         userSettingsRepository.save(settings);
         messageHandler.sendMessageWithKeyboardMarkup(user.getChatId(),
-                "Выберите подходящее время уведомлений", KeyboardMarkupProvider.timeMenu());
+                TIME_SELECTION, KeyboardMarkupProvider.timeMenu());
     }
 }

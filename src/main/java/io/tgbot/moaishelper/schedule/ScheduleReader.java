@@ -14,7 +14,6 @@ import java.time.ZoneId;
 /**
  * @Authors: Markelloww & YDK
  */
-
 public class ScheduleReader {
     /**
      * Возвращает текст с расписанием на сегодня
@@ -97,6 +96,20 @@ public class ScheduleReader {
         }
         catch (IOException _) {
             return SCHEDULE_EMPTY;
+        }
+    }
+
+    public static Schedule getSchedule(long groupId, ZoneId zoneId, final boolean thisWeek) {
+        int week = thisWeek ? DayWeek.weekNum(zoneId) : ((DayWeek.weekNum(zoneId) + 1) % 2);
+        try {
+            String name = getFilename(week);
+            Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
+                    groupId, name)));
+
+            return new Gson().fromJson(reader, Schedule.class);
+        }
+        catch (IOException _) {
+            return null;
         }
     }
 

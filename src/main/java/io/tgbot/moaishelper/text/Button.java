@@ -16,6 +16,8 @@ public class Button {
 
     public static final String BACK = "Вернуться";
 
+    public static final String CHANGE_NUM = "Сменить четность";
+
     public static final String CONTINUE = "Продолжить";
 
     public static final String TODAY = "Сегодня";
@@ -37,4 +39,7 @@ public class Button {
 
     public static final String TAKE_TEMPLATE = "Получить шаблон";
     public static final String SEND_TEMPLATE = "Отправить шаблон";
+
+    public static final String REMOVE_LESSON = "Удалить предмет";
+    public static final String ADD_LESSON = "Добавить предмет";
 }

@@ -3,8 +3,10 @@ package io.tgbot.moaishelper.service;
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -40,14 +42,17 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final MessageHandler messageHandler;
     private final SettingsHandler settingsHandler;
     private final BotConfig config;
+    private final ScheduleHandler scheduleHandler;
 
     public TelegramBot(BotConfig config,
                        @Lazy GroupHandler groupHandler,
                        @Lazy MessageHandler messageHandler,
                        @Lazy SettingsHandler settingsHandler,
+                       @Lazy ScheduleHandler scheduleHandler,
                        StatusRepository statusRepository,
                        GroupRepository groupRepository,
-                       UserRepository userRepository, UserSettingsRepository settingsRepository) {
+                       UserRepository userRepository,
+                       UserSettingsRepository settingsRepository) {
         this.config = config;
         List<BotCommand> listOfCommands = new ArrayList<>();
         CommandInitializer.init(listOfCommands);
@@ -63,6 +68,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.settingsRepository = settingsRepository;
+        this.scheduleHandler = scheduleHandler;
     }
 
     @Override
@@ -199,11 +205,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(Keyboard.NOTIFICATION_FOR_ALL)) {
                     groupHandler.handleMessageCommand(chatId);
                 }
-                else if (messageText.equals(Keyboard.EXCEL_SPREADSHEET)) {
-                    groupHandler.handleScheduleSetCommand(chatId);
-                }
                 else if (messageText.equals(Keyboard.MANUAL_MODIFICATION)) {
-                    // ВЫБРАНО РУЧНОЕ ИЗМЕНЕНИЕ РАСПИСАНИЯ
+                    scheduleHandler.handleScheduleSetCommand(chatId, true);
+                }
+                else if (messageText.equals(Keyboard.EXCEL_SPREADSHEET)) {
+                    scheduleHandler.handleScheduleSetCommand(chatId, false);
                 }
                 else {
                     user.setStatus(statusRepository.findById(1));
@@ -221,11 +227,41 @@ public class TelegramBot extends TelegramLongPollingBot {
             ZoneId zone = ZoneId.of(settingsRepository.findById(user.getId()).getTimeZoneId());
             String callbackData = update.getCallbackQuery().getData();
 
+            if (EnumUtils.isValidEnum(Day.class, callbackData)) {
+                Day day = EnumUtils.getEnum(Day.class, callbackData);
+
+                GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                        .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                AdminScheduleSettings settings = groupUser.getSettings();
+
+                Short weekDay = Short.valueOf(((short) day.getOrder()));
+                settings.setWeekDay(weekDay);
+                groupRepository.save(user.getSelectedGroup());
+
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите действие:",
+                        KeyboardMarkupProvider.changeScheduleOption());
+                return;
+            }
+
             switch (callbackData) {
+                case "MANUAL_SCHEDULE_MODIFICATION": {
+                    scheduleHandler.handleScheduleSetCommand(chatId, true);
+                    return;
+                }
+                case "CHANGE_WEEK_NUM": {
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+                    settings.setWeekNum(!settings.getWeekNum());
+                    groupRepository.save(user.getSelectedGroup());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+                            KeyboardMarkupProvider.chooseDayOfWeek());
+                    return;
+                }
                 case "BACK_TO_SCHEDULE_MENU": {
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_WARNING,
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
                             KeyboardMarkupProvider.excelScheduleSettings());
                     return;
                 }
@@ -235,7 +271,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "TAKE_TEMPLATE": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_WARNING,
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
                             KeyboardMarkupProvider.excelScheduleSettings());
                     messageHandler.uploadScheduleTemplate(chatId);
                     return;
@@ -325,7 +361,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "TIMEZONE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите часовой пояс",
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
                             KeyboardMarkupProvider.timezonesMenu());
                     return;
                 }
@@ -335,13 +371,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "HOUR_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            "Выберите часы уведомлений", KeyboardMarkupProvider.hoursMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
+                            KeyboardMarkupProvider.hoursMenu());
                     return;
                 }
                 case "MINUTE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            "Выберите минуты уведомлений", KeyboardMarkupProvider.minutesMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
+                            KeyboardMarkupProvider.minutesMenu());
                     return;
                 }
                 case "BACK_TO_SETTINGS": {

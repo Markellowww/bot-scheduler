@@ -19,7 +19,7 @@ public class AdminScheduleSettings implements Serializable {
     private Short lessonNum;
 
     public AdminScheduleSettings() {
-        this.weekNum = false;
+        this.weekNum = true;
         this.weekDay = null;
         this.lessonNum = null;
     }
