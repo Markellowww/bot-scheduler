@@ -4,13 +4,13 @@ import lombok.Getter;
 
 @Getter
 public enum Day {
-    MONDAY(1, "Понедельник"),
-    TUESDAY(2, "Вторник"),
-    WEDNESDAY(3, "Среда"),
-    THURSDAY(4, "Четверг"),
-    FRIDAY(5, "Пятница"),
-    SATURDAY(6, "Суббота"),
-    SUNDAY(7, "Воскресенье");
+    MONDAY(0, "Понедельник"),
+    TUESDAY(1, "Вторник"),
+    WEDNESDAY(2, "Среда"),
+    THURSDAY(3, "Четверг"),
+    FRIDAY(4, "Пятница"),
+    SATURDAY(5, "Суббота"),
+    SUNDAY(6, "Воскресенье");
 
     private final int order;
     private final String translation;

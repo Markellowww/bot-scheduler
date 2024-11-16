@@ -3,6 +3,7 @@ package io.tgbot.moaishelper.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -27,10 +28,12 @@ public class User {
     @Column(unique = true, nullable = false)
     private long chatId;
 
+    @Setter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "selectedGroupId", referencedColumnName = "id")
     private Groupe selectedGroup;
 
+    @Setter
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "statusId", referencedColumnName = "id", nullable = false)
     private Status status;
@@ -39,9 +42,11 @@ public class User {
     @PrimaryKeyJoinColumn
     private UserSettings settings;
 
+    @Setter
     @Column(nullable = false)
     private String firstName;
 
+    @Setter
     @Column(unique = true, nullable = false)
     private String userName;
 
@@ -61,20 +66,6 @@ public class User {
     public String toString() {
         return getUserName();
     }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public void setSelectedGroup(Groupe selectedGroup) {
-        this.selectedGroup = selectedGroup;
-    }
-
-    public void setStatus(Status status) {this.status = status;}
 
     @Override
     public boolean equals(Object o) {

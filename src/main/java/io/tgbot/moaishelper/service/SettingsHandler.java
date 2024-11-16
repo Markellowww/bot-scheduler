@@ -35,7 +35,7 @@ public class SettingsHandler {
         this.messageHandler = messageHandler;
     }
 
-    public void showNotificationMenu(long chatId, User user, UserSettings settings) {
+    public void showNotificationMenu(long chatId, UserSettings settings) {
         boolean notificationsEnabled = settings.isNotificationsEnabled();
         String notificationStatus = settings.isNotificationsEnabled() ?
                 "Включены ✅" : EmojiParser.parseToUnicode("Выключены :x:");

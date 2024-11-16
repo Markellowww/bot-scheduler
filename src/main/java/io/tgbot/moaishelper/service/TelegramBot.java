@@ -134,7 +134,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             } 
             else {
                 if (messageText.equals(Keyboard.NOTIFICATION_SETTING)) {
-                    settingsHandler.showNotificationMenu(chatId, user, settingsRepository.findById(user.getId()));
+                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
                 }
                 else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
@@ -228,14 +228,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             String callbackData = update.getCallbackQuery().getData();
 
             if (EnumUtils.isValidEnum(Day.class, callbackData)) {
-                Day day = EnumUtils.getEnum(Day.class, callbackData);
-
                 GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                         .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                 AdminScheduleSettings settings = groupUser.getSettings();
 
-                Short weekDay = Short.valueOf(((short) day.getOrder()));
-                settings.setWeekDay(weekDay);
+                settings.setWeekDay((short) Day.valueOf(callbackData).getOrder());
                 groupRepository.save(user.getSelectedGroup());
 
                 messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите действие:",
@@ -357,7 +354,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 case "CHANGE_NOTIFICATIONS": {
                     settingsHandler.switchNotifications(user);
-                    settingsHandler.showNotificationMenu(chatId, user, settingsRepository.findById(user.getId()));
+                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
                     return;
                 }
                 case "TIMEZONE_SETTINGS": {
@@ -381,7 +378,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "BACK_TO_SETTINGS": {
-                    settingsHandler.showNotificationMenu(chatId, user, settingsRepository.findById(user.getId()));
+                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
                     return;
                 }
             }
@@ -404,7 +401,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case 3: { // изменение часовой зоны
                     int hourDifferenceWithMoscow = data.get(1).intValue();
                     settingsHandler.handleTimeZoneInput(user, hourDifferenceWithMoscow);
-                    settingsHandler.showNotificationMenu(chatId, user, settingsRepository.findById(user.getId()));
+                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
                     break;
                 }
                 case 4: { // часы уведомлений

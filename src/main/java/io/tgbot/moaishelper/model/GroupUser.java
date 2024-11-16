@@ -13,11 +13,13 @@ import java.util.Objects;
 @Entity
 @Getter
 public class GroupUser {
+    @Getter
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "groupId", referencedColumnName = "id", nullable = false)
     @Id
     private Groupe group;
 
+    @Getter
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "userId", nullable = false)
     @Id
@@ -26,6 +28,8 @@ public class GroupUser {
     @Setter
     private boolean admin;
 
+    @Setter
+    @Column(name = "settings", length = 500)
     private AdminScheduleSettings settings;
 
     public GroupUser() {
@@ -36,18 +40,6 @@ public class GroupUser {
         this.user = user;
         this.settings = new AdminScheduleSettings();
         this.admin = admin;
-    }
-
-    public Groupe getGroup() {
-        return group;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setSettings(AdminScheduleSettings settings) {
-        this.settings = settings;
     }
 
     @Override

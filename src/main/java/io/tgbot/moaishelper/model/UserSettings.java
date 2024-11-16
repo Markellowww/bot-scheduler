@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -11,19 +12,24 @@ public class UserSettings {
     @Id
     private long id;
 
+    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     private User user;
 
+    @Setter
     @Column(nullable = false)
     private String timeZoneId;
 
+    @Setter
     @Column(nullable = false)
     private boolean notificationsEnabled;
 
+    @Setter
     @Column(nullable = false)
     private short notificationHours;
 
+    @Setter
     @Column(nullable = false)
     private short notificationMinutes;
 
@@ -32,26 +38,6 @@ public class UserSettings {
         this.notificationsEnabled = true;
         this.notificationHours = 12;
         this.notificationMinutes = 0;
-    }
-
-    public void setTimeZoneId(String timeZoneId) {
-        this.timeZoneId = timeZoneId;
-    }
-
-    public void setNotificationsEnabled(boolean notificationsEnabled) {
-        this.notificationsEnabled = notificationsEnabled;
-    }
-
-    public void setNotificationHours(short notificationHours) {
-        this.notificationHours = notificationHours;
-    }
-
-    public void setNotificationMinutes(short notificationMinutes) {
-        this.notificationMinutes = notificationMinutes;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     @Override

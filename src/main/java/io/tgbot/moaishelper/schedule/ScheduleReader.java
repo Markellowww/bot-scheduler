@@ -2,7 +2,6 @@ package io.tgbot.moaishelper.schedule;
 
 import com.google.gson.Gson;
 
-import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
 import static io.tgbot.moaishelper.text.Info.SCHEDULE_EMPTY;
 
 import java.io.IOException;
@@ -22,14 +21,14 @@ public class ScheduleReader {
      */
     public static String todaySchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = DayWeek.weekNum(zoneId);
+            int week = DayWeekNumber.getCurrentWeekNumber(zoneId);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
             Gson gson = new Gson();
-            short day = DayWeek.dayOfWeek(zoneId);
+            short day = DayWeekNumber.getDayOfWeekNumber(zoneId);
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            return schedule.getDayLessons(dayOfWeek(day));
+            return schedule.getDayLessons(Day.values()[day].getTranslation());
         }
         catch (IOException _) {
             return SCHEDULE_EMPTY;
@@ -43,15 +42,15 @@ public class ScheduleReader {
      */
     public static String tomorrowSchedule(long groupId, ZoneId zoneId) {
         try {
-            short day = DayWeek.dayOfWeek(zoneId);
-            int week = (DayWeek.weekNum(zoneId) + day / 6) % 2;
+            short day = DayWeekNumber.getDayOfWeekNumber(zoneId);
+            int week = (DayWeekNumber.getCurrentWeekNumber(zoneId) + day / 6) % 2;
             day = (short) ((day + 1) % 7);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            return schedule.getDayLessons(dayOfWeek(day));
+            return schedule.getDayLessons(Day.values()[day].getTranslation());
         }
         catch (IOException _) {
             return SCHEDULE_EMPTY;
@@ -65,7 +64,7 @@ public class ScheduleReader {
      */
     public static String thisWeekSchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = DayWeek.weekNum(zoneId);
+            int week = DayWeekNumber.getCurrentWeekNumber(zoneId);
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
@@ -85,7 +84,7 @@ public class ScheduleReader {
      */
     public static String nextWeekSchedule(long groupId, ZoneId zoneId) {
         try {
-            int week = (DayWeek.weekNum(zoneId) + 1) % 2;
+            int week = (DayWeekNumber.getCurrentWeekNumber(zoneId) + 1) % 2;
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",
                     groupId, name)));
@@ -100,7 +99,7 @@ public class ScheduleReader {
     }
 
     public static Schedule getSchedule(long groupId, ZoneId zoneId, final boolean thisWeek) {
-        int week = thisWeek ? DayWeek.weekNum(zoneId) : ((DayWeek.weekNum(zoneId) + 1) % 2);
+        int week = thisWeek ? DayWeekNumber.getCurrentWeekNumber(zoneId) : ((DayWeekNumber.getCurrentWeekNumber(zoneId) + 1) % 2);
         try {
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",

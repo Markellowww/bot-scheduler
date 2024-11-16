@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.parser;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.Schedule;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -14,12 +15,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static io.tgbot.moaishelper.schedule.DayWeek.dayOfWeek;
-
 /**
  * @Authors: Markelloww & YDK
  */
-
 public class ExcelParser {
     public static boolean parse(long groupId) {
         if (readLessonTime(groupId))
@@ -100,14 +98,14 @@ public class ExcelParser {
         for (short week = 0; week < 2; week++) {
             Schedule schedule = new Schedule();
             for (short dayNum = 0; dayNum < 7; dayNum++) {
-                schedule.addDay(dayOfWeek(dayNum));
+                schedule.addDay(Day.values()[dayNum].getTranslation());
                 for (var subjectData : data.get(week).get(dayNum)) {
                     Short pair = (Short) subjectData.getFirst();
                     String t = timetable.get(pair - 1);
                     String subject = subjectData.get(1).toString();
                     String teacher = subjectData.get(2).toString();
                     String auditorium = subjectData.get(3).toString();
-                    schedule.addLesson(dayOfWeek(dayNum), subject, t, teacher, auditorium);
+                    schedule.addLesson(Day.values()[dayNum].getTranslation(), subject, t, teacher, auditorium);
                 }
             }
             schedules.put(week, schedule);

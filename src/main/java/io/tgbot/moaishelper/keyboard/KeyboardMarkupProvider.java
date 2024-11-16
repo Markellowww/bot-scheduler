@@ -1,7 +1,7 @@
 package io.tgbot.moaishelper.keyboard;
 
 import io.tgbot.moaishelper.model.*;
-import io.tgbot.moaishelper.schedule.DayWeek;
+import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -177,25 +177,6 @@ public class KeyboardMarkupProvider {
                 Arrays.asList(takeTemplate, sendTemplate),
                 Arrays.asList(back)
         );
-
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(rows);
-
-        return inlineKeyboardMarkup;
-    }
-
-    public static InlineKeyboardMarkup manualScheduleSettings() {
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-
-        for (int i = 0; i < 7; i++) {
-            String dayName = DayWeek.dayOfWeek((short) i);
-            String dayData = DayWeek.dayOfWeekData((short) i);
-            InlineKeyboardButton button = inlineButtonSetter(dayName, dayData);
-            rows.add(Arrays.asList(button));
-        }
-
-        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_SETTINGS");
-        rows.add(Arrays.asList(back));
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(rows);
@@ -587,8 +568,8 @@ public class KeyboardMarkupProvider {
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
         for (int i = 0; i < 7; i++) {
-            InlineKeyboardButton button = inlineButtonSetter(DayWeek.dayOfWeek((short) i),
-                    DayWeek.dayOfWeekData((short) i));
+            InlineKeyboardButton button = inlineButtonSetter(Day.values()[i].getTranslation(),
+                    Day.values()[i].name());
             rows.add(List.of(button));
         }
 
