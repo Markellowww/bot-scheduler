@@ -235,23 +235,19 @@ public class KeyboardMarkupProvider {
     }
 
     /**
-     * Возвращает клавиатуру с действиями подтверждения и отмены операции
-     * @return клавиатура с действиями подтверждения и отмены операции
+     * Возвращает клавиатуру с кнопкой отмены ввода
+     * @return клавиатура с кнопкой отмены ввода
      */
-    public static InlineKeyboardMarkup confirmDenyAnswers() {
+    public static InlineKeyboardMarkup denyInput() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-
-        InlineKeyboardButton confirmButton = new InlineKeyboardButton();
-        confirmButton.setText(ACCEPT);
-        confirmButton.setCallbackData("ACCEPT");
 
         InlineKeyboardButton denyButton = new InlineKeyboardButton();
         denyButton.setText(REJECT);
         denyButton.setCallbackData("DENY");
 
-        rows.add(List.of(confirmButton, denyButton));
+        rows.add(List.of(denyButton));
         inlineKeyboardMarkup.setKeyboard(rows);
 
         return inlineKeyboardMarkup;

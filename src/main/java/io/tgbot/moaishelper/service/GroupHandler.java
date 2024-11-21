@@ -209,7 +209,8 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
         }
-        if (newOwner.getGroupUsers().stream().anyMatch(u -> u.getGroup().getOwner().getId() == newOwner.getId())) {
+        if (newOwner.getGroupUsers().stream().anyMatch(u -> u.getGroup().getOwner().getId() ==
+                newOwner.getId())) {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ALREADY_OWNER(newOwner.getUserName()),
                     KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
             return;
@@ -282,7 +283,7 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, ENTER_USER_NAME);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_USER_NAME, KeyboardMarkupProvider.denyInput());
         user.setStatus(statusRepository.findById(3));
         userRepository.save(user);
     }
@@ -354,7 +355,8 @@ public class GroupHandler {
         Groupe selectedGroup = user.getSelectedGroup();
         List<User> groupUsers = selectedGroup.getMembers();
         String message = IntStream.range(0, groupUsers.size())
-                .mapToObj(i -> (i + 1) + ". @" + groupUsers.get(i).getUserName() + isAdmin(selectedGroup, groupUsers.get(i)))
+                .mapToObj(i -> (i + 1) + ". @" + groupUsers.get(i).getUserName() +
+                        isAdmin(selectedGroup, groupUsers.get(i)))
                 .collect(Collectors.joining("\n"));
         messageHandler.sendMessageWithKeyboardMarkup(chatId, message,
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
@@ -366,7 +368,7 @@ public class GroupHandler {
     protected void handleCreateGroupCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
         if (groupRepository.findByOwnerId(user.getId()) == null) {
-            messageHandler.sendMessage(chatId, ENTER_GROUP_NAME);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_GROUP_NAME, KeyboardMarkupProvider.denyInput());
             user.setStatus(statusRepository.findById(2));
             userRepository.save(user);
         }

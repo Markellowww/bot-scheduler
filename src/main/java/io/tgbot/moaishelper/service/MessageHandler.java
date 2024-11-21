@@ -59,7 +59,8 @@ public class MessageHandler {
         } catch (TelegramApiException _) {}
     }
 
-    protected void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
+    protected void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend,
+                                                             ReplyKeyboard keyboardMarkup) {
         if (textToSend.length() >= 4096) {
             int index = textToSend.length() / 2;
             String secondHalfText = textToSend.substring(index);
@@ -203,7 +204,7 @@ public class MessageHandler {
 
     public static String notificationMessage(User user, Groupe group, String text) {
         String emoji = EmojiParser.parseToUnicode(":incoming_envelope:");
-        return emoji + String.format(" Вам пришло сообщение из группы \"%s\" от пользователя @%s: \n\n", group.getName(), user.getUserName())
-                + text;
+        return emoji + String.format(" Вам пришло сообщение из группы \"%s\" от пользователя @%s: \n\n",
+                group.getName(), user.getUserName()) + text;
     }
 }

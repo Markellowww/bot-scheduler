@@ -169,7 +169,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                                 KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
                         return;
                     }
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                 }
@@ -255,6 +256,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                             KeyboardMarkupProvider.chooseDayOfWeek());
                     return;
                 }
+                case "DENY": {
+                    user.setStatus(statusRepository.findById(1));
+                    userRepository.save(user);
+                    messageHandler.sendMessage(chatId, INPUT_DENIED);
+                    return;
+                }
                 case "BACK_TO_SCHEDULE_MENU": {
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
@@ -292,7 +299,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "BACK_TO_GROUP_MENU": {
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
@@ -322,33 +330,39 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 case "TODAY": {
                     long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на сегодня:</b>\n\n".
-                            concat(ScheduleReader.todaySchedule(groupId, zone)),
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                            "<b>Расписание на сегодня:</b>\n\n".concat(ScheduleReader.todaySchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "TOMORROW": {
                     long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на завтра:</b>\n\n".
-                            concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                            "<b>Расписание на завтра:</b>\n\n".concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "THIS_WEEK": {
                     long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на текущую неделю:</b>\n\n".
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                            "<b>Расписание на текущую неделю:</b>\n\n".
                             concat(ScheduleReader.thisWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "NEXT_WEEK": {
                     long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, "<b>Расписание на следующую неделю:</b>\n\n".
-                            concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
+                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                            user.getId());
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                            "<b>Расписание на следующую неделю:</b>\n\n".
+                                    concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
                             KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
                     return;
                 }

@@ -1,6 +1,7 @@
 package io.tgbot.moaishelper.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,7 +30,7 @@ public class GroupUser {
     private boolean admin;
 
     @Setter
-    @Column(name = "settings", length = 500)
+    @Column(name = "settings", length = 384)
     private AdminScheduleSettings settings;
 
     public GroupUser() {

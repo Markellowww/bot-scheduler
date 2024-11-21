@@ -99,7 +99,8 @@ public class ScheduleReader {
     }
 
     public static Schedule getSchedule(long groupId, ZoneId zoneId, final boolean thisWeek) {
-        int week = thisWeek ? DayWeekNumber.getCurrentWeekNumber(zoneId) : ((DayWeekNumber.getCurrentWeekNumber(zoneId) + 1) % 2);
+        int week = thisWeek ? DayWeekNumber.getCurrentWeekNumber(zoneId) :
+                ((DayWeekNumber.getCurrentWeekNumber(zoneId) + 1) % 2);
         try {
             String name = getFilename(week);
             Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/%s.json",

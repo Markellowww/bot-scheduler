@@ -10,9 +10,7 @@ public class Button {
 
     public static final String DENY = "Отклонить";
 
-    public static final String ACCEPT = "Подтвердить";
-
-    public static final String REJECT = "Отменить";
+    public static final String REJECT = "Отменить ввод";
 
     public static final String BACK = "Вернуться";
 
