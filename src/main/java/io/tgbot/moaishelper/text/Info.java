@@ -7,7 +7,9 @@ package io.tgbot.moaishelper.text;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
+import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.service.GroupHandler;
+import org.yaml.snakeyaml.util.EnumUtils;
 
 
 public class Info {
@@ -76,7 +78,8 @@ public class Info {
 
     public static final String SCHEDULE_EMPTY = "❗ Вы не установили расписание❗";
 
-    public static final String CHOOSE_NOTIFICATION_SEND_TIME = "❗ Выберите время, в которое будут приходить ежедневные уведомления❗";
+    public static final String CHOOSE_NOTIFICATION_SEND_TIME =
+            "❗ Выберите время, в которое будут приходить ежедневные уведомления❗";
 
     public static String TEXT_GROUP_EXISTS(Groupe group) {
         return String.format("❗ Вы уже являетесь владельцем группы \"%s\" ❗", group.getName());
@@ -134,6 +137,14 @@ public class Info {
                 "    " + tab + "┗━" + timeZone;
     }
 
+    public static String SCHEDULE_CHANGE(final boolean weekNum, final short weekDay) {
+        String weekNumber = weekNum ? "Числитель" : "Знаменатель";
+        String dayOfWeek = Day.values()[weekDay].getTranslation();
+        return "❗ Выбрано: ❗\n" +
+                "- " + weekNumber + "\n" +
+                "- " + dayOfWeek;
+    }
+
     public static String INVITE_REQUEST(User user, Groupe group) {
         return String.format("Пользователь @%s приглашает Вас в группу \"%s\"",
                 user.getUserName(), group.getName());
@@ -183,6 +194,8 @@ public class Info {
     public static String SCHEDULE_SET_SUCCESSFUL(Groupe group) {
         return String.format("Расписание группы \"%s\" успешно установлено ✅", group.getName());
     }
+
+    public static final String LESSON_REMOVED = "Предмет был успешно удален! ✅";
 
     public static String SEND_MESSAGE_SUCCESSFUL = "Сообщение было успешно отправлено всем участникам группы ✅";
 

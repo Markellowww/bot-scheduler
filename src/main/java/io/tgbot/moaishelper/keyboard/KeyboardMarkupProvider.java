@@ -594,5 +594,28 @@ public class KeyboardMarkupProvider {
 
         return inlineKeyboardMarkup;
     }
+
+    public static InlineKeyboardMarkup chooseDeleteLesson(List<String> lessonNames,
+                                                          final Boolean weekNum,
+                                                          final Short weekDay) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        String signal = "!" + (weekNum ? "1" : "0") + weekDay;
+
+        for (String lessonName : lessonNames) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            InlineKeyboardButton button = inlineButtonSetter(lessonName, signal + lessonName.charAt(0));
+            row.add(button);
+            rows.add(row);
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "MANUAL_SCHEDULE_MODIFICATION");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
     // <--------- Inline
 }

@@ -1,20 +1,34 @@
 package io.tgbot.moaishelper.schedule;
 
 import com.vdurmont.emoji.EmojiParser;
+import io.tgbot.moaishelper.parser.TimeParser;
 import lombok.Getter;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
  * @Authors: Markelloww & YDK
  */
-
 public class Schedule {
 
     private Map<String, DayLessons> schedule;
 
     public Schedule() {
         this.schedule = new LinkedHashMap<>();
+    }
+
+    public List<String> getLessonNames(String dayOfWeek, String path) throws IOException {
+        DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
+
+        ArrayList<String> lessonNames = new ArrayList<>();
+        for (Lesson lesson : day.lessonList) {
+            String lessonName = String.format("%s. " + lesson.getLessonName(),
+                    TimeParser.getOrderByTime(path, lesson.time));
+            lessonNames.add(lessonName);
+        }
+
+        return lessonNames;
     }
 
     /**
@@ -44,23 +58,18 @@ public class Schedule {
         schedule.get(dayOfWeek).addLesson(lessonName, time, auditorium, teacher);
     }
 
-    /**
-     * Удаляет урок из указанного дня
-     *
-     * @param dayOfWeek название дня недели
-     * @param lessonName название удаляемого урока
-     */
-    public void removeLesson(String dayOfWeek, String lessonName) {
-        schedule.get(dayOfWeek).removeLesson(lessonName);
-    }
+    public void removeLessonByOrder(String dayOfWeek, String order, long groupId) {
+        DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
+        String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
 
-    /**
-     * Удаляет день из общего расписания
-     *
-     * @param dayOfWeek название удаляемого дня
-     */
-    public void removeDay(String dayOfWeek) {
-        schedule.remove(dayOfWeek);
+        day.lessonList.removeIf(lesson -> {
+            try {
+                return TimeParser.getOrderByTime(path, lesson.time).equals(order);
+            }
+            catch (IOException _) {
+                return false;
+            }
+        });
     }
 
     /**
@@ -93,15 +102,6 @@ public class Schedule {
         public void addLesson(String lessonName, String time, String auditorium, String teacher) {
             Lesson lesson = new Lesson(lessonName, time, auditorium, teacher);
             lessonList.add(lesson);
-        }
-
-        /**
-         * Удаляет урок с данным названием.
-         *
-         * @param lessonName название урока
-         */
-        public void removeLesson(String lessonName) {
-            lessonList.removeIf(lesson -> lesson.getLessonName().equals(lessonName));
         }
 
         /**

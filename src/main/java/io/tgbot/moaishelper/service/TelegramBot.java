@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -236,12 +237,42 @@ public class TelegramBot extends TelegramLongPollingBot {
                 settings.setWeekDay((short) Day.valueOf(callbackData).getOrder());
                 groupRepository.save(user.getSelectedGroup());
 
-                messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите действие:",
+                messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                        SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()),
                         KeyboardMarkupProvider.changeScheduleOption());
                 return;
             }
 
+            if (callbackData.charAt(0) == '!') {
+                try {
+                    scheduleHandler.removeLessonHandler(callbackData, user.getSelectedGroup().getId());
+                }
+                catch (IOException _) {}
+
+                messageHandler.sendMessage(chatId, LESSON_REMOVED);
+                scheduleHandler.handleScheduleSetCommand(chatId, true);
+                return;
+            }
+
             switch (callbackData) {
+                case "REMOVE_LESSON": {
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+
+                    try {
+                        scheduleHandler.listLesson(chatId,
+                                settings.getWeekNum(),
+                                settings.getWeekDay(),
+                                user.getSelectedGroup().getId());
+                    }
+                    catch (IOException _) {}
+                    return;
+                }
+                case "ADD_LESSON": {
+                    scheduleHandler.addLessonHandler();
+                    return;
+                }
                 case "MANUAL_SCHEDULE_MODIFICATION": {
                     scheduleHandler.handleScheduleSetCommand(chatId, true);
                     return;
