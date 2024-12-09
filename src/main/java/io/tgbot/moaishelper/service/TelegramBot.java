@@ -30,7 +30,6 @@ import static io.tgbot.moaishelper.text.Info.*;
 /**
  * @Authors: Markelloww & YDK
  */
-
 @Component
 @EnableTransactionManagement
 public class TelegramBot extends TelegramLongPollingBot {
@@ -255,22 +254,29 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
 
             switch (callbackData) {
+                case "ADD_LESSON": {
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+
+                    try {
+                        scheduleHandler.addLessonHandler(chatId, settings);
+                    }
+                    catch (IOException _) {}
+                    return;
+                }
                 case "REMOVE_LESSON": {
                     GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                             .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                     AdminScheduleSettings settings = groupUser.getSettings();
 
                     try {
-                        scheduleHandler.listLesson(chatId,
+                        scheduleHandler.printLessonList(chatId,
                                 settings.getWeekNum(),
                                 settings.getWeekDay(),
                                 user.getSelectedGroup().getId());
                     }
                     catch (IOException _) {}
-                    return;
-                }
-                case "ADD_LESSON": {
-                    scheduleHandler.addLessonHandler();
                     return;
                 }
                 case "MANUAL_SCHEDULE_MODIFICATION": {

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * @Authors: Markelloww & YDK
+ */
 @Embeddable
 @NoArgsConstructor
 @Getter

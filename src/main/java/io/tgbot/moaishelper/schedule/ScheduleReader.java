@@ -28,7 +28,7 @@ public class ScheduleReader {
             Gson gson = new Gson();
             short day = DayWeekNumber.getDayOfWeekNumber(zoneId);
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            return schedule.getDayLessons(Day.values()[day].getTranslation());
+            return schedule.getDayLessonsToPrint(Day.values()[day].getTranslation());
         }
         catch (IOException _) {
             return SCHEDULE_EMPTY;
@@ -50,7 +50,7 @@ public class ScheduleReader {
                     groupId, name)));
             Gson gson = new Gson();
             Schedule schedule = gson.fromJson(reader, Schedule.class);
-            return schedule.getDayLessons(Day.values()[day].getTranslation());
+            return schedule.getDayLessonsToPrint(Day.values()[day].getTranslation());
         }
         catch (IOException _) {
             return SCHEDULE_EMPTY;

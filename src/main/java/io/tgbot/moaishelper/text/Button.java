@@ -1,10 +1,8 @@
 package io.tgbot.moaishelper.text;
 
-/*
- * @Author: Markelloww
- * Date: 31.08.2024
+/**
+ * @Authors: Markelloww & YDK
  */
-
 public class Button {
     public static final String JOIN = "Вступить";
 
@@ -40,4 +38,8 @@ public class Button {
 
     public static final String REMOVE_LESSON = "Удалить предмет";
     public static final String ADD_LESSON = "Добавить предмет";
+
+    public static final String NAME = "Предмет";
+    public static final String TEACHER = "Преподаватель";
+    public static final String AUDITORIUM = "Аудитория";
 }

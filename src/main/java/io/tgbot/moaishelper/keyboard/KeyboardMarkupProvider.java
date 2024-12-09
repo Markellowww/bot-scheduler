@@ -3,6 +3,7 @@ package io.tgbot.moaishelper.keyboard;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.text.Keyboard;
+import org.springframework.aop.scope.ScopedProxyUtils;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -616,6 +617,70 @@ public class KeyboardMarkupProvider {
         inlineKeyboardMarkup.setKeyboard(rows);
 
         return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup scheduleChange(final boolean lessonExists) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton button1 = inlineButtonSetter(NAME, "ENTER TEXT");
+        InlineKeyboardButton button2 = inlineButtonSetter(TEACHER, "ENTER TEXT");
+        InlineKeyboardButton button3 = inlineButtonSetter(AUDITORIUM, "ENTER TEXT");
+        rows.add(List.of(button1, button2, button3));
+
+        if (lessonExists) {
+            InlineKeyboardButton button4 = inlineButtonSetter(BACK, "ENTER TEXT");
+            InlineKeyboardButton button5 = inlineButtonSetter(REMOVE_LESSON, "ENTER TEXT");
+            rows.add(List.of(button4, button5));
+        }
+        else {
+            InlineKeyboardButton button4 = inlineButtonSetter(BACK, "ENTER TEXT");
+            rows.add(List.of(button4));
+        }
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup chooseOrderOfLesson(List<String> lessonNames) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 1; i <= 10;) {
+            if (i == 9) {
+                InlineKeyboardButton button1 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                        ":" + i++);
+                InlineKeyboardButton button2 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                        ":" + i);
+                rows.add(List.of(button1, button2));
+                break;
+            }
+            InlineKeyboardButton button1 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                    ":" + i++);
+            InlineKeyboardButton button2 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                    ":" + i++);
+            InlineKeyboardButton button3 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                    ":" + i++);
+            InlineKeyboardButton button4 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
+                    ":" + i++);
+            rows.add(List.of(button1, button2, button3, button4));
+        }
+
+        InlineKeyboardButton button4 = inlineButtonSetter(BACK, "MANUAL_SCHEDULE_MODIFICATION");
+        rows.add(List.of(button4));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    private static String getLessonNameForIndex(List<String> lessonNames, int index) {
+        String indexString = index + ". ";
+        for (String lessonName : lessonNames) {
+            if (lessonName.startsWith(indexString)) {
+                return lessonName;
+            }
+        }
+        return index + ". Пусто";
     }
     // <--------- Inline
 }

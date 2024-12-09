@@ -11,6 +11,9 @@ import java.util.Map;
 import static io.tgbot.moaishelper.text.Info.TIME_SELECTION;
 import static io.tgbot.moaishelper.text.Info.USER_NOTIFICATION_SETTINGS;
 
+/**
+ * @Authors: Markelloww & YDK
+ */
 @Component
 public class SettingsHandler {
     private final UserRepository userRepository;

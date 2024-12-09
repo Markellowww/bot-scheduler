@@ -2,13 +2,11 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;

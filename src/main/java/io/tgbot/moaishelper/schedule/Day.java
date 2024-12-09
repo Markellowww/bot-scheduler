@@ -2,6 +2,9 @@ package io.tgbot.moaishelper.schedule;
 
 import lombok.Getter;
 
+/**
+ * @Authors: Markelloww & YDK
+ */
 @Getter
 public enum Day {
     MONDAY(0, "Понедельник"),

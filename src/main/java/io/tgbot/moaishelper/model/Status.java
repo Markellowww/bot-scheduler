@@ -6,7 +6,6 @@ import lombok.Getter;
 /**
  * @Authors: Markelloww & YDK
  */
-
 @Entity
 @Getter
 public class Status {

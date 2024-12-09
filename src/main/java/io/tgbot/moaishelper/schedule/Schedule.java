@@ -39,7 +39,7 @@ public class Schedule {
         schedule.putIfAbsent(dayOfWeek, new DayLessons());
     }
 
-    public String getDayLessons(String dayOfWeek) {
+    public String getDayLessonsToPrint(String dayOfWeek) {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
         return day.show(dayOfWeek);
     }
@@ -85,6 +85,7 @@ public class Schedule {
     }
 
     private static class DayLessons {
+
         private final List<Lesson> lessonList;
 
         public DayLessons() {

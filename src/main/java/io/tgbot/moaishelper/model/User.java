@@ -13,7 +13,6 @@ import java.util.Objects;
 /**
  * @Authors: Markelloww & YDK
  */
-
 @Entity
 @Getter
 @NoArgsConstructor

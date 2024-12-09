@@ -5,7 +5,6 @@ import com.vdurmont.emoji.EmojiParser;
 /**
  * @Authors: Markelloww & YDK
  */
-
 public class Keyboard {
 
     public static final String GUIDE = EmojiParser.parseToUnicode(":closed_book: Руководство (IN DEVELOP)");

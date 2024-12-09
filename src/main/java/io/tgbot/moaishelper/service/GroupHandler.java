@@ -21,7 +21,6 @@ import static io.tgbot.moaishelper.text.Info.*;
 /**
  * @Authors: Markelloww & YDK
  */
-
 @Component
 public class GroupHandler {
 

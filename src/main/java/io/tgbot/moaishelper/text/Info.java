@@ -1,17 +1,14 @@
 package io.tgbot.moaishelper.text;
 
-/*
-  @Authors: Markelloww & YDK
-*/
-
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.service.GroupHandler;
-import org.yaml.snakeyaml.util.EnumUtils;
 
-
+/**
+ * @Authors: Markelloww & YDK
+ */
 public class Info {
 
     public static final String TEXT_SUPPORT = EmojiParser.parseToUnicode(
@@ -35,6 +32,10 @@ public class Info {
                     ❗️ При отправке Excel-таблицы расписание будет полностью перезаписано ❗️
 
                     Вы можете подкорректировать расписание с помощью ручного изменения""");
+
+    public static final String LESSON_WILL_REWRITED = EmojiParser.parseToUnicode(
+            """
+                    ❗️ При выборе уже заполненной пары она будет полностью перезаписана ❗️""");
 
     public static String SCHEDULE_MANUAL_WARNING(final boolean isNumerator) {
         String value = isNumerator ? "Числитель" : "Знаменатель";

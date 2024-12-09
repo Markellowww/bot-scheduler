@@ -56,10 +56,24 @@ public class ScheduleHandler {
         scheduleToJson(schedule, groupId, weekNum);
     }
 
-    public void listLesson(final long chatId,
-                           final Boolean weekNum,
-                           final Short weekDay,
-                           final long groupId) throws IOException {
+    public void addLessonHandler(long chatId, AdminScheduleSettings settings) throws IOException {
+        long groupId = userRepository.findByChatId(chatId).getSelectedGroup().getId();
+        Schedule schedule = scheduleFromJson(settings.getWeekNum(), groupId);
+
+        if (schedule == null) {
+            return;
+        }
+        String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
+        List<String> lessonNames = schedule.getLessonNames(Day.values()[settings.getWeekDay()].getTranslation(), path);
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, LESSON_WILL_REWRITED,
+                KeyboardMarkupProvider.chooseOrderOfLesson(lessonNames));
+    }
+
+    public void printLessonList(final long chatId,
+                                final Boolean weekNum,
+                                final Short weekDay,
+                                final long groupId) throws IOException {
 
         Schedule schedule = scheduleFromJson(weekNum, groupId);
 
@@ -74,10 +88,6 @@ public class ScheduleHandler {
         else {
             scheduleHandler.handleScheduleSetCommand(chatId, true);
         }
-    }
-
-    public void addLessonHandler() {
-
     }
 
     public Schedule scheduleFromJson(final Boolean weekNum,

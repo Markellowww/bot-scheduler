@@ -6,6 +6,9 @@ import lombok.Setter;
 
 import java.util.Objects;
 
+/**
+ * @Authors: YDKrivoshey
+ */
 @Entity
 @Getter
 public class UserSettings {
