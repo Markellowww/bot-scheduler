@@ -390,18 +390,27 @@ public class GroupHandler {
         new File(String.format("src/main/resources/groups/%d",
                 groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
 
-        new File(String.format("src/main/resources/groups/%d/homeworks",
-                groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
-
-        new File(String.format("src/main/resources/groups/%d/lectures",
-                groupRepository.findByOwnerId(creator.getId()).getId())).mkdirs();
-
         creator.setSelectedGroup(group);
         creator.setStatus(statusRepository.findById(1));
         userRepository.save(creator);
 
         boolean chosen = groupChosen(creator);
         boolean created = groupCreated(creator);
+        if (created) {
+            long groupId = groupRepository.findByOwnerId(creator.getId()).getId();
+            try {
+                FileUtils.copyFileToDirectory(new File("src/main/resources/Schedule.xlsx"),
+                        new File(String.format("src/main/resources/groups/%d", groupId)));
+            }
+            catch (IOException _) {
+            }
+            ExcelParser.parse(group.getId());
+            try {
+                FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx",
+                        groupId)));
+            } catch (IOException _) {
+            }
+        }
         messageHandler.sendMessage(chatId, GROUP_CREATE_SUCCESSFUL(group));
         messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(creator),
                 KeyboardMarkupProvider.groupsMenu(chosen, created));
