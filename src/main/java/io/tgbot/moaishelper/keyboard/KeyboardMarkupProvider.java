@@ -3,7 +3,6 @@ package io.tgbot.moaishelper.keyboard;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.text.Keyboard;
-import org.springframework.aop.scope.ScopedProxyUtils;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -619,29 +618,6 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
-    public static InlineKeyboardMarkup scheduleChange(final boolean lessonExists) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-
-        InlineKeyboardButton button1 = inlineButtonSetter(NAME, "ENTER TEXT");
-        InlineKeyboardButton button2 = inlineButtonSetter(TEACHER, "ENTER TEXT");
-        InlineKeyboardButton button3 = inlineButtonSetter(AUDITORIUM, "ENTER TEXT");
-        rows.add(List.of(button1, button2, button3));
-
-        if (lessonExists) {
-            InlineKeyboardButton button4 = inlineButtonSetter(BACK, "ENTER TEXT");
-            InlineKeyboardButton button5 = inlineButtonSetter(REMOVE_LESSON, "ENTER TEXT");
-            rows.add(List.of(button4, button5));
-        }
-        else {
-            InlineKeyboardButton button4 = inlineButtonSetter(BACK, "ENTER TEXT");
-            rows.add(List.of(button4));
-        }
-
-        inlineKeyboardMarkup.setKeyboard(rows);
-        return inlineKeyboardMarkup;
-    }
-
     public static InlineKeyboardMarkup chooseOrderOfLesson(List<String> lessonNames) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -681,6 +657,22 @@ public class KeyboardMarkupProvider {
             }
         }
         return index + ". Пусто";
+    }
+
+    public static InlineKeyboardMarkup lessonCreateSettings() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        InlineKeyboardButton lessonName = inlineButtonSetter(LESSON_NAME, "LESSONCREATESETTINGS");
+        InlineKeyboardButton teacherName = inlineButtonSetter(TEACHER_NAME, "LESSONCREATESETTINGS");
+        InlineKeyboardButton auditorium = inlineButtonSetter(AUDITORIUM, "LESSONCREATESETTINGS");
+        rows.add(List.of(lessonName, teacherName, auditorium));
+
+        InlineKeyboardButton cancel = inlineButtonSetter(DENY, "CHOOSE_ORDER_OF_LESSON");
+        rows.add(List.of(cancel));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
     }
     // <--------- Inline
 }

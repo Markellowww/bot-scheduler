@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -128,7 +129,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR,
-                                KeyboardMarkupProvider.inlineGoBackButton());
+                                inlineGoBackButton());
                     }
                 }
             } 
@@ -138,21 +139,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
-                            KeyboardMarkupProvider.groupsMenu(chosen, created));
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
                 }
                 else if (messageText.equals(Keyboard.CONTACTS)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT,
-                            KeyboardMarkupProvider.inlineGoBackButton());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT, inlineGoBackButton());
                 }
                 else if (messageText.equals(Keyboard.GUIDE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
-                            KeyboardMarkupProvider.inlineGoBackButton());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP, inlineGoBackButton());
                 }
                 else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
-                            KeyboardMarkupProvider.groupsMenu(chosen, created));
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
                 }
                 else if (messageText.equals(Keyboard.LEAVE_GROUP)) {
                     groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
@@ -161,18 +158,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                         messageText.equals(Keyboard.BACK_TO_GROUP_SETTINGS)) {
                     boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Управление группой",
-                                KeyboardMarkupProvider.groupSettingsMenu(isOwner));
+                                groupSettingsMenu(isOwner));
                 }
                 else if (messageText.equals(Keyboard.BACK_TO_MENU_GROUPS)) {
                     if (user.getSelectedGroup() == null) {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
-                                KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR, inlineContinueButtonToMainMenu());
                         return;
                     }
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
                             user.getId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                 }
                 else if (messageText.equals(Keyboard.SHOW_MEMBERS)) {
                     groupHandler.showMembers(chatId);
@@ -196,12 +192,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                     groupHandler.handleInviteCommand(chatId);
                 }
                 else if (messageText.equals(Keyboard.SET_SCHEDULE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION,
-                            KeyboardMarkupProvider.setSchedule());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
                 }
                 else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE,
-                            KeyboardMarkupProvider.scheduleMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE, scheduleMenu());
                 }
                 else if (messageText.equals(Keyboard.NOTIFICATION_FOR_ALL)) {
                     groupHandler.handleMessageCommand(chatId);
@@ -215,8 +209,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else {
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR,
-                            KeyboardMarkupProvider.inlineGoBackButton());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR, inlineGoBackButton());
                 }
             }
         }
@@ -237,8 +230,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 groupRepository.save(user.getSelectedGroup());
 
                 messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                        SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()),
-                        KeyboardMarkupProvider.changeScheduleOption());
+                        SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
                 return;
             }
 
@@ -252,9 +244,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                 scheduleHandler.handleScheduleSetCommand(chatId, true);
                 return;
             }
+            else if (callbackData.charAt(0) == ':') {
+                int lessonOrder = callbackData.charAt(1);
+                // Отправить Inline с настройками предмета
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, "СДЕЛАТЬ ПОКАЗ ТЕКУЩИХ НАСТРОЕК",
+                        lessonCreateSettings());
+                return;
+            }
 
             switch (callbackData) {
-                case "ADD_LESSON": {
+                case "CHOOSE_ORDER_OF_LESSON", "ADD_LESSON": {
                     GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                             .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                     AdminScheduleSettings settings = groupUser.getSettings();
@@ -289,8 +288,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     AdminScheduleSettings settings = groupUser.getSettings();
                     settings.setWeekNum(!settings.getWeekNum());
                     groupRepository.save(user.getSelectedGroup());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
-                            KeyboardMarkupProvider.chooseDayOfWeek());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                            SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+                            chooseDayOfWeek());
                     return;
                 }
                 case "DENY": {
@@ -303,17 +303,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                     user.setStatus(statusRepository.findById(1));
                     userRepository.save(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            KeyboardMarkupProvider.excelScheduleSettings());
+                            excelScheduleSettings());
                     return;
                 }
                 case "BACK_TO_SCHEDULE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION,
-                            KeyboardMarkupProvider.setSchedule());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
                     return;
                 }
                 case "TAKE_TEMPLATE": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            KeyboardMarkupProvider.excelScheduleSettings());
+                            excelScheduleSettings());
                     messageHandler.uploadScheduleTemplate(chatId);
                     return;
                 }
@@ -321,25 +320,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                     user.setStatus(statusRepository.findById(10));
                     userRepository.save(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
-                            KeyboardMarkupProvider.inlineGoBackButtonToScheduleMenu());
+                            inlineGoBackButtonToScheduleMenu());
                     return;
                 }
                 case "BACK_TO_MAIN_MENU": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Назад",
-                            KeyboardMarkupProvider.startMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Назад", startMenu());
                     return;
                 }
                 case "BACK_TO_MAIN_GROUPS_MENU": {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user),
-                            KeyboardMarkupProvider.groupsMenu(chosen, created));
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
                     return;
                 }
                 case "BACK_TO_GROUP_MENU": {
                     boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
                             user.getId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "BACK_TO_GROUP_SETTING_MENU": {
@@ -347,7 +344,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     userRepository.save(user);
                     boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
-                            KeyboardMarkupProvider.groupSettingsMenu(isOwner));
+                            groupSettingsMenu(isOwner));
                     return;
                 }
                 case "CREATE_GROUP": {
@@ -362,7 +359,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     Groupe selectedGroup = user.getSelectedGroup();
                     boolean isAdmin = selectedGroup.getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "TODAY": {
@@ -371,7 +368,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                             user.getId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
                             "<b>Расписание на сегодня:</b>\n\n".concat(ScheduleReader.todaySchedule(groupId, zone)),
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "TOMORROW": {
@@ -380,7 +377,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                             user.getId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
                             "<b>Расписание на завтра:</b>\n\n".concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "THIS_WEEK": {
@@ -389,8 +386,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                             user.getId());
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
                             "<b>Расписание на текущую неделю:</b>\n\n".
-                            concat(ScheduleReader.thisWeekSchedule(groupId, zone)),
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            concat(ScheduleReader.thisWeekSchedule(groupId, zone)), showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "NEXT_WEEK": {
@@ -400,7 +396,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
                             "<b>Расписание на следующую неделю:</b>\n\n".
                                     concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
-                            KeyboardMarkupProvider.showGroupsSettingsMenu(isAdmin));
+                            showGroupsSettingsMenu(isAdmin));
                     return;
                 }
                 case "CHANGE_NOTIFICATIONS": {
@@ -409,23 +405,20 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "TIMEZONE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
-                            KeyboardMarkupProvider.timezonesMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, timezonesMenu());
                     return;
                 }
                 case "NOTIFICATIONS_TIME": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            CHOOSE_NOTIFICATION_SEND_TIME, KeyboardMarkupProvider.timeMenu());
+                            CHOOSE_NOTIFICATION_SEND_TIME, timeMenu());
                     return;
                 }
                 case "HOUR_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
-                            KeyboardMarkupProvider.hoursMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, hoursMenu());
                     return;
                 }
                 case "MINUTE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION,
-                            KeyboardMarkupProvider.minutesMenu());
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, minutesMenu());
                     return;
                 }
                 case "BACK_TO_SETTINGS": {
@@ -536,8 +529,7 @@ public class TelegramBot extends TelegramLongPollingBot {
      */
     private void userError(long chatId) {
         User user = userRepository.findByChatId(chatId);
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR,
-                KeyboardMarkupProvider.inlineGoBackButton());
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR, inlineGoBackButton());
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
     }

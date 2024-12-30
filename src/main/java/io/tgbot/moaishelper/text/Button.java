@@ -39,7 +39,7 @@ public class Button {
     public static final String REMOVE_LESSON = "Удалить предмет";
     public static final String ADD_LESSON = "Добавить предмет";
 
-    public static final String NAME = "Предмет";
-    public static final String TEACHER = "Преподаватель";
+    public static final String LESSON_NAME = "Предмет";
+    public static final String TEACHER_NAME = "Преподаватель";
     public static final String AUDITORIUM = "Аудитория";
 }
