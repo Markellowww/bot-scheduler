@@ -28,27 +28,9 @@ class Notifications {
 
     @Scheduled(cron = "0 0/15 * * * *")
     private void notifyUsers() {
-        ZonedDateTime now = ZonedDateTime.now();
-        List<User> users = (List<User>) userRepository.findAll();
-        for (User user : users) {
-            UserSettings settings = settingsRepository.findById(user.getId());
-            if (settings.isNotificationsEnabled() && isAppropriateTime(now, settings)) {
-
-                Groupe group = user.getSelectedGroup();
-                if (group != null) {
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(user.getChatId(),
-                            String.format("Расписание группы %s на сегодня:\n%s", group.getName(),
-                                    ScheduleReader.todaySchedule(group.getId(), ZoneId.of(settings.getTimeZoneId()))),
-                            null);
-                }
-            }
-        }
+        NotificationsDaemon daemon = new NotificationsDaemon((List<User>) userRepository.findAll(),
+                messageHandler, settingsRepository);
+        daemon.start();
     }
 
-    private boolean isAppropriateTime(ZonedDateTime time, UserSettings settings) {
-        ZonedDateTime zoneTime = time.withZoneSameInstant(ZoneId.of(settings.getTimeZoneId()));
-
-        return zoneTime.getHour() == settings.getNotificationHours() &&
-                zoneTime.getMinute() == settings.getNotificationMinutes();
-    }
 }
