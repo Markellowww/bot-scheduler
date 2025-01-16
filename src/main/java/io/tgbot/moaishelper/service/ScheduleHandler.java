@@ -44,24 +44,47 @@ public class ScheduleHandler {
         Groupe selectedGroup = userRepository.findByChatId(chatId).getSelectedGroup();
         Schedule schedule = scheduleFromJson(settings.getWeekNum(), selectedGroup.getId());
         String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
-        String newTime = "ASD";
 
-        schedule.updateLesson(dayOfWeek, settings.getLessonNum(), inputText, newTime);
+        schedule.updateLessonName(dayOfWeek, settings.getLessonNum(), inputText);
 
-        // Меняем старый schedule на новый schedule
-        //(Schedule schedule, long groupId, boolean weekNum)
         scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
 
         messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
                 lessonCreateSettings());
     }
 
-    /**
-     * Первый символ "!" - спец. символ, который говорит, что происходит удаление предмета
-     * Второй символ - четность недели: 1 - Числитель, 0 - Знаменатель
-     * Третий символ - порядковый номер дня недели (исходя из enum Day)
-     * Четвертый символ - порядковый номер начала пары
-     */
+    public void setTeacherName(long chatId, AdminScheduleSettings settings, String inputText) throws IOException {
+        Groupe selectedGroup = userRepository.findByChatId(chatId).getSelectedGroup();
+        Schedule schedule = scheduleFromJson(settings.getWeekNum(), selectedGroup.getId());
+        String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+
+        schedule.updateTeacherName(dayOfWeek, settings.getLessonNum(), inputText);
+
+        scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+                lessonCreateSettings());
+    }
+
+    public void setAuditorium(long chatId, AdminScheduleSettings settings, String inputText) throws IOException {
+        Groupe selectedGroup = userRepository.findByChatId(chatId).getSelectedGroup();
+        Schedule schedule = scheduleFromJson(settings.getWeekNum(), selectedGroup.getId());
+        String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+
+        schedule.updateAuditorium(dayOfWeek, settings.getLessonNum(), inputText);
+
+        scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+                lessonCreateSettings());
+    }
+
+        /**
+         * Первый символ "!" - спец. символ, который говорит, что происходит удаление предмета
+         * Второй символ - четность недели: 1 - Числитель, 0 - Знаменатель
+         * Третий символ - порядковый номер дня недели (исходя из enum Day)
+         * Четвертый символ - порядковый номер начала пары
+         */
     public void removeLessonHandler(String callback, long groupId) throws IOException {
         boolean weekNum = (callback.charAt(1) == '1');
         Schedule schedule = scheduleFromJson(weekNum, groupId);

@@ -19,7 +19,7 @@ public class Schedule {
     }
 
     // СДЕЛАТЬ -->
-    public void updateLesson(String dayOfWeek, int lessonOrder, String newLessonName) {
+    public void updateLessonName(String dayOfWeek, int lessonOrder, String newLessonName) {
         DayLessons day = schedule.get(dayOfWeek);
 
         Lesson lessonToUpdate = day.lessonList.get(lessonOrder - 1);
@@ -30,12 +30,10 @@ public class Schedule {
         lessonToUpdate.lessonName = newLessonName;
     }
 
-    public void setTeacherName(String dayOfWeek, int lessonOrder, String newLessonName) {
-
+    public void updateTeacherName(String dayOfWeek, int lessonOrder, String newLessonName) {
     }
 
-    public void setAudithorium(String dayOfWeek, int lessonOrder, String newLessonName) {
-
+    public void updateAuditorium(String dayOfWeek, int lessonOrder, String newLessonName) {
     }
     // <-- СДЕЛАТЬ
 

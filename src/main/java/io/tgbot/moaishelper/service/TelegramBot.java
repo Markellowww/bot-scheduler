@@ -1,7 +1,6 @@
 package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
-import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
@@ -16,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
@@ -27,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
-import static io.tgbot.moaishelper.text.Button.*;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -159,7 +156,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         AdminScheduleSettings settings = groupUser.getSettings();
 
                         try {
-                            scheduleHandler.setAudithorium(chatId, settings, messageText);
+                            scheduleHandler.setAuditorium(chatId, settings, messageText);
                         } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
