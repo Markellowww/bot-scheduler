@@ -33,9 +33,9 @@ public class Info {
 
                     Вы можете подкорректировать расписание с помощью ручного изменения""");
 
-    public static final String LESSON_WILL_REWRITED = EmojiParser.parseToUnicode(
+    public static final String LESSON_CHOSE_INFO = EmojiParser.parseToUnicode(
             """
-                    ❗️ При выборе уже заполненной пары она будет полностью перезаписана ❗️""");
+                    ❗️ Выберите порядковый номер добавляемой (изменяемой) пары ❗️""");
 
     public static String SCHEDULE_MANUAL_WARNING(final boolean isNumerator) {
         String value = isNumerator ? "Числитель" : "Знаменатель";

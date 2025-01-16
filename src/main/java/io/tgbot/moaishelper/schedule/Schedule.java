@@ -18,6 +18,14 @@ public class Schedule {
         this.schedule = new LinkedHashMap<>();
     }
 
+    public void updateLesson(String dayOfWeek, int lessonOrder, String newLessonName, String newTime) {
+        DayLessons day = schedule.get(dayOfWeek);
+
+        Lesson lessonToUpdate = day.lessonList.get(lessonOrder - 1);
+        lessonToUpdate.time = newTime;
+        lessonToUpdate.lessonName = newLessonName;
+    }
+
     public List<String> getLessonNames(String dayOfWeek, String path) throws IOException {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
 
@@ -136,10 +144,13 @@ public class Schedule {
 
     private static class Lesson {
         @Getter
-        private final String lessonName;
-        private final String teacher;
-        private final String time;
-        private final String auditorium;
+        private String lessonName;
+        private String teacher;
+        private String time;
+        private String auditorium;
+
+        public Lesson() {
+        }
 
         public Lesson(String lessonName, String time, String auditorium, String teacher) {
             this.lessonName = lessonName;

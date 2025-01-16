@@ -663,13 +663,13 @@ public class KeyboardMarkupProvider {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        InlineKeyboardButton lessonName = inlineButtonSetter(LESSON_NAME, "LESSONCREATESETTINGS");
-        InlineKeyboardButton teacherName = inlineButtonSetter(TEACHER_NAME, "LESSONCREATESETTINGS");
-        InlineKeyboardButton auditorium = inlineButtonSetter(AUDITORIUM, "LESSONCREATESETTINGS");
+        InlineKeyboardButton lessonName = inlineButtonSetter(LESSON_NAME, "SEND_LESSON_NAME");
+        InlineKeyboardButton teacherName = inlineButtonSetter(TEACHER_NAME, "SEND_TEACHER_NAME");
+        InlineKeyboardButton auditorium = inlineButtonSetter(AUDITORIUM, "SEND_AUDITORIUM");
         rows.add(List.of(lessonName, teacherName, auditorium));
 
-        InlineKeyboardButton cancel = inlineButtonSetter(DENY, "CHOOSE_ORDER_OF_LESSON");
-        rows.add(List.of(cancel));
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "CHOOSE_ORDER_OF_LESSON");
+        rows.add(List.of(back));
 
         inlineKeyboardMarkup.setKeyboard(rows);
         return inlineKeyboardMarkup;

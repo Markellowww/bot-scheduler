@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.lessonCreateSettings;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -39,6 +40,22 @@ public class ScheduleHandler {
         this.scheduleHandler = scheduleHandler;
     }
 
+    public void setLessonName(long chatId, AdminScheduleSettings settings, String inputText) throws IOException {
+        Groupe selectedGroup = userRepository.findByChatId(chatId).getSelectedGroup();
+        Schedule schedule = scheduleFromJson(settings.getWeekNum(), selectedGroup.getId());
+        String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+        String newTime = "ASD";
+
+        schedule.updateLesson(dayOfWeek, settings.getLessonNum(), inputText, newTime);
+
+        // Меняем старый schedule на новый schedule
+        //(Schedule schedule, long groupId, boolean weekNum)
+        scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+                lessonCreateSettings());
+    }
+
     /**
      * Первый символ "!" - спец. символ, который говорит, что происходит удаление предмета
      * Второй символ - четность недели: 1 - Числитель, 0 - Знаменатель
@@ -46,7 +63,7 @@ public class ScheduleHandler {
      * Четвертый символ - порядковый номер начала пары
      */
     public void removeLessonHandler(String callback, long groupId) throws IOException {
-        Boolean weekNum = (callback.charAt(1) == '1');
+        boolean weekNum = (callback.charAt(1) == '1');
         Schedule schedule = scheduleFromJson(weekNum, groupId);
 
         short weekDay = Short.parseShort(String.valueOf(callback.charAt(2)));
@@ -66,7 +83,7 @@ public class ScheduleHandler {
         String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
         List<String> lessonNames = schedule.getLessonNames(Day.values()[settings.getWeekDay()].getTranslation(), path);
 
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, LESSON_WILL_REWRITED,
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, LESSON_CHOSE_INFO,
                 KeyboardMarkupProvider.chooseOrderOfLesson(lessonNames));
     }
 
@@ -90,7 +107,7 @@ public class ScheduleHandler {
         }
     }
 
-    public Schedule scheduleFromJson(final Boolean weekNum,
+    public static Schedule scheduleFromJson(final Boolean weekNum,
                                      final long groupId) throws IOException {
 
         String weekNumber = weekNum ? "Числитель" : "Знаменатель";
@@ -101,8 +118,8 @@ public class ScheduleHandler {
         return gson.fromJson(reader, Schedule.class);
     }
 
-    public void scheduleToJson(Schedule schedule, long groupId, boolean weekNum) throws IOException {
-        String weekNumber = weekNum? "Числитель" : "Знаменатель";
+    public static void scheduleToJson(Schedule schedule, long groupId, boolean weekNum) throws IOException {
+        String weekNumber = weekNum ? "Числитель" : "Знаменатель";
         try (Writer writer = new FileWriter(String.format("src/main/resources/groups/%d/%s.json",
                 groupId, weekNumber))) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();

@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
+import static io.tgbot.moaishelper.text.Button.*;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -125,6 +127,54 @@ public class TelegramBot extends TelegramLongPollingBot {
                         userRepository.save(user);
                         break;
                     }
+
+
+
+
+
+
+
+                    case 21: {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+
+                        try {
+                            scheduleHandler.setLessonName(chatId, settings, messageText);
+                        } catch (IOException _) {}
+
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        break;
+                    }
+                    case 22: {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+
+                        // Ввод ФИО преподавателя
+
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        break;
+                    }
+                    case 23: {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+
+                        // Ввод номера аудитории
+
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        break;
+                    }
+
+
+
+
+
+
                     default: {
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -245,14 +295,38 @@ public class TelegramBot extends TelegramLongPollingBot {
                 return;
             }
             else if (callbackData.charAt(0) == ':') {
-                int lessonOrder = callbackData.charAt(1);
-                // Отправить Inline с настройками предмета
-                messageHandler.sendMessageWithKeyboardMarkup(chatId, "СДЕЛАТЬ ПОКАЗ ТЕКУЩИХ НАСТРОЕК",
+                int lessonOrder = Integer.parseInt(callbackData.split(":")[1]);
+
+                GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                        .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                AdminScheduleSettings settings = groupUser.getSettings();
+                settings.setLessonNum((short) lessonOrder);
+                groupRepository.save(user.getSelectedGroup());
+
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
                         lessonCreateSettings());
                 return;
             }
 
             switch (callbackData) {
+                case "SEND_LESSON_NAME": {
+                    messageHandler.sendMessage(chatId, "Введите название предмета:");
+                    user.setStatus(statusRepository.findById(21));
+                    userRepository.save(user);
+                    return;
+                }
+                case "SEND_TEACHER_NAME": {
+                    messageHandler.sendMessage(chatId, "Введите ФИО преподавателя:");
+                    user.setStatus(statusRepository.findById(22));
+                    userRepository.save(user);
+                    return;
+                }
+                case "SEND_AUDITORIUM": {
+                    messageHandler.sendMessage(chatId, "Введите номер аудитории:");
+                    user.setStatus(statusRepository.findById(23));
+                    userRepository.save(user);
+                    return;
+                }
                 case "CHOOSE_ORDER_OF_LESSON", "ADD_LESSON": {
                     GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                             .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();

@@ -37,7 +37,7 @@ public class Button {
     public static final String SEND_TEMPLATE = "Отправить шаблон";
 
     public static final String REMOVE_LESSON = "Удалить предмет";
-    public static final String ADD_LESSON = "Добавить предмет";
+    public static final String ADD_LESSON = "Добавить/Изменить предмет";
 
     public static final String LESSON_NAME = "Предмет";
     public static final String TEACHER_NAME = "Преподаватель";
