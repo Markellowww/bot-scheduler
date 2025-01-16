@@ -16,9 +16,7 @@ import static io.tgbot.moaishelper.text.Info.USER_NOTIFICATION_SETTINGS;
  */
 @Component
 public class SettingsHandler {
-    private final UserRepository userRepository;
     private final UserSettingsRepository userSettingsRepository;
-    private final TelegramBot bot;
     private final MessageHandler messageHandler;
 
     private final Map<Integer, String> zonesByHourDif = Map.ofEntries(Map.entry(-1, "Europe/Kaliningrad"),
@@ -28,13 +26,10 @@ public class SettingsHandler {
             Map.entry(6, "Asia/Yakutsk"), Map.entry(7, "Asia/Vladivostok"),
             Map.entry(8, "Asia/Magadan"), Map.entry(9, "Asia/Anadyr"));
 
-    public SettingsHandler(UserRepository userRepository,
+    public SettingsHandler(
                         UserSettingsRepository settingsRepository,
-                        TelegramBot bot,
                         MessageHandler messageHandler) {
-        this.userRepository = userRepository;
         this.userSettingsRepository = settingsRepository;
-        this.bot = bot;
         this.messageHandler = messageHandler;
     }
 

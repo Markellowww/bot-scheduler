@@ -104,7 +104,8 @@ public class ScheduleHandler {
             return;
         }
         String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
-        List<String> lessonNames = schedule.getLessonNames(Day.values()[settings.getWeekDay()].getTranslation(), path);
+        List<String> lessonNames = schedule.getLessonNames(groupId,
+                Day.values()[settings.getWeekDay()].getTranslation(), path);
 
         messageHandler.sendMessageWithKeyboardMarkup(chatId, LESSON_CHOSE_INFO,
                 KeyboardMarkupProvider.chooseOrderOfLesson(lessonNames));
@@ -119,7 +120,7 @@ public class ScheduleHandler {
 
         if (schedule != null) {
             String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
-            List<String> lessonNames = schedule.getLessonNames(Day.values()[weekDay].getTranslation(), path);
+            List<String> lessonNames = schedule.getLessonNames(groupId, Day.values()[weekDay].getTranslation(), path);
 
             messageHandler.sendMessageWithKeyboardMarkup(chatId,
                     "Выберите предмет, который будет удален:",

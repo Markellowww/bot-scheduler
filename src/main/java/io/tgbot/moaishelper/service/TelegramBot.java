@@ -298,19 +298,20 @@ public class TelegramBot extends TelegramLongPollingBot {
 
             switch (callbackData) {
                 case "SEND_LESSON_NAME": {
-                    messageHandler.sendMessage(chatId, "Введите название предмета:");
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
+                            denyInput());
                     user.setStatus(statusRepository.findById(21));
                     userRepository.save(user);
                     return;
                 }
                 case "SEND_TEACHER_NAME": {
-                    messageHandler.sendMessage(chatId, "Введите ФИО преподавателя:");
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите ФИО преподавателя:", denyInput());
                     user.setStatus(statusRepository.findById(22));
                     userRepository.save(user);
                     return;
                 }
                 case "SEND_AUDITORIUM": {
-                    messageHandler.sendMessage(chatId, "Введите номер аудитории:");
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите номер аудитории:", denyInput());
                     user.setStatus(statusRepository.findById(23));
                     userRepository.save(user);
                     return;

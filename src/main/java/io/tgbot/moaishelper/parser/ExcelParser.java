@@ -40,7 +40,7 @@ public class ExcelParser {
                 for (short day = 1; day < 8; day++, rowIndex += 2) {
                     List<List<Object>> dayData = new ArrayList<>();
 
-                    for (short pair = 1; pair < 11; pair++, rowIndex++) {
+                    for (int pair = 1; pair < 11; pair++, rowIndex++) {
                         cellIndex = (short) (1 + 5 * week);
                         currentRow = mySheet.getRow(rowIndex);
                         List<Object> subjectData = new ArrayList<>();
@@ -84,28 +84,18 @@ public class ExcelParser {
     private static boolean createSchedule(long groupId) {
         Map<Short, Schedule> schedules = new LinkedHashMap<>();
         List<List<List<List<Object>>>> data = readSchedule(groupId);
-        List<String> timetable;
-        try {
-            Reader reader = Files.newBufferedReader(Paths.get(String.format("src/main/resources/groups/%d/Время.json",
-                    groupId)));
 
-            Gson gson = new Gson();
-            timetable = gson.fromJson(reader, Map.class).values().stream().toList();
-        }
-        catch (IOException _) {
-            return false;
-        }
         for (short week = 0; week < 2; week++) {
             Schedule schedule = new Schedule();
             for (short dayNum = 0; dayNum < 7; dayNum++) {
                 schedule.addDay(Day.values()[dayNum].getTranslation());
                 for (var subjectData : data.get(week).get(dayNum)) {
-                    Short pair = (Short) subjectData.getFirst();
-                    String t = timetable.get(pair - 1);
+                    int lessonNumber = (int) subjectData.getFirst();
                     String subject = subjectData.get(1).toString();
                     String teacher = subjectData.get(2).toString();
                     String auditorium = subjectData.get(3).toString();
-                    schedule.addLesson(Day.values()[dayNum].getTranslation(), subject, t, teacher, auditorium);
+                    schedule.addLesson(Day.values()[dayNum].getTranslation(), subject, lessonNumber,
+                            teacher, auditorium);
                 }
             }
             schedules.put(week, schedule);

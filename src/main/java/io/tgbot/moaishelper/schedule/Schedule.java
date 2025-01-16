@@ -1,10 +1,16 @@
 package io.tgbot.moaishelper.schedule;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.parser.TimeParser;
 import lombok.Getter;
 
 import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -21,29 +27,49 @@ public class Schedule {
     // СДЕЛАТЬ -->
     public void updateLessonName(String dayOfWeek, int lessonOrder, String newLessonName) {
         DayLessons day = schedule.get(dayOfWeek);
+        Lesson lessonToUpdate = day.lessonList.stream().filter(lesson -> lesson.lessonNumber == lessonOrder).
+                findFirst().orElse(null);
 
-        Lesson lessonToUpdate = day.lessonList.get(lessonOrder - 1);
-
-        String newTime = ""; // СДЕЛАТЬ ВЫКАЧКУ ИЗ JSON метод в schedulehandler: getTimeBySchedule
-
-        lessonToUpdate.time = newTime;
-        lessonToUpdate.lessonName = newLessonName;
+        if (lessonToUpdate == null) {
+            day.addLesson(newLessonName, lessonOrder, "", "");
+        }
+        else
+            lessonToUpdate.lessonName = newLessonName;
     }
 
-    public void updateTeacherName(String dayOfWeek, int lessonOrder, String newLessonName) {
+    public void updateTeacherName(String dayOfWeek, int lessonOrder, String newTeacher) {
+        DayLessons day = schedule.get(dayOfWeek);
+        Lesson lessonToUpdate = day.lessonList.stream().filter(lesson -> lesson.lessonNumber == lessonOrder).
+                findFirst().orElse(null);
+
+        if (lessonToUpdate == null) {
+            day.addLesson("", lessonOrder, "", newTeacher);
+        }
+        else
+            lessonToUpdate.teacher = newTeacher;
+
     }
 
-    public void updateAuditorium(String dayOfWeek, int lessonOrder, String newLessonName) {
-    }
-    // <-- СДЕЛАТЬ
+    public void updateAuditorium(String dayOfWeek, int lessonOrder, String newAuditorium) {
+        DayLessons day = schedule.get(dayOfWeek);
+        Lesson lessonToUpdate = day.lessonList.stream().filter(lesson -> lesson.lessonNumber == lessonOrder).
+                findFirst().orElse(null);
 
-    public List<String> getLessonNames(String dayOfWeek, String path) throws IOException {
+        if (lessonToUpdate == null) {
+            day.addLesson("", lessonOrder, newAuditorium, "");
+        }
+        else
+            lessonToUpdate.auditorium = newAuditorium;
+
+    }
+
+    public List<String> getLessonNames(long groupId, String dayOfWeek, String path) throws IOException {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
 
         ArrayList<String> lessonNames = new ArrayList<>();
         for (Lesson lesson : day.lessonList) {
             String lessonName = String.format("%s. " + lesson.getLessonName(),
-                    TimeParser.getOrderByTime(path, lesson.time));
+                    TimeParser.getOrderByTime(path, lesson.getTime(groupId)));
             lessonNames.add(lessonName);
         }
 
@@ -68,13 +94,13 @@ public class Schedule {
      *
      * @param dayOfWeek название дня недели
      * @param lessonName название урока
-     * @param time время начала урока
+     * @param lessonNumber номер урока
      * @param auditorium номер кабинета
      * @param teacher преподаватель
      *
      */
-    public void addLesson(String dayOfWeek, String lessonName, String time, String auditorium, String teacher) {
-        schedule.get(dayOfWeek).addLesson(lessonName, time, auditorium, teacher);
+    public void addLesson(String dayOfWeek, String lessonName, Integer lessonNumber, String auditorium, String teacher) {
+        schedule.get(dayOfWeek).addLesson(lessonName, lessonNumber, auditorium, teacher);
     }
 
     public void removeLessonByOrder(String dayOfWeek, String order, long groupId) {
@@ -83,7 +109,7 @@ public class Schedule {
 
         day.lessonList.removeIf(lesson -> {
             try {
-                return TimeParser.getOrderByTime(path, lesson.time).equals(order);
+                return TimeParser.getOrderByTime(path, lesson.getTime(groupId)).equals(order);
             }
             catch (IOException _) {
                 return false;
@@ -115,13 +141,14 @@ public class Schedule {
          * Добавляет урок в день.
          *
          * @param lessonName название урока
-         * @param time время начала урока
+         * @param lessonNumber номер урока
          * @param auditorium номер кабинета
          * @param teacher преподаватель
          */
-        public void addLesson(String lessonName, String time, String auditorium, String teacher) {
-            Lesson lesson = new Lesson(lessonName, time, auditorium, teacher);
+        public void addLesson(String lessonName, Integer lessonNumber, String auditorium, String teacher) {
+            Lesson lesson = new Lesson(lessonName, lessonNumber, auditorium, teacher);
             lessonList.add(lesson);
+            lessonList.sort(Lesson.lessonNumberComparator);
         }
 
         /**
@@ -140,7 +167,9 @@ public class Schedule {
                             "┃ \n" +
                                     "┗━━━" + EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n",
                                     lesson.lessonName) +
-                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lesson.time + "\n" +
+                                    tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") +
+                                    lesson.getTime(lesson.lessonNumber) +
+                                    "\n" +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher +
                                     "\n" +
                                     tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + lesson.auditorium));
@@ -157,16 +186,16 @@ public class Schedule {
         @Getter
         private String lessonName;
         private String teacher;
-        private String time;
+        private Integer lessonNumber;
         private String auditorium;
 
         public Lesson() {
         }
 
-        public Lesson(String lessonName, String time, String auditorium, String teacher) {
+        public Lesson(String lessonName, Integer lessonNumber, String auditorium, String teacher) {
             this.lessonName = lessonName;
             this.teacher = teacher;
-            this.time = time;
+            this.lessonNumber = lessonNumber;
             this.auditorium = auditorium;
         }
 
@@ -180,9 +209,30 @@ public class Schedule {
             String tab = "\t\t\t\t\t\t\t\t\t\t\t\t";
             return "┃ \n" +
                     "┣━━━" +  EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n", lessonName) +
-                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + time + "\n" +
+                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lessonNumber + "\n" +
                     "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + teacher + "\n" +
                     "┃" + tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + auditorium;
         }
+
+        public String getTime(long groupId) {
+            try(Reader reader = Files.newBufferedReader(Paths.get(String.format(
+                    "src/main/resources/groups/%d/Время.json", groupId)))) {
+                Gson gson = new Gson();
+
+                Type type = new TypeToken<Map<String, String>>(){}.getType();
+                Map<String, String> timeMap = gson.fromJson(reader, type);
+
+                return timeMap.get(String.valueOf(lessonNumber));
+            }
+            catch (IOException _) {}
+            return "";
+        }
+
+        public static Comparator<Lesson> lessonNumberComparator = new Comparator<Lesson>() {
+            @Override
+            public int compare(Lesson l1, Lesson l2) {
+                return l1.lessonNumber.compareTo(l2.lessonNumber);
+            }
+        };
     }
 }
