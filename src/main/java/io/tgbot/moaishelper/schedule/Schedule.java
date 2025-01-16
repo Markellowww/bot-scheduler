@@ -18,13 +18,26 @@ public class Schedule {
         this.schedule = new LinkedHashMap<>();
     }
 
-    public void updateLesson(String dayOfWeek, int lessonOrder, String newLessonName, String newTime) {
+    // СДЕЛАТЬ -->
+    public void updateLesson(String dayOfWeek, int lessonOrder, String newLessonName) {
         DayLessons day = schedule.get(dayOfWeek);
 
         Lesson lessonToUpdate = day.lessonList.get(lessonOrder - 1);
+
+        String newTime = ""; // СДЕЛАТЬ ВЫКАЧКУ ИЗ JSON метод в schedulehandler: getTimeBySchedule
+
         lessonToUpdate.time = newTime;
         lessonToUpdate.lessonName = newLessonName;
     }
+
+    public void setTeacherName(String dayOfWeek, int lessonOrder, String newLessonName) {
+
+    }
+
+    public void setAudithorium(String dayOfWeek, int lessonOrder, String newLessonName) {
+
+    }
+    // <-- СДЕЛАТЬ
 
     public List<String> getLessonNames(String dayOfWeek, String path) throws IOException {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());

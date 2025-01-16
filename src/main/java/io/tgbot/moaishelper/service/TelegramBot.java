@@ -127,13 +127,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         userRepository.save(user);
                         break;
                     }
-
-
-
-
-
-
-
                     case 21: {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
@@ -152,7 +145,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
 
-                        // Ввод ФИО преподавателя
+                        try {
+                            scheduleHandler.setTeacherName(chatId, settings, messageText);
+                        } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -163,18 +158,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
 
-                        // Ввод номера аудитории
+                        try {
+                            scheduleHandler.setAudithorium(chatId, settings, messageText);
+                        } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
                         break;
                     }
-
-
-
-
-
-
                     default: {
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
