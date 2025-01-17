@@ -84,9 +84,9 @@ public class Schedule {
         schedule.putIfAbsent(dayOfWeek, new DayLessons());
     }
 
-    public String getDayLessonsToPrint(String dayOfWeek) {
+    public String getDayLessonsToPrint(String dayOfWeek, long groupId) {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
-        return day.show(dayOfWeek);
+        return day.show(dayOfWeek, groupId);
     }
 
     /**
@@ -106,7 +106,6 @@ public class Schedule {
     public void removeLessonByOrder(String dayOfWeek, String order, long groupId) {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
         String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
-
         day.lessonList.removeIf(lesson -> {
             try {
                 return TimeParser.getOrderByTime(path, lesson.getTime(groupId)).equals(order);
@@ -120,10 +119,10 @@ public class Schedule {
     /**
      * Выводит расписание за все дни
      */
-    public String show() {
+    public String show(long groupId) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, DayLessons> daySchedule: schedule.entrySet()) {
-            builder.append(daySchedule.getValue().show(daySchedule.getKey()));
+            builder.append(daySchedule.getValue().show(daySchedule.getKey(), groupId));
             builder.append("\n");
         }
         return builder.toString();
@@ -154,7 +153,7 @@ public class Schedule {
         /**
          * Печатает список уроков за каждый день.
          */
-        public String show(String dayOfWeek) {
+        public String show(String dayOfWeek, long groupId) {
             String tab = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
             if (lessonList.isEmpty()) {
                 return String.format("<b>%s:</b>\nНет занятий.\n", dayOfWeek.toUpperCase());
@@ -168,14 +167,14 @@ public class Schedule {
                                     "┗━━━" + EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n",
                                     lesson.lessonName) +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") +
-                                    lesson.getTime(lesson.lessonNumber) +
+                                    lesson.getTime(groupId) +
                                     "\n" +
                                     tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + lesson.teacher +
                                     "\n" +
                                     tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + lesson.auditorium));
                 }
                 else {
-                    builder.append(String.format("%s\n", lesson));
+                    builder.append(String.format("%s\n", lesson.toString(groupId)));
                 }
             }
             return builder.toString();
@@ -204,12 +203,11 @@ public class Schedule {
          *
          * @return строковое представление объекта Lesson
          */
-        @Override
-        public String toString() {
+        public String toString(long groupId) {
             String tab = "\t\t\t\t\t\t\t\t\t\t\t\t";
             return "┃ \n" +
                     "┣━━━" +  EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n", lessonName) +
-                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + lessonNumber + "\n" +
+                    "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") + getTime(groupId) + "\n" +
                     "┃" + tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") + teacher + "\n" +
                     "┃" + tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") + auditorium;
         }
@@ -221,10 +219,10 @@ public class Schedule {
 
                 Type type = new TypeToken<Map<String, String>>(){}.getType();
                 Map<String, String> timeMap = gson.fromJson(reader, type);
-
                 return timeMap.get(String.valueOf(lessonNumber));
             }
             catch (IOException _) {}
+
             return "";
         }
 
