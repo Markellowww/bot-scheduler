@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import javax.print.DocFlavor;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -79,19 +80,13 @@ public class ScheduleHandler {
                 lessonCreateSettings());
     }
 
-        /**
-         * Первый символ "!" - спец. символ, который говорит, что происходит удаление предмета
-         * Второй символ - четность недели: 1 - Числитель, 0 - Знаменатель
-         * Третий символ - порядковый номер дня недели (исходя из enum Day)
-         * Четвертый символ - порядковый номер начала пары
-         */
-    public void removeLessonHandler(String callback, long groupId) throws IOException {
-        boolean weekNum = (callback.charAt(1) == '1');
+    public void removeLessonHandler(List<Long> callback, long groupId) throws IOException {
+        boolean weekNum = (callback.get(1) == 1);
         Schedule schedule = scheduleFromJson(weekNum, groupId);
+        short weekDay = Short.parseShort(String.valueOf(callback.get(2)));
 
-        short weekDay = Short.parseShort(String.valueOf(callback.charAt(2)));
         schedule.removeLessonByOrder(Day.values()[weekDay].getTranslation(),
-                String.valueOf(callback.charAt(3)), groupId);
+                String.valueOf(callback.get(3)), groupId);
 
         scheduleToJson(schedule, groupId, weekNum);
     }

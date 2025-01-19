@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -271,31 +272,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                         SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
                 return;
             }
-
-            if (callbackData.charAt(0) == '!') {
-                try {
-                    scheduleHandler.removeLessonHandler(callbackData, user.getSelectedGroup().getId());
-                }
-                catch (IOException _) {}
-
-                messageHandler.sendMessage(chatId, LESSON_REMOVED);
-                scheduleHandler.handleScheduleSetCommand(chatId, true);
-                return;
-            }
-            else if (callbackData.charAt(0) == ':') {
-                int lessonOrder = Integer.parseInt(callbackData.split(":")[1]);
-
-                GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                        .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                AdminScheduleSettings settings = groupUser.getSettings();
-                settings.setLessonNum((short) lessonOrder);
-                groupRepository.save(user.getSelectedGroup());
-
-                messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
-                        lessonCreateSettings());
-                return;
-            }
-
             switch (callbackData) {
                 case "SEND_LESSON_NAME": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
@@ -540,6 +516,29 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
                 case 10: { // снятие админа
                     groupHandler.handleRemoveAdminInput(chatId, data.get(1));
+                    break;
+                }
+                case 11: { // добавление вручную предмета
+                    int lessonOrder = data.get(1).intValue();
+
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+                    settings.setLessonNum((short) lessonOrder);
+                    groupRepository.save(user.getSelectedGroup());
+
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+                            lessonCreateSettings());
+                    break;
+                }
+                case 12: { // удаление вручную предмета
+                    try {
+                        scheduleHandler.removeLessonHandler(data, user.getSelectedGroup().getId());
+                    }
+                    catch (IOException _) {}
+
+                    messageHandler.sendMessage(chatId, LESSON_REMOVED);
+                    scheduleHandler.handleScheduleSetCommand(chatId, true);
                     break;
                 }
                 default: { // что-то невероятное

@@ -601,7 +601,7 @@ public class KeyboardMarkupProvider {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        String signal = "!" + (weekNum ? "1" : "0") + weekDay;
+        String signal = "12 " + (weekNum ? "1" : "0") + weekDay;
 
         for (String lessonName : lessonNames) {
             List<InlineKeyboardButton> row = new ArrayList<>();
@@ -625,20 +625,20 @@ public class KeyboardMarkupProvider {
         for (int i = 1; i <= 10;) {
             if (i == 9) {
                 InlineKeyboardButton button1 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                        ":" + i++);
+                        "11 " + i++);
                 InlineKeyboardButton button2 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                        ":" + i);
+                        "11 " + i);
                 rows.add(List.of(button1, button2));
                 break;
             }
             InlineKeyboardButton button1 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                    ":" + i++);
+                    "11 " + i++);
             InlineKeyboardButton button2 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                    ":" + i++);
+                    "11 " + i++);
             InlineKeyboardButton button3 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                    ":" + i++);
+                    "11 " + i++);
             InlineKeyboardButton button4 = inlineButtonSetter(getLessonNameForIndex(lessonNames, i),
-                    ":" + i++);
+                    "11 " + i++);
             rows.add(List.of(button1, button2, button3, button4));
         }
 

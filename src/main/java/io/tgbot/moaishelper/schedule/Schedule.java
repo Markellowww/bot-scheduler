@@ -24,7 +24,6 @@ public class Schedule {
         this.schedule = new LinkedHashMap<>();
     }
 
-    // СДЕЛАТЬ -->
     public void updateLessonName(String dayOfWeek, int lessonOrder, String newLessonName) {
         DayLessons day = schedule.get(dayOfWeek);
         Lesson lessonToUpdate = day.lessonList.stream().filter(lesson -> lesson.lessonNumber == lessonOrder).
@@ -106,13 +105,17 @@ public class Schedule {
     public void removeLessonByOrder(String dayOfWeek, String order, long groupId) {
         DayLessons day = schedule.getOrDefault(dayOfWeek, new DayLessons());
         String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
+        if (day.lessonList.isEmpty()) {
+            return;
+        }
         day.lessonList.removeIf(lesson -> {
             try {
-                return TimeParser.getOrderByTime(path, lesson.getTime(groupId)).equals(order);
-            }
-            catch (IOException _) {
-                return false;
-            }
+                String lessonTime = lesson.getTime(groupId);
+                if (lessonTime != null) {
+                    return TimeParser.getOrderByTime(path, lessonTime).equals(order);
+                }
+            } catch (IOException _) {}
+            return false;
         });
     }
 
