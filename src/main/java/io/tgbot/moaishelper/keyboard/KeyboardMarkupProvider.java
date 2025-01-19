@@ -601,11 +601,15 @@ public class KeyboardMarkupProvider {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
-        String signal = "12 " + (weekNum ? "1" : "0") + weekDay;
+        String signal = "12 " + (weekNum ? "1 " : "0 ") + weekDay + " ";
 
         for (String lessonName : lessonNames) {
             List<InlineKeyboardButton> row = new ArrayList<>();
-            InlineKeyboardButton button = inlineButtonSetter(lessonName, signal + lessonName.charAt(0));
+
+            String[] parts = lessonName.split("\\.");
+            String numberBeforeDot = parts.length > 0 ? parts[0].trim() : "";
+            System.out.println(numberBeforeDot);
+            InlineKeyboardButton button = inlineButtonSetter(lessonName, signal + numberBeforeDot);
             row.add(button);
             rows.add(row);
         }
