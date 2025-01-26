@@ -1,3 +1,5 @@
+create table status (id integer not null auto_increment, description varchar(255) not null, primary key (id));
+
 insert into status values
                        (1, 'No input'),
                        (2, 'Group title input'),
@@ -12,4 +14,4 @@ insert into status values
                        (11, 'All message input'),
                        (21, 'Lesson title input'),
                        (22, 'Teacher name input'),
-                       (23, 'Auditorium title input')
+                       (23, 'Auditorium title input');
