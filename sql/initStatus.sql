@@ -10,7 +10,7 @@ insert into status values
                        (7, ''),
                        (8, ''),
                        (9, 'Group message input'),
-                       (10, ''),
+                       (10, 'Schedule file input'),
                        (11, 'All message input'),
                        (21, 'Lesson title input'),
                        (22, 'Teacher name input'),
