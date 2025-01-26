@@ -1,0 +1,15 @@
+insert into status values
+                       (1, 'No input'),
+                       (2, 'Group title input'),
+                       (3, 'User invite input'),
+                       (4, ''),
+                       (5, ''),
+                       (6, ''),
+                       (7, ''),
+                       (8, ''),
+                       (9, 'Group message input'),
+                       (10, ''),
+                       (11, 'All message input'),
+                       (21, 'Lesson title input'),
+                       (22, 'Teacher name input'),
+                       (23, 'Auditorium title input')
