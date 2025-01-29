@@ -25,7 +25,7 @@ public class ExcelParser {
         return false;
     }
 
-    private static List<List<List<List<Object>>>> readSchedule(long groupId) {
+    private static List<List<List<List<Object>>>> readScheduleTwoColumns(long groupId) {
         String filename = String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId);
         try(XSSFWorkbook myExcelBook = new XSSFWorkbook(new FileInputStream(filename))) {
             XSSFSheet mySheet = myExcelBook.getSheetAt(0); // первая таблица
@@ -83,7 +83,7 @@ public class ExcelParser {
 
     private static boolean createSchedule(long groupId) {
         Map<Short, Schedule> schedules = new LinkedHashMap<>();
-        List<List<List<List<Object>>>> data = readSchedule(groupId);
+        List<List<List<List<Object>>>> data = readScheduleTwoColumns(groupId);
 
         for (short week = 0; week < 2; week++) {
             Schedule schedule = new Schedule();

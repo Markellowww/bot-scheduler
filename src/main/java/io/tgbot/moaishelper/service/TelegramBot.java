@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.parser.TimeParser;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
@@ -104,6 +105,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
 
             if (user.getStatus().getId() != 1) {
+                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId() - 1);
+                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId());
                 switch (user.getStatus().getId()) {
                     case 2: {
                         groupHandler.handleGroupNameInput(chatId, messageText);
@@ -159,6 +162,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                         try {
                             scheduleHandler.setAuditorium(chatId, settings, messageText);
                         } catch (IOException _) {}
+
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        break;
+                    }
+                    case 10: {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -289,6 +302,13 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "SEND_AUDITORIUM": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите номер аудитории:", denyInput());
                     user.setStatus(statusRepository.findById(9));
+                    userRepository.save(user);
+                    return;
+                }
+                case "SEND_TIME": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите новое время занятия " +
+                            "(изменение времени произойдет для всех занятий с этим номером):", denyInput());
+                    user.setStatus(statusRepository.findById(10));
                     userRepository.save(user);
                     return;
                 }

@@ -670,7 +670,8 @@ public class KeyboardMarkupProvider {
         InlineKeyboardButton lessonName = inlineButtonSetter(LESSON_NAME, "SEND_LESSON_NAME");
         InlineKeyboardButton teacherName = inlineButtonSetter(TEACHER_NAME, "SEND_TEACHER_NAME");
         InlineKeyboardButton auditorium = inlineButtonSetter(AUDITORIUM, "SEND_AUDITORIUM");
-        rows.add(List.of(lessonName, teacherName, auditorium));
+        InlineKeyboardButton time = inlineButtonSetter(TIME, "SEND_TIME");
+        rows.add(List.of(lessonName, teacherName, auditorium, time));
 
         InlineKeyboardButton back = inlineButtonSetter(BACK, "CHOOSE_ORDER_OF_LESSON");
         rows.add(List.of(back));

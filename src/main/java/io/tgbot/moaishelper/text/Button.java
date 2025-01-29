@@ -42,4 +42,5 @@ public class Button {
     public static final String LESSON_NAME = "Предмет";
     public static final String TEACHER_NAME = "Преподаватель";
     public static final String AUDITORIUM = "Аудитория";
+    public static final String TIME = "Время";
 }
