@@ -24,6 +24,17 @@ public class Schedule {
         this.schedule = new LinkedHashMap<>();
     }
 
+    public Lesson getLessonByOrder(String dayOfWeek, int lessonOrder) {
+        DayLessons day = schedule.get(dayOfWeek);
+        if (day != null) {
+            return day.lessonList.stream()
+                    .filter(lesson -> lesson.lessonNumber.equals(lessonOrder))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
     public void updateLessonName(String dayOfWeek, int lessonOrder, String newLessonName) {
         DayLessons day = schedule.get(dayOfWeek);
         Lesson lessonToUpdate = day.lessonList.stream().filter(lesson -> lesson.lessonNumber == lessonOrder).
@@ -32,8 +43,9 @@ public class Schedule {
         if (lessonToUpdate == null) {
             day.addLesson(newLessonName, lessonOrder, "", "");
         }
-        else
+        else {
             lessonToUpdate.lessonName = newLessonName;
+        }
     }
 
     public void updateTeacherName(String dayOfWeek, int lessonOrder, String newTeacher) {
@@ -131,7 +143,7 @@ public class Schedule {
         return builder.toString();
     }
 
-    private static class DayLessons {
+    public static class DayLessons {
 
         private final List<Lesson> lessonList;
 
@@ -184,11 +196,14 @@ public class Schedule {
         }
     }
 
-    private static class Lesson {
+    public static class Lesson {
         @Getter
         private String lessonName;
+        @Getter
         private String teacher;
+        @Getter
         private Integer lessonNumber;
+        @Getter
         private String auditorium;
 
         public Lesson() {

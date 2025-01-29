@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.service;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.schedule.Day;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.print.DocFlavor;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -41,6 +41,29 @@ public class ScheduleHandler {
         this.scheduleHandler = scheduleHandler;
     }
 
+    public String getLessonInfo(Schedule schedule, Groupe selectedGroup, String dayOfWeek, AdminScheduleSettings settings) {
+        Schedule.Lesson lesson = schedule.getLessonByOrder(dayOfWeek, settings.getLessonNum());
+
+        if (lesson == null) {
+            return "Введите информацию о предмете:";
+        }
+
+        String tab = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+        return "<b>Текущие настройки:</b>\n" +
+                String.format("%s\n",
+                        "┃ \n" +
+                                "┗━━━" + EmojiParser.parseToUnicode(":books: ") + String.format("<i>%s</i>\n",
+                                lesson.getLessonName()) +
+                                tab + "┣━━━" + EmojiParser.parseToUnicode(":clock3: ") +
+                                lesson.getTime(selectedGroup.getId()) +
+                                "\n" +
+                                tab + "┣━━━" + EmojiParser.parseToUnicode(":man_teacher: ") +
+                                lesson.getTeacher() +
+                                "\n" +
+                                tab + "┗━━━" + EmojiParser.parseToUnicode(":school: ") +
+                                lesson.getAuditorium());
+    }
+
     public void setLessonName(long chatId, AdminScheduleSettings settings, String inputText) throws IOException {
         Groupe selectedGroup = userRepository.findByChatId(chatId).getSelectedGroup();
         Schedule schedule = scheduleFromJson(settings.getWeekNum(), selectedGroup.getId());
@@ -50,7 +73,8 @@ public class ScheduleHandler {
 
         scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
 
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                getLessonInfo(schedule, selectedGroup, dayOfWeek, settings),
                 lessonCreateSettings());
     }
 
@@ -63,7 +87,8 @@ public class ScheduleHandler {
 
         scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
 
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                getLessonInfo(schedule, selectedGroup, dayOfWeek, settings),
                 lessonCreateSettings());
     }
 
@@ -76,7 +101,8 @@ public class ScheduleHandler {
 
         scheduleToJson(schedule, selectedGroup.getId(), settings.getWeekNum());
 
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                getLessonInfo(schedule, selectedGroup, dayOfWeek, settings),
                 lessonCreateSettings());
     }
 

@@ -4,6 +4,7 @@ import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.parser.TimeParser;
 import io.tgbot.moaishelper.schedule.Day;
+import io.tgbot.moaishelper.schedule.Schedule;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.apache.commons.lang3.EnumUtils;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
+import static io.tgbot.moaishelper.service.ScheduleHandler.scheduleFromJson;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -547,7 +549,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                     settings.setLessonNum((short) lessonOrder);
                     groupRepository.save(user.getSelectedGroup());
 
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP,
+                    Schedule schedule;
+                    try {
+                        schedule = scheduleFromJson(settings.getWeekNum(), user.getSelectedGroup().getId());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                            scheduleHandler.getLessonInfo(schedule, user.getSelectedGroup(), dayOfWeek, settings),
                             lessonCreateSettings());
                     break;
                 }
