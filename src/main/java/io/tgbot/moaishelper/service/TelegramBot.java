@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.parser.TimeParser;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
@@ -96,7 +97,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             else if (messageText.equals("/all")) {
                 if (chatId == 989138081L || chatId == 5254745148L) {
-                    user.setStatus(statusRepository.findById(11));
+                    user.setStatus(statusRepository.findById(6));
                     userRepository.save(user);
                     messageHandler.sendMessage(chatId, ENTER_MESSAGE_FOR_ALL);
                     return;
@@ -104,6 +105,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
 
             if (user.getStatus().getId() != 1) {
+                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId() - 1);
+                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId());
                 switch (user.getStatus().getId()) {
                     case 2: {
                         groupHandler.handleGroupNameInput(chatId, messageText);
@@ -114,18 +117,18 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.handleInviteUserInput(chatId, messageText);
                         break;
                     }
-                    case 9: {
+                    case 4: {
                         groupHandler.handleMessageInput(chatId, messageText);
                         break;
                     }
-                    case 11: {
+                    case 6: {
                         if (!messageText.equalsIgnoreCase("ОТМЕНА"))
                             messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
                         break;
                     }
-                    case 21: {
+                    case 7: {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
@@ -138,7 +141,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         userRepository.save(user);
                         break;
                     }
-                    case 22: {
+                    case 8: {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
@@ -151,7 +154,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         userRepository.save(user);
                         break;
                     }
-                    case 23: {
+                    case 9: {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
@@ -159,6 +162,16 @@ public class TelegramBot extends TelegramLongPollingBot {
                         try {
                             scheduleHandler.setAuditorium(chatId, settings, messageText);
                         } catch (IOException _) {}
+
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        break;
+                    }
+                    case 10: {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -276,19 +289,26 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "SEND_LESSON_NAME": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
                             denyInput());
-                    user.setStatus(statusRepository.findById(21));
+                    user.setStatus(statusRepository.findById(7));
                     userRepository.save(user);
                     return;
                 }
                 case "SEND_TEACHER_NAME": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите ФИО преподавателя:", denyInput());
-                    user.setStatus(statusRepository.findById(22));
+                    user.setStatus(statusRepository.findById(8));
                     userRepository.save(user);
                     return;
                 }
                 case "SEND_AUDITORIUM": {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите номер аудитории:", denyInput());
-                    user.setStatus(statusRepository.findById(23));
+                    user.setStatus(statusRepository.findById(9));
+                    userRepository.save(user);
+                    return;
+                }
+                case "SEND_TIME": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите новое время занятия " +
+                            "(изменение времени произойдет для всех занятий с этим номером):", denyInput());
+                    user.setStatus(statusRepository.findById(10));
                     userRepository.save(user);
                     return;
                 }
@@ -356,7 +376,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "SEND_TEMPLATE": {
-                    user.setStatus(statusRepository.findById(10));
+                    user.setStatus(statusRepository.findById(5));
                     userRepository.save(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
                             inlineGoBackButtonToScheduleMenu());
@@ -549,7 +569,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         else if (update.getMessage().getDocument() != null) {
             long chatId = update.getMessage().getChatId();
-            if (userRepository.findByChatId(chatId).getStatus().getId() == 10) {
+            if (userRepository.findByChatId(chatId).getStatus().getId() == 5) {
                 Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
                 groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
             }

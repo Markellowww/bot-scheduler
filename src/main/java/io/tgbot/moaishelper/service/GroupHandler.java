@@ -143,7 +143,7 @@ public class GroupHandler {
             return;
         }
         messageHandler.sendMessage(chatId, ENTER_MESSAGE);
-        user.setStatus(statusRepository.findById(9));
+        user.setStatus(statusRepository.findById(4));
         userRepository.save(user);
     }
 
@@ -379,7 +379,6 @@ public class GroupHandler {
     protected void handleGroupNameInput(long chatId, String groupName) {
         User creator = userRepository.findByChatId(chatId);
         Groupe group = new Groupe(creator, groupName, new Timestamp(System.currentTimeMillis()));
-        System.out.println(group.getId());
         groupRepository.save(group);
 
         Groupe createdGroup = groupRepository.findByOwnerId(creator.getId());

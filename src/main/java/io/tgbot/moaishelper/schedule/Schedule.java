@@ -229,11 +229,7 @@ public class Schedule {
             return "";
         }
 
-        public static Comparator<Lesson> lessonNumberComparator = new Comparator<Lesson>() {
-            @Override
-            public int compare(Lesson l1, Lesson l2) {
-                return l1.lessonNumber.compareTo(l2.lessonNumber);
-            }
-        };
+        public static Comparator<Lesson> lessonNumberComparator =
+                Comparator.comparing(l -> l.lessonNumber);
     }
 }
