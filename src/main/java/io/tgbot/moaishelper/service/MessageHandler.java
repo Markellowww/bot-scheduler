@@ -119,8 +119,19 @@ public class MessageHandler {
         sendMessage(chatId, "Расписание не заполнено");
     }
 
-    protected void uploadScheduleTemplate(long chatId) {
+    protected void uploadScheduleTemplateTwoColumns(long chatId) {
         File scheduleFile = new File("src/main/resources/Schedule.xlsx");
+        System.out.println(scheduleFile.getAbsolutePath());
+        SendDocument schedule = new SendDocument();
+        schedule.setDocument(new InputFile(scheduleFile, "ScheduleTemplate.xlsx"));
+        schedule.setChatId(chatId);
+        try {
+            bot.execute(schedule);
+        } catch (TelegramApiException _) {}
+    }
+
+    protected void uploadScheduleTemplateOneColumn(long chatId) {
+        File scheduleFile = new File("src/main/resources/ScheduleOne.xlsx");
         System.out.println(scheduleFile.getAbsolutePath());
         SendDocument schedule = new SendDocument();
         schedule.setDocument(new InputFile(scheduleFile, "ScheduleTemplate.xlsx"));

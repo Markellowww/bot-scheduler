@@ -169,12 +169,48 @@ public class KeyboardMarkupProvider {
     }
 
     public static InlineKeyboardMarkup excelScheduleSettings() {
-        InlineKeyboardButton takeTemplate = inlineButtonSetter(TAKE_TEMPLATE, "TAKE_TEMPLATE");
-        InlineKeyboardButton sendTemplate = inlineButtonSetter(SEND_TEMPLATE, "SEND_TEMPLATE");
+        InlineKeyboardButton takeTemplate = inlineButtonSetter(TAKE_TEMPLATE, "GET_TEMPLATE_MENU");
+        InlineKeyboardButton sendTemplate = inlineButtonSetter(SEND_TEMPLATE, "SEND_TEMPLATE_MENU");
         InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_SETTINGS");
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(takeTemplate, sendTemplate),
+                Arrays.asList(back)
+        );
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup excelTemplateSelection() {
+        InlineKeyboardButton oneColumn = inlineButtonSetter(ONE_COLUMN_TEMPLATE,
+                "GET_ONE_COLUMN_TEMPLATE");
+        InlineKeyboardButton twoColumn = inlineButtonSetter(TWO_COLUMN_TEMPLATE,
+                "GET_TWO_COLUMN_TEMPLATE");
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_MENU");
+
+        List<List<InlineKeyboardButton>> rows = Arrays.asList(
+                Arrays.asList(oneColumn, twoColumn),
+                Arrays.asList(back)
+        );
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup excelTemplateSending() {
+        InlineKeyboardButton oneColumn = inlineButtonSetter(ONE_COLUMN_TEMPLATE,
+                "SEND_ONE_COLUMN_TEMPLATE");
+        InlineKeyboardButton twoColumn = inlineButtonSetter(TWO_COLUMN_TEMPLATE,
+                "SEND_TWO_COLUMN_TEMPLATE");
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_SCHEDULE_MENU");
+
+        List<List<InlineKeyboardButton>> rows = Arrays.asList(
+                Arrays.asList(oneColumn, twoColumn),
                 Arrays.asList(back)
         );
 

@@ -221,6 +221,9 @@ public class Info {
     public static final String SCHEDULE_OPTION =
             EmojiParser.parseToUnicode("Выберите способ изменения расписания :point_down:");
 
+    public static final String CHOOSE_TEMPLATE =
+            EmojiParser.parseToUnicode("Выберите свой шаблон расписания");
+
     public static final String INPUT_DENIED = "Ввод отменен";
 
     public static final String WAITING_FOR_EXCEL_FILE =

@@ -35,6 +35,8 @@ public class Button {
 
     public static final String TAKE_TEMPLATE = "Получить шаблон";
     public static final String SEND_TEMPLATE = "Отправить шаблон";
+    public static final String ONE_COLUMN_TEMPLATE = "Статичное (1 таблица)";
+    public static final String TWO_COLUMN_TEMPLATE = "Дробное (2 таблицы)";
 
     public static final String REMOVE_LESSON = "Удалить предмет";
     public static final String ADD_LESSON = "Добавить/Изменить предмет";

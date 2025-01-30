@@ -371,14 +371,35 @@ public class TelegramBot extends TelegramLongPollingBot {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
                     return;
                 }
-                case "TAKE_TEMPLATE": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            excelScheduleSettings());
-                    messageHandler.uploadScheduleTemplate(chatId);
+                case "GET_TEMPLATE_MENU": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSelection());
                     return;
                 }
-                case "SEND_TEMPLATE": {
+                case "SEND_TEMPLATE_MENU": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSending());
+                    return;
+                }
+                case "GET_TWO_COLUMN_TEMPLATE": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
+                            excelScheduleSettings());
+                    messageHandler.uploadScheduleTemplateTwoColumns(chatId);
+                    return;
+                }
+                case "GET_ONE_COLUMN_TEMPLATE": {
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
+                            excelScheduleSettings());
+                    messageHandler.uploadScheduleTemplateOneColumn(chatId);
+                    return;
+                }
+                case "SEND_TWO_COLUMN_TEMPLATE": {
                     user.setStatus(statusRepository.findById(5));
+                    userRepository.save(user);
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
+                            inlineGoBackButtonToScheduleMenu());
+                    return;
+                }
+                case "SEND_ONE_COLUMN_TEMPLATE": {
+                    user.setStatus(statusRepository.findById(11));
                     userRepository.save(user);
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
                             inlineGoBackButtonToScheduleMenu());
@@ -582,7 +603,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             long chatId = update.getMessage().getChatId();
             if (userRepository.findByChatId(chatId).getStatus().getId() == 5) {
                 Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
-                groupHandler.handleScheduleFileInput(update.getMessage(), chatId, group);
+                groupHandler.handleScheduleTwoColumnsInput(update.getMessage(), chatId, group);
+            }
+            else if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
+                Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+                groupHandler.handleScheduleOneColumnInput(update.getMessage(), chatId, group);
             }
             else {
                 userError(chatId);

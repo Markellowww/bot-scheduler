@@ -161,13 +161,13 @@ public class GroupHandler {
     }
     // <--------- Команда /message
 
-    protected void handleScheduleFileInput(Message message, long chatId, Groupe group) {
+    protected void handleScheduleTwoColumnsInput(Message message, long chatId, Groupe group) {
         User user = userRepository.findByChatId(chatId);
         user.setStatus(statusRepository.findById(1));
         userRepository.save(user);
         if (messageHandler.downloadSchedule(message, group.getId())) {
             messageHandler.deleteMessage(chatId, message.getMessageId());
-            if (ExcelParser.parse(group.getId())) {
+            if (ExcelParser.parseTwoColumnsSchedule(group.getId())) {
                 messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_SET_SUCCESSFUL(group),
                         KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
                 try {
@@ -180,6 +180,27 @@ public class GroupHandler {
                 messageHandler.sendMessage(chatId, ERROR);
         }
     }
+
+    protected void handleScheduleOneColumnInput(Message message, long chatId, Groupe group) {
+        User user = userRepository.findByChatId(chatId);
+        user.setStatus(statusRepository.findById(1));
+        userRepository.save(user);
+        if (messageHandler.downloadSchedule(message, group.getId())) {
+            messageHandler.deleteMessage(chatId, message.getMessageId());
+            if (ExcelParser.parseOneColumnSchedule(group.getId())) {
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_SET_SUCCESSFUL(group),
+                        KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
+                try {
+                    FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx",
+                            group.getId())));
+                } catch (IOException _) {
+                }
+            }
+            else
+                messageHandler.sendMessage(chatId, ERROR);
+        }
+    }
+
     // ---------> Команда /giveowner
     protected void handleOwnerCommand(long chatId) {
         User user = userRepository.findByChatId(chatId);
@@ -403,7 +424,7 @@ public class GroupHandler {
             }
             catch (IOException _) {
             }
-            ExcelParser.parse(group.getId());
+            ExcelParser.parseTwoColumnsSchedule(group.getId());
             try {
                 FileUtils.delete(new File(String.format("src/main/resources/groups/%d/Schedule.xlsx",
                         groupId)));
