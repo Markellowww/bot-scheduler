@@ -101,7 +101,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 if (chatId == 989138081L || chatId == 5254745148L) {
                     user.setStatus(statusRepository.findById(6));
                     userRepository.save(user);
-                    messageHandler.sendMessage(chatId, ENTER_MESSAGE_FOR_ALL);
+                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_MESSAGE_FOR_ALL, denyInput());
                     return;
                 }
             }
@@ -124,8 +124,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     case 6: {
-                        if (!messageText.equalsIgnoreCase("ОТМЕНА"))
-                            messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
+                        messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
                         break;
