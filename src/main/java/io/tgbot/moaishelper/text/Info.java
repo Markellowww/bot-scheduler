@@ -27,6 +27,10 @@ public class Info {
     public static final String USER_ERROR =
             EmojiParser.parseToUnicode("Я такое не знаю :disappointed_relieved:");
 
+    public static final String DAY_NULL = "Пожалуйста, выберите день для редактирования";
+
+    public static final String LESSON_NULL = "Пожалуйста, выберите занятие для редактирования";
+
     public static final String SCHEDULE_EXCEL_WARNING = EmojiParser.parseToUnicode(
             """
                     ❗️ При отправке Excel-таблицы расписание будет полностью перезаписано ❗️

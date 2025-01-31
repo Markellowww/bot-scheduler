@@ -133,10 +133,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
-
-                        try {
+                        if (settings == null) {
+                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                        }
+                        else if (settings.getWeekDay() == null) {
+                            messageHandler.sendMessage(chatId, DAY_NULL);
+                        }
+                        else if (settings.getLessonNum() == null) {
+                            messageHandler.sendMessage(chatId, LESSON_NULL);
+                        }
+                        else
+                            try {
                             scheduleHandler.setLessonName(chatId, settings, messageText);
-                        } catch (IOException _) {}
+                            } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -146,10 +155,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
-
-                        try {
+                        if (settings == null) {
+                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                        }
+                        else if (settings.getWeekDay() == null) {
+                            messageHandler.sendMessage(chatId, DAY_NULL);
+                        }
+                        else if (settings.getLessonNum() == null) {
+                            messageHandler.sendMessage(chatId, LESSON_NULL);
+                        }
+                        else
+                            try {
                             scheduleHandler.setTeacherName(chatId, settings, messageText);
-                        } catch (IOException _) {}
+                            } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -159,10 +177,19 @@ public class TelegramBot extends TelegramLongPollingBot {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
-
-                        try {
-                            scheduleHandler.setAuditorium(chatId, settings, messageText);
-                        } catch (IOException _) {}
+                        if (settings == null) {
+                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                        }
+                        else if (settings.getWeekDay() == null) {
+                            messageHandler.sendMessage(chatId, DAY_NULL);
+                        }
+                        else if (settings.getLessonNum() == null) {
+                            messageHandler.sendMessage(chatId, LESSON_NULL);
+                        }
+                        else
+                            try {
+                                scheduleHandler.setAuditorium(chatId, settings, messageText);
+                            } catch (IOException _) {}
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
@@ -172,7 +199,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                         AdminScheduleSettings settings = groupUser.getSettings();
-                        TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
+                        if (settings == null) {
+                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                        }
+                        else if (settings.getLessonNum() == null) {
+                            messageHandler.sendMessage(chatId, LESSON_NULL);
+                        }
+                        else
+                            TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
 
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
