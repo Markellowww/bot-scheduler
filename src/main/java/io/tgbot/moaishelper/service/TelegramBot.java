@@ -317,7 +317,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                             .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                     AdminScheduleSettings settings = groupUser.getSettings();
-
+                    settings.setLessonNum(null);
+                    groupRepository.save(user.getSelectedGroup());
                     try {
                         scheduleHandler.addLessonHandler(chatId, settings);
                     }
@@ -339,6 +340,11 @@ public class TelegramBot extends TelegramLongPollingBot {
                     return;
                 }
                 case "MANUAL_SCHEDULE_MODIFICATION": {
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+                    settings.setWeekDay(null);
+                    groupRepository.save(user.getSelectedGroup());
                     scheduleHandler.handleScheduleSetCommand(chatId, true);
                     return;
                 }

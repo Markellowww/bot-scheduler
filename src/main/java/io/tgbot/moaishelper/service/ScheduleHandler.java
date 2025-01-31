@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.changeScheduleOption;
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.lessonCreateSettings;
 import static io.tgbot.moaishelper.text.Info.*;
 
@@ -191,8 +192,25 @@ public class ScheduleHandler {
             GroupUser groupUser = selectedGroup.getGroupUsers().stream()
                             .filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
             AdminScheduleSettings settings = groupUser.getSettings();
-            messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+            if (settings.getWeekDay() == null)
+                messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
                     KeyboardMarkupProvider.chooseDayOfWeek());
+            else if (settings.getLessonNum() == null)
+                messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                        SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
+            else {
+                Schedule schedule;
+                try {
+                    schedule = scheduleFromJson(settings.getWeekNum(), user.getSelectedGroup().getId());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+
+                messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                        scheduleHandler.getLessonInfo(schedule, user.getSelectedGroup(), dayOfWeek, settings),
+                        lessonCreateSettings());
+            }
         }
         else {
             messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
