@@ -142,7 +142,7 @@ public class GroupHandler {
                     KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
             return;
         }
-        messageHandler.sendMessage(chatId, ENTER_MESSAGE);
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_MESSAGE, KeyboardMarkupProvider.denyInput());
         user.setStatus(statusRepository.findById(4));
         userRepository.save(user);
     }
