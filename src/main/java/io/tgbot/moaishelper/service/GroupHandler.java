@@ -399,6 +399,12 @@ public class GroupHandler {
 
     protected void handleGroupNameInput(long chatId, String groupName) {
         User creator = userRepository.findByChatId(chatId);
+        if (groupRepository.findByOwnerId(creator.getId()) != null) {
+            creator.setStatus(statusRepository.findById(1));
+            messageHandler.sendMessage(chatId, TEXT_GROUP_EXISTS(groupRepository.findByOwnerId(creator.getId())));            creator.setStatus(statusRepository.findById(1));
+            userRepository.save(creator);
+            return;
+        }
         Groupe group = new Groupe(creator, groupName, new Timestamp(System.currentTimeMillis()));
         groupRepository.save(group);
 
