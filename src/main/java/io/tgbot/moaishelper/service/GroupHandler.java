@@ -379,7 +379,7 @@ public class GroupHandler {
                         isAdmin(selectedGroup, groupUsers.get(i)))
                 .collect(Collectors.joining("\n"));
         messageHandler.sendMessageWithKeyboardMarkup(chatId, message,
-                KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+                KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }
 
     // <--------- Команда /members
