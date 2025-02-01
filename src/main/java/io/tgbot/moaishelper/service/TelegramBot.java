@@ -231,8 +231,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(Keyboard.CONTACTS)) {
                     messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT, inlineGoBackButton());
                 }
-                else if (messageText.equals(Keyboard.GUIDE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_IN_DEVELOP, inlineGoBackButton());
+                else if (messageText.equals(Keyboard.ABOUT)) {
+                    System.out.println("OK");
+                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, ABOUT_SCHEDULES,
+                            startMenu());
                 }
                 else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
                     boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);

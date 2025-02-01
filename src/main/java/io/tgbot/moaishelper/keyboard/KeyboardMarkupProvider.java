@@ -36,7 +36,7 @@ public class KeyboardMarkupProvider {
 
         KeyboardRow row2 = new KeyboardRow();
         row2.add(Keyboard.CONTACTS);
-//        row2.add(Keyboard.GUIDE);
+        row2.add(Keyboard.ABOUT);
 
         rows.add(row1);
         rows.add(row2);
