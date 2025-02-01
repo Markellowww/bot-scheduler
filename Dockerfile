@@ -1,4 +1,4 @@
 FROM eclipse-temurin:22-jdk
-COPY ./target/app.jar app.jar
+COPY ./target/moaishelper-0.0.1-SNAPSHOT.jar app.jar
 
 CMD ["java", "-jar", "app.jar"]
