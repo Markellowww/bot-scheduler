@@ -26,7 +26,7 @@ services:
     restart: always
     container_name: app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/moaishelper?useSSL=false
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/moaishelper
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: admin123
 
