@@ -87,578 +87,553 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            long chatId = update.getMessage().getChatId();
-            User user = userRepository.findByChatId(chatId);
-            String messageText = update.getMessage().getText();
+        try {
 
-            if (messageText.equals("/start") || user == null) {
-                registerUser(update.getMessage());
-                messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
-                return;
-            }
-            else if (messageText.equals("/all")) {
-                if (chatId == 989138081L || chatId == 5254745148L) {
-                    user.setStatus(statusRepository.findById(6));
-                    userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_MESSAGE_FOR_ALL, denyInput());
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                long chatId = update.getMessage().getChatId();
+                User user = userRepository.findByChatId(chatId);
+                String messageText = update.getMessage().getText();
+
+                if (messageText.equals("/start") || user == null) {
+                    registerUser(update.getMessage());
+                    messageHandler.startCommandReceived(chatId, update.getMessage().getChat().getFirstName());
                     return;
-                }
-            }
-
-            if (user.getStatus().getId() != 1) {
-                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId() - 1);
-                messageHandler.deleteMessage(chatId, update.getMessage().getMessageId());
-                switch (user.getStatus().getId()) {
-                    case 2: {
-                        groupHandler.handleGroupNameInput(chatId, messageText);
-                        break;
-                    }
-                    case 3: {
-                        messageText = messageHandler.checkForAtInMessage(messageText);
-                        groupHandler.handleInviteUserInput(chatId, messageText);
-                        break;
-                    }
-                    case 4: {
-                        groupHandler.handleMessageInput(chatId, messageText);
-                        break;
-                    }
-                    case 6: {
-                        messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
-                        user.setStatus(statusRepository.findById(1));
+                } else if (messageText.equals("/all")) {
+                    if (chatId == 989138081L || chatId == 5254745148L) {
+                        user.setStatus(statusRepository.findById(6));
                         userRepository.save(user);
-                        break;
-                    }
-                    case 7: {
-                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                        AdminScheduleSettings settings = groupUser.getSettings();
-                        if (settings == null) {
-                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
-                        }
-                        else if (settings.getWeekDay() == null) {
-                            messageHandler.sendMessage(chatId, DAY_NULL);
-                        }
-                        else if (settings.getLessonNum() == null) {
-                            messageHandler.sendMessage(chatId, LESSON_NULL);
-                        }
-                        else
-                            try {
-                            scheduleHandler.setLessonName(chatId, settings, messageText);
-                            } catch (IOException _) {}
-
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        break;
-                    }
-                    case 8: {
-                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                        AdminScheduleSettings settings = groupUser.getSettings();
-                        if (settings == null) {
-                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
-                        }
-                        else if (settings.getWeekDay() == null) {
-                            messageHandler.sendMessage(chatId, DAY_NULL);
-                        }
-                        else if (settings.getLessonNum() == null) {
-                            messageHandler.sendMessage(chatId, LESSON_NULL);
-                        }
-                        else
-                            try {
-                            scheduleHandler.setTeacherName(chatId, settings, messageText);
-                            } catch (IOException _) {}
-
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        break;
-                    }
-                    case 9: {
-                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                        AdminScheduleSettings settings = groupUser.getSettings();
-                        if (settings == null) {
-                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
-                        }
-                        else if (settings.getWeekDay() == null) {
-                            messageHandler.sendMessage(chatId, DAY_NULL);
-                        }
-                        else if (settings.getLessonNum() == null) {
-                            messageHandler.sendMessage(chatId, LESSON_NULL);
-                        }
-                        else
-                            try {
-                                scheduleHandler.setAuditorium(chatId, settings, messageText);
-                            } catch (IOException _) {}
-
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        break;
-                    }
-                    case 10: {
-                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                        AdminScheduleSettings settings = groupUser.getSettings();
-                        if (settings == null) {
-                            messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
-                        }
-                        else if (settings.getLessonNum() == null) {
-                            messageHandler.sendMessage(chatId, LESSON_NULL);
-                        }
-                        else
-                            TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
-
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        break;
-                    }
-                    default: {
-                        user.setStatus(statusRepository.findById(1));
-                        userRepository.save(user);
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR,
-                                inlineGoBackButton());
-                    }
-                }
-            } 
-            else {
-                if (messageText.equals(Keyboard.NOTIFICATION_SETTING)) {
-                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
-                }
-                else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
-                    boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
-                }
-                else if (messageText.equals(Keyboard.CONTACTS)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT, inlineGoBackButton());
-                }
-                else if (messageText.equals(Keyboard.ABOUT)) {
-                    System.out.println("OK");
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, ABOUT_SCHEDULES,
-                            startMenu());
-                }
-                else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
-                    boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
-                }
-                else if (messageText.equals(Keyboard.LEAVE_GROUP)) {
-                    groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
-                }
-                else if (messageText.equals(Keyboard.GROUP_HANDLER) ||
-                        messageText.equals(Keyboard.BACK_TO_GROUP_SETTINGS)) {
-                    boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Управление группой",
-                                groupSettingsMenu(isOwner));
-                }
-                else if (messageText.equals(Keyboard.BACK_TO_MENU_GROUPS)) {
-                    if (user.getSelectedGroup() == null) {
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR, inlineContinueButtonToMainMenu());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, ENTER_MESSAGE_FOR_ALL, denyInput());
                         return;
                     }
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
-                            showGroupsSettingsMenu(isAdmin));
                 }
-                else if (messageText.equals(Keyboard.SHOW_MEMBERS)) {
-                    groupHandler.showMembers(chatId);
-                }
-                else if (messageText.equals(Keyboard.DELETE_GROUP)) {
-                    groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
-                }
-                else if (messageText.equals(Keyboard.GIVE_OWNER)) {
-                    groupHandler.handleOwnerCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.REMOVE_ADMIN)) {
-                    groupHandler.handleRemoveAdminCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.KICK_USER)) {
-                    groupHandler.handleKickCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.SET_ADMIN)) {
-                    groupHandler.handleSetAdminCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.INVITE_USER)) {
-                    groupHandler.handleInviteCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.SET_SCHEDULE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
-                }
-                else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE, scheduleMenu());
-                }
-                else if (messageText.equals(Keyboard.NOTIFICATION_FOR_ALL)) {
-                    groupHandler.handleMessageCommand(chatId);
-                }
-                else if (messageText.equals(Keyboard.MANUAL_MODIFICATION)) {
-                    scheduleHandler.handleScheduleSetCommand(chatId, true);
-                }
-                else if (messageText.equals(Keyboard.COPY_TO_DENOMINATOR)) {
-                    scheduleHandler.copyToDenominator(chatId);
-                }
-                else if (messageText.equals(Keyboard.SWAP_SCHEDULES)) {
-                    scheduleHandler.swapSchedules(chatId);
-                }
-                else if (messageText.equals(Keyboard.EXCEL_SPREADSHEET)) {
-                    scheduleHandler.handleScheduleSetCommand(chatId, false);
-                }
-                else {
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR, inlineGoBackButton());
-                }
-            }
-        }
-        else if (update.hasCallbackQuery()) {
-            long chatId = update.getCallbackQuery().getMessage().getChatId();
-            User user = userRepository.findByChatId(chatId);
-            messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
 
-            ZoneId zone = ZoneId.of(settingsRepository.findById(user.getId()).getTimeZoneId());
-            String callbackData = update.getCallbackQuery().getData();
+                if (user.getStatus().getId() != 1) {
+                    messageHandler.deleteMessage(chatId, update.getMessage().getMessageId() - 1);
+                    messageHandler.deleteMessage(chatId, update.getMessage().getMessageId());
+                    switch (user.getStatus().getId()) {
+                        case 2: {
+                            groupHandler.handleGroupNameInput(chatId, messageText);
+                            break;
+                        }
+                        case 3: {
+                            messageText = messageHandler.checkForAtInMessage(messageText);
+                            groupHandler.handleInviteUserInput(chatId, messageText);
+                            break;
+                        }
+                        case 4: {
+                            groupHandler.handleMessageInput(chatId, messageText);
+                            break;
+                        }
+                        case 6: {
+                            messageHandler.sendMessageForAll(userRepository.findAll(), messageText);
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            break;
+                        }
+                        case 7: {
+                            GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                    .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                            AdminScheduleSettings settings = groupUser.getSettings();
+                            if (settings == null) {
+                                messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                            } else if (settings.getWeekDay() == null) {
+                                messageHandler.sendMessage(chatId, DAY_NULL);
+                            } else if (settings.getLessonNum() == null) {
+                                messageHandler.sendMessage(chatId, LESSON_NULL);
+                            } else
+                                try {
+                                    scheduleHandler.setLessonName(chatId, settings, messageText);
+                                } catch (IOException _) {
+                                }
 
-            if (EnumUtils.isValidEnum(Day.class, callbackData)) {
-                GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                        .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                AdminScheduleSettings settings = groupUser.getSettings();
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            break;
+                        }
+                        case 8: {
+                            GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                    .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                            AdminScheduleSettings settings = groupUser.getSettings();
+                            if (settings == null) {
+                                messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                            } else if (settings.getWeekDay() == null) {
+                                messageHandler.sendMessage(chatId, DAY_NULL);
+                            } else if (settings.getLessonNum() == null) {
+                                messageHandler.sendMessage(chatId, LESSON_NULL);
+                            } else
+                                try {
+                                    scheduleHandler.setTeacherName(chatId, settings, messageText);
+                                } catch (IOException _) {
+                                }
 
-                settings.setWeekDay((short) Day.valueOf(callbackData).getOrder());
-                groupRepository.save(user.getSelectedGroup());
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            break;
+                        }
+                        case 9: {
+                            GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                    .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                            AdminScheduleSettings settings = groupUser.getSettings();
+                            if (settings == null) {
+                                messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                            } else if (settings.getWeekDay() == null) {
+                                messageHandler.sendMessage(chatId, DAY_NULL);
+                            } else if (settings.getLessonNum() == null) {
+                                messageHandler.sendMessage(chatId, LESSON_NULL);
+                            } else
+                                try {
+                                    scheduleHandler.setAuditorium(chatId, settings, messageText);
+                                } catch (IOException _) {
+                                }
 
-                messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                        SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
-                return;
-            }
-            switch (callbackData) {
-                case "SEND_LESSON_NAME": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
-                            denyInput());
-                    user.setStatus(statusRepository.findById(7));
-                    userRepository.save(user);
-                    return;
-                }
-                case "SEND_TEACHER_NAME": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите ФИО преподавателя:", denyInput());
-                    user.setStatus(statusRepository.findById(8));
-                    userRepository.save(user);
-                    return;
-                }
-                case "SEND_AUDITORIUM": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите номер аудитории:", denyInput());
-                    user.setStatus(statusRepository.findById(9));
-                    userRepository.save(user);
-                    return;
-                }
-                case "SEND_TIME": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите новое время занятия " +
-                            "(изменение времени произойдет для всех занятий с этим номером):", denyInput());
-                    user.setStatus(statusRepository.findById(10));
-                    userRepository.save(user);
-                    return;
-                }
-                case "CHOOSE_ORDER_OF_LESSON", "ADD_LESSON": {
-                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                    AdminScheduleSettings settings = groupUser.getSettings();
-                    settings.setLessonNum(null);
-                    groupRepository.save(user.getSelectedGroup());
-                    try {
-                        scheduleHandler.addLessonHandler(chatId, settings);
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            break;
+                        }
+                        case 10: {
+                            GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                    .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                            AdminScheduleSettings settings = groupUser.getSettings();
+                            if (settings == null) {
+                                messageHandler.sendMessage(chatId, NOT_ADMIN(user.getSelectedGroup()));
+                            } else if (settings.getLessonNum() == null) {
+                                messageHandler.sendMessage(chatId, LESSON_NULL);
+                            } else
+                                TimeParser.setTime(groupUser.getGroup().getId(), settings.getLessonNum(), messageText);
+
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            break;
+                        }
+                        default: {
+                            user.setStatus(statusRepository.findById(1));
+                            userRepository.save(user);
+                            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR,
+                                    inlineGoBackButton());
+                        }
                     }
-                    catch (IOException _) {}
-                    return;
+                } else {
+                    if (messageText.equals(Keyboard.NOTIFICATION_SETTING)) {
+                        settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
+                    } else if (messageText.equals(Keyboard.GO_TO_GROUPS)) {
+                        boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
+                    } else if (messageText.equals(Keyboard.CONTACTS)) {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT, inlineGoBackButton());
+                    } else if (messageText.equals(Keyboard.ABOUT)) {
+                        System.out.println("OK");
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, ABOUT_SCHEDULES,
+                                startMenu());
+                    } else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
+                        boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
+                    } else if (messageText.equals(Keyboard.LEAVE_GROUP)) {
+                        groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                    } else if (messageText.equals(Keyboard.GROUP_HANDLER) ||
+                            messageText.equals(Keyboard.BACK_TO_GROUP_SETTINGS)) {
+                        boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Управление группой",
+                                groupSettingsMenu(isOwner));
+                    } else if (messageText.equals(Keyboard.BACK_TO_MENU_GROUPS)) {
+                        if (user.getSelectedGroup() == null) {
+                            messageHandler.sendMessageWithKeyboardMarkup(chatId, ERROR, inlineContinueButtonToMainMenu());
+                            return;
+                        }
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
+                                showGroupsSettingsMenu(isAdmin));
+                    } else if (messageText.equals(Keyboard.SHOW_MEMBERS)) {
+                        groupHandler.showMembers(chatId);
+                    } else if (messageText.equals(Keyboard.DELETE_GROUP)) {
+                        groupHandler.deleteGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                    } else if (messageText.equals(Keyboard.GIVE_OWNER)) {
+                        groupHandler.handleOwnerCommand(chatId);
+                    } else if (messageText.equals(Keyboard.REMOVE_ADMIN)) {
+                        groupHandler.handleRemoveAdminCommand(chatId);
+                    } else if (messageText.equals(Keyboard.KICK_USER)) {
+                        groupHandler.handleKickCommand(chatId);
+                    } else if (messageText.equals(Keyboard.SET_ADMIN)) {
+                        groupHandler.handleSetAdminCommand(chatId);
+                    } else if (messageText.equals(Keyboard.INVITE_USER)) {
+                        groupHandler.handleInviteCommand(chatId);
+                    } else if (messageText.equals(Keyboard.SET_SCHEDULE)) {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
+                    } else if (messageText.equals(Keyboard.SHOW_SCHEDULE)) {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_SCHEDULE, scheduleMenu());
+                    } else if (messageText.equals(Keyboard.NOTIFICATION_FOR_ALL)) {
+                        groupHandler.handleMessageCommand(chatId);
+                    } else if (messageText.equals(Keyboard.MANUAL_MODIFICATION)) {
+                        scheduleHandler.handleScheduleSetCommand(chatId, true);
+                    } else if (messageText.equals(Keyboard.COPY_TO_DENOMINATOR)) {
+                        scheduleHandler.copyToDenominator(chatId);
+                    } else if (messageText.equals(Keyboard.SWAP_SCHEDULES)) {
+                        scheduleHandler.swapSchedules(chatId);
+                    } else if (messageText.equals(Keyboard.EXCEL_SPREADSHEET)) {
+                        scheduleHandler.handleScheduleSetCommand(chatId, false);
+                    } else {
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR, inlineGoBackButton());
+                    }
                 }
-                case "REMOVE_LESSON": {
+            } else if (update.hasCallbackQuery()) {
+                long chatId = update.getCallbackQuery().getMessage().getChatId();
+                User user = userRepository.findByChatId(chatId);
+                messageHandler.deleteMessage(chatId, update.getCallbackQuery().getMessage().getMessageId());
+
+                ZoneId zone = ZoneId.of(settingsRepository.findById(user.getId()).getTimeZoneId());
+                String callbackData = update.getCallbackQuery().getData();
+
+                if (EnumUtils.isValidEnum(Day.class, callbackData)) {
                     GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                             .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
                     AdminScheduleSettings settings = groupUser.getSettings();
 
-                    try {
-                        scheduleHandler.printLessonList(chatId,
-                                settings.getWeekNum(),
-                                settings.getWeekDay(),
-                                user.getSelectedGroup().getId());
-                    }
-                    catch (IOException _) {}
-                    return;
-                }
-                case "MANUAL_SCHEDULE_MODIFICATION": {
-                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                    AdminScheduleSettings settings = groupUser.getSettings();
-                    settings.setWeekDay(null);
+                    settings.setWeekDay((short) Day.valueOf(callbackData).getOrder());
                     groupRepository.save(user.getSelectedGroup());
-                    scheduleHandler.handleScheduleSetCommand(chatId, true);
-                    return;
-                }
-                case "CHANGE_WEEK_NUM": {
-                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                    AdminScheduleSettings settings = groupUser.getSettings();
-                    settings.setWeekNum(!settings.getWeekNum());
-                    groupRepository.save(user.getSelectedGroup());
+
                     messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
-                            chooseDayOfWeek());
+                            SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
                     return;
                 }
-                case "DENY": {
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
-                    messageHandler.sendMessage(chatId, INPUT_DENIED);
-                    return;
-                }
-                case "BACK_TO_SCHEDULE_MENU": {
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            excelScheduleSettings());
-                    return;
-                }
-                case "BACK_TO_SCHEDULE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
-                    return;
-                }
-                case "GET_TEMPLATE_MENU": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSelection());
-                    return;
-                }
-                case "SEND_TEMPLATE_MENU": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSending());
-                    return;
-                }
-                case "GET_TWO_COLUMN_TEMPLATE": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            excelScheduleSettings());
-                    messageHandler.uploadScheduleTemplateTwoColumns(chatId);
-                    return;
-                }
-                case "GET_ONE_COLUMN_TEMPLATE": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
-                            excelScheduleSettings());
-                    messageHandler.uploadScheduleTemplateOneColumn(chatId);
-                    return;
-                }
-                case "SEND_TWO_COLUMN_TEMPLATE": {
-                    user.setStatus(statusRepository.findById(5));
-                    userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
-                            inlineGoBackButtonToScheduleMenu());
-                    return;
-                }
-                case "SEND_ONE_COLUMN_TEMPLATE": {
-                    user.setStatus(statusRepository.findById(11));
-                    userRepository.save(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
-                            inlineGoBackButtonToScheduleMenu());
-                    return;
-                }
-                case "BACK_TO_MAIN_MENU": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Назад", startMenu());
-                    return;
-                }
-                case "BACK_TO_MAIN_GROUPS_MENU": {
-                    boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
-                    return;
-                }
-                case "BACK_TO_GROUP_MENU": {
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
-                            showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "BACK_TO_GROUP_SETTING_MENU": {
-                    user.setStatus(statusRepository.findById(1));
-                    userRepository.save(user);
-                    boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
-                            groupSettingsMenu(isOwner));
-                    return;
-                }
-                case "CREATE_GROUP": {
-                    groupHandler.handleCreateGroupCommand(chatId);
-                    return;
-                }
-                case "SELECT_GROUP": {
-                    groupHandler.handleGroupSelectCommand(chatId);
-                    return;
-                }
-                case "GROUP_MENU": {
-                    Groupe selectedGroup = user.getSelectedGroup();
-                    boolean isAdmin = selectedGroup.getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
-                            showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "TODAY": {
-                    long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                            "<b>Расписание на сегодня:</b>\n\n".concat(ScheduleReader.todaySchedule(groupId, zone)),
-                            showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "TOMORROW": {
-                    long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                            "<b>Расписание на завтра:</b>\n\n".concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
-                            showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "THIS_WEEK": {
-                    long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                            "<b>Расписание на текущую неделю:</b>\n\n".
-                            concat(ScheduleReader.thisWeekSchedule(groupId, zone)), showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "NEXT_WEEK": {
-                    long groupId = user.getSelectedGroup().getId();
-                    boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
-                            user.getId());
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                            "<b>Расписание на следующую неделю:</b>\n\n".
-                                    concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
-                            showGroupsSettingsMenu(isAdmin));
-                    return;
-                }
-                case "CHANGE_NOTIFICATIONS": {
-                    settingsHandler.switchNotifications(user);
-                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
-                    return;
-                }
-                case "TIMEZONE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, timezonesMenu());
-                    return;
-                }
-                case "NOTIFICATIONS_TIME": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId,
-                            CHOOSE_NOTIFICATION_SEND_TIME, timeMenu());
-                    return;
-                }
-                case "HOUR_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, hoursMenu());
-                    return;
-                }
-                case "MINUTE_SETTINGS": {
-                    messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, minutesMenu());
-                    return;
-                }
-                case "BACK_TO_SETTINGS": {
-                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
-                    return;
-                }
-            }
-
-            List<Long> data = Arrays.stream(callbackData.split(" ")).mapToLong(Long::parseLong)
-                    .boxed().toList(); // данные вида "код <аргументы через пробел>"
-            switch (data.get(0).intValue()) {
-                case 1: { // принятие приглашения в группу
-                    Groupe group = groupRepository.findById(data.get(1)).get();
-                    groupHandler.addUserToGroup(user, group, data.get(2));
-                    break;
-                }
-                case 2: { // отклонение приглашения в группу
-                    Groupe group = groupRepository.findById(data.get(1)).get();
-                    groupHandler.declineInvite(user, group, data.get(2));
-                    if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
-                        messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
-                    break;
-                }
-                case 3: { // изменение часовой зоны
-                    int hourDifferenceWithMoscow = data.get(1).intValue();
-                    settingsHandler.handleTimeZoneInput(user, hourDifferenceWithMoscow);
-                    settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
-                    break;
-                }
-                case 4: { // часы уведомлений
-                    short hours = data.get(1).shortValue();
-                    settingsHandler.handleHoursInput(user, hours);
-                    break;
-                }
-                case 5: { // минуты уведомлений
-                    short minutes = data.get(1).shortValue();
-                    settingsHandler.handleMinutesInput(user, minutes);
-                    break;
-                }
-                // сделать так, чтобы кнопки имели коды команд
-                case 6: { // выбор группы
-                    groupHandler.handleGroupSelectInput(chatId, data.get(1));
-                    break;
-                }
-                case 7: { // удаление пользователя из группы
-                    groupHandler.handleKickUserInput(chatId, data.get(1));
-                    break;
-                }
-                case 8: { // передача прав владельца
-                    groupHandler.handleGiveOwnerInput(chatId, data.get(1));
-                    break;
-                }
-                case 9: { // назначение админа
-                    groupHandler.handleSetAdminInput(chatId, data.get(1));
-                    break;
-                }
-                case 10: { // снятие админа
-                    groupHandler.handleRemoveAdminInput(chatId, data.get(1));
-                    break;
-                }
-                case 11: { // добавление вручную предмета
-                    int lessonOrder = data.get(1).intValue();
-
-                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
-                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
-                    AdminScheduleSettings settings = groupUser.getSettings();
-                    settings.setLessonNum((short) lessonOrder);
-                    groupRepository.save(user.getSelectedGroup());
-
-                    Schedule schedule;
-                    try {
-                        schedule = scheduleFromJson(settings.getWeekNum(), user.getSelectedGroup().getId());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                switch (callbackData) {
+                    case "SEND_LESSON_NAME": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
+                                denyInput());
+                        user.setStatus(statusRepository.findById(7));
+                        userRepository.save(user);
+                        return;
                     }
-                    String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
-
-                    messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                            scheduleHandler.getLessonInfo(schedule, user.getSelectedGroup(), dayOfWeek, settings),
-                            lessonCreateSettings());
-                    break;
-                }
-                case 12: { // удаление вручную предмета
-                    try {
-                        scheduleHandler.removeLessonHandler(data, user.getSelectedGroup().getId());
+                    case "SEND_TEACHER_NAME": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите ФИО преподавателя:", denyInput());
+                        user.setStatus(statusRepository.findById(8));
+                        userRepository.save(user);
+                        return;
                     }
-                    catch (IOException _) {}
+                    case "SEND_AUDITORIUM": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите номер аудитории:", denyInput());
+                        user.setStatus(statusRepository.findById(9));
+                        userRepository.save(user);
+                        return;
+                    }
+                    case "SEND_TIME": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите новое время занятия " +
+                                "(изменение времени произойдет для всех занятий с этим номером):", denyInput());
+                        user.setStatus(statusRepository.findById(10));
+                        userRepository.save(user);
+                        return;
+                    }
+                    case "CHOOSE_ORDER_OF_LESSON", "ADD_LESSON": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setLessonNum(null);
+                        groupRepository.save(user.getSelectedGroup());
+                        try {
+                            scheduleHandler.addLessonHandler(chatId, settings);
+                        } catch (IOException _) {
+                        }
+                        return;
+                    }
+                    case "REMOVE_LESSON": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
 
-                    messageHandler.sendMessage(chatId, LESSON_REMOVED);
-                    scheduleHandler.handleScheduleSetCommand(chatId, true);
-                    break;
+                        try {
+                            scheduleHandler.printLessonList(chatId,
+                                    settings.getWeekNum(),
+                                    settings.getWeekDay(),
+                                    user.getSelectedGroup().getId());
+                        } catch (IOException _) {
+                        }
+                        return;
+                    }
+                    case "MANUAL_SCHEDULE_MODIFICATION": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setWeekDay(null);
+                        groupRepository.save(user.getSelectedGroup());
+                        scheduleHandler.handleScheduleSetCommand(chatId, true);
+                        return;
+                    }
+                    case "CHANGE_WEEK_NUM": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setWeekNum(!settings.getWeekNum());
+                        groupRepository.save(user.getSelectedGroup());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                                SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+                                chooseDayOfWeek());
+                        return;
+                    }
+                    case "DENY": {
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        messageHandler.sendMessage(chatId, INPUT_DENIED);
+                        return;
+                    }
+                    case "BACK_TO_SCHEDULE_MENU": {
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
+                                excelScheduleSettings());
+                        return;
+                    }
+                    case "BACK_TO_SCHEDULE_SETTINGS": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_OPTION, setSchedule());
+                        return;
+                    }
+                    case "GET_TEMPLATE_MENU": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSelection());
+                        return;
+                    }
+                    case "SEND_TEMPLATE_MENU": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, CHOOSE_TEMPLATE, excelTemplateSending());
+                        return;
+                    }
+                    case "GET_TWO_COLUMN_TEMPLATE": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
+                                excelScheduleSettings());
+                        messageHandler.uploadScheduleTemplateTwoColumns(chatId);
+                        return;
+                    }
+                    case "GET_ONE_COLUMN_TEMPLATE": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, SCHEDULE_EXCEL_WARNING,
+                                excelScheduleSettings());
+                        messageHandler.uploadScheduleTemplateOneColumn(chatId);
+                        return;
+                    }
+                    case "SEND_TWO_COLUMN_TEMPLATE": {
+                        user.setStatus(statusRepository.findById(5));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
+                                inlineGoBackButtonToScheduleMenu());
+                        return;
+                    }
+                    case "SEND_ONE_COLUMN_TEMPLATE": {
+                        user.setStatus(statusRepository.findById(11));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, WAITING_FOR_EXCEL_FILE,
+                                inlineGoBackButtonToScheduleMenu());
+                        return;
+                    }
+                    case "BACK_TO_MAIN_MENU": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Назад", startMenu());
+                        return;
+                    }
+                    case "BACK_TO_MAIN_GROUPS_MENU": {
+                        boolean chosen = groupHandler.groupChosen(user), created = groupHandler.groupCreated(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
+                        return;
+                    }
+                    case "BACK_TO_GROUP_MENU": {
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в меню группы",
+                                showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "BACK_TO_GROUP_SETTING_MENU": {
+                        user.setStatus(statusRepository.findById(1));
+                        userRepository.save(user);
+                        boolean isOwner = user.getSelectedGroup().getOwner().getId() == user.getId();
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Вы вернулись в управление группой",
+                                groupSettingsMenu(isOwner));
+                        return;
+                    }
+                    case "CREATE_GROUP": {
+                        groupHandler.handleCreateGroupCommand(chatId);
+                        return;
+                    }
+                    case "SELECT_GROUP": {
+                        groupHandler.handleGroupSelectCommand(chatId);
+                        return;
+                    }
+                    case "GROUP_MENU": {
+                        Groupe selectedGroup = user.getSelectedGroup();
+                        boolean isAdmin = selectedGroup.getAdmins().stream().anyMatch(u -> u.getId() == user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Меню группы",
+                                showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "TODAY": {
+                        long groupId = user.getSelectedGroup().getId();
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                                "<b>Расписание на сегодня:</b>\n\n".concat(ScheduleReader.todaySchedule(groupId, zone)),
+                                showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "TOMORROW": {
+                        long groupId = user.getSelectedGroup().getId();
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                                "<b>Расписание на завтра:</b>\n\n".concat(ScheduleReader.tomorrowSchedule(groupId, zone)),
+                                showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "THIS_WEEK": {
+                        long groupId = user.getSelectedGroup().getId();
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                                "<b>Расписание на текущую неделю:</b>\n\n".
+                                        concat(ScheduleReader.thisWeekSchedule(groupId, zone)), showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "NEXT_WEEK": {
+                        long groupId = user.getSelectedGroup().getId();
+                        boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
+                                user.getId());
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                                "<b>Расписание на следующую неделю:</b>\n\n".
+                                        concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
+                                showGroupsSettingsMenu(isAdmin));
+                        return;
+                    }
+                    case "CHANGE_NOTIFICATIONS": {
+                        settingsHandler.switchNotifications(user);
+                        settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
+                        return;
+                    }
+                    case "TIMEZONE_SETTINGS": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, timezonesMenu());
+                        return;
+                    }
+                    case "NOTIFICATIONS_TIME": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                                CHOOSE_NOTIFICATION_SEND_TIME, timeMenu());
+                        return;
+                    }
+                    case "HOUR_SETTINGS": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, hoursMenu());
+                        return;
+                    }
+                    case "MINUTE_SETTINGS": {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, TIME_SELECTION, minutesMenu());
+                        return;
+                    }
+                    case "BACK_TO_SETTINGS": {
+                        settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
+                        return;
+                    }
                 }
-                default: { // что-то невероятное
+
+                List<Long> data = Arrays.stream(callbackData.split(" ")).mapToLong(Long::parseLong)
+                        .boxed().toList(); // данные вида "код <аргументы через пробел>"
+                switch (data.get(0).intValue()) {
+                    case 1: { // принятие приглашения в группу
+                        Groupe group = groupRepository.findById(data.get(1)).get();
+                        groupHandler.addUserToGroup(user, group, data.get(2));
+                        break;
+                    }
+                    case 2: { // отклонение приглашения в группу
+                        Groupe group = groupRepository.findById(data.get(1)).get();
+                        groupHandler.declineInvite(user, group, data.get(2));
+                        if (group.getMembers().stream().noneMatch(u -> u.getId() == user.getId()))
+                            messageHandler.sendMessage(chatId, INVITE_REQUEST_DENIED(group));
+                        break;
+                    }
+                    case 3: { // изменение часовой зоны
+                        int hourDifferenceWithMoscow = data.get(1).intValue();
+                        settingsHandler.handleTimeZoneInput(user, hourDifferenceWithMoscow);
+                        settingsHandler.showNotificationMenu(chatId, settingsRepository.findById(user.getId()));
+                        break;
+                    }
+                    case 4: { // часы уведомлений
+                        short hours = data.get(1).shortValue();
+                        settingsHandler.handleHoursInput(user, hours);
+                        break;
+                    }
+                    case 5: { // минуты уведомлений
+                        short minutes = data.get(1).shortValue();
+                        settingsHandler.handleMinutesInput(user, minutes);
+                        break;
+                    }
+                    // сделать так, чтобы кнопки имели коды команд
+                    case 6: { // выбор группы
+                        groupHandler.handleGroupSelectInput(chatId, data.get(1));
+                        break;
+                    }
+                    case 7: { // удаление пользователя из группы
+                        groupHandler.handleKickUserInput(chatId, data.get(1));
+                        break;
+                    }
+                    case 8: { // передача прав владельца
+                        groupHandler.handleGiveOwnerInput(chatId, data.get(1));
+                        break;
+                    }
+                    case 9: { // назначение админа
+                        groupHandler.handleSetAdminInput(chatId, data.get(1));
+                        break;
+                    }
+                    case 10: { // снятие админа
+                        groupHandler.handleRemoveAdminInput(chatId, data.get(1));
+                        break;
+                    }
+                    case 11: { // добавление вручную предмета
+                        int lessonOrder = data.get(1).intValue();
+
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setLessonNum((short) lessonOrder);
+                        groupRepository.save(user.getSelectedGroup());
+
+                        Schedule schedule;
+                        try {
+                            schedule = scheduleFromJson(settings.getWeekNum(), user.getSelectedGroup().getId());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        String dayOfWeek = Day.values()[settings.getWeekDay()].getTranslation();
+
+                        messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
+                                scheduleHandler.getLessonInfo(schedule, user.getSelectedGroup(), dayOfWeek, settings),
+                                lessonCreateSettings());
+                        break;
+                    }
+                    case 12: { // удаление вручную предмета
+                        try {
+                            scheduleHandler.removeLessonHandler(data, user.getSelectedGroup().getId());
+                        } catch (IOException _) {
+                        }
+
+                        messageHandler.sendMessage(chatId, LESSON_REMOVED);
+                        scheduleHandler.handleScheduleSetCommand(chatId, true);
+                        break;
+                    }
+                    default: { // что-то невероятное
+                        userError(chatId);
+                        break;
+                    }
+                }
+            } else if (update.getMessage().getDocument() != null) {
+                long chatId = update.getMessage().getChatId();
+                if (userRepository.findByChatId(chatId).getStatus().getId() == 5) {
+                    Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+                    groupHandler.handleScheduleTwoColumnsInput(update.getMessage(), chatId, group);
+                } else if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
+                    Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+                    groupHandler.handleScheduleOneColumnInput(update.getMessage(), chatId, group);
+                } else {
                     userError(chatId);
-                    break;
                 }
             }
         }
-        else if (update.getMessage().getDocument() != null) {
+        catch (Exception e) {
+            e.printStackTrace(System.out);
             long chatId = update.getMessage().getChatId();
-            if (userRepository.findByChatId(chatId).getStatus().getId() == 5) {
-                Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
-                groupHandler.handleScheduleTwoColumnsInput(update.getMessage(), chatId, group);
-            }
-            else if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
-                Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
-                groupHandler.handleScheduleOneColumnInput(update.getMessage(), chatId, group);
-            }
-            else {
-                userError(chatId);
-            }
+            User user = userRepository.findByChatId(chatId);
+            user.setStatus(statusRepository.findById(1));
+            userRepository.save(user);
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_ERROR, inlineGoBackButton());
         }
     }
 
