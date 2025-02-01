@@ -16,7 +16,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.changeScheduleOption;
@@ -131,6 +133,51 @@ public class ScheduleHandler {
 
         messageHandler.sendMessageWithKeyboardMarkup(chatId, LESSON_CHOSE_INFO,
                 KeyboardMarkupProvider.chooseOrderOfLesson(lessonNames));
+    }
+
+    public void copyToDenominator(long chatId) {
+        Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+        if (group == null) {
+            messageHandler.sendMessage(chatId, GROUP_NOT_SELECTED);
+        }
+        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == group.getId())) {
+            messageHandler.sendMessage(chatId, NOT_ADMIN(group));
+        }
+        else {
+            Path source = Paths.get(String.format("src/main/resources/groups/%d/Числитель.json", group.getId()));
+            Path destination = Paths.get(String.format("src/main/resources/groups/%d/Знаменатель.json", group.getId()));
+
+            try {
+                Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING); // перезаписывает файл
+                messageHandler.sendMessage(chatId, SEND_COPY_SUCCESSFUL);
+            } catch (IOException _) {
+            }
+        }
+    }
+
+    public void swapSchedules(long chatId) {
+        Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+        if (group == null) {
+            messageHandler.sendMessage(chatId, GROUP_NOT_SELECTED);
+        }
+        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == group.getId())) {
+            messageHandler.sendMessage(chatId, NOT_ADMIN(group));
+        }
+        else {
+            Path file1 = Paths.get(String.format("src/main/resources/groups/%d/Числитель.json", group.getId()));
+            Path file2 = Paths.get(String.format("src/main/resources/groups/%d/Знаменатель.json", group.getId()));
+            byte[] content1;
+            byte[] content2;
+            try {
+                content1 = Files.readAllBytes(file1);
+                content2 = Files.readAllBytes(file2);
+                Files.write(file2, content1);
+                Files.write(file1, content2);
+                messageHandler.sendMessage(chatId, SEND_SWAP_SUCCESSFUL);
+            } catch (IOException _) {
+            }
+        }
+
     }
 
     public void printLessonList(final long chatId,

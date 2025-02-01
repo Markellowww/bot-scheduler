@@ -292,6 +292,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                 else if (messageText.equals(Keyboard.MANUAL_MODIFICATION)) {
                     scheduleHandler.handleScheduleSetCommand(chatId, true);
                 }
+                else if (messageText.equals(Keyboard.COPY_TO_DENOMINATOR)) {
+                    scheduleHandler.copyToDenominator(chatId);
+                }
+                else if (messageText.equals(Keyboard.SWAP_SCHEDULES)) {
+                    scheduleHandler.swapSchedules(chatId);
+                }
                 else if (messageText.equals(Keyboard.EXCEL_SPREADSHEET)) {
                     scheduleHandler.handleScheduleSetCommand(chatId, false);
                 }

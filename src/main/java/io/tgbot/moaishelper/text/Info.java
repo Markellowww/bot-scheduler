@@ -215,6 +215,10 @@ public class Info {
 
     public static String SEND_MESSAGE_SUCCESSFUL = "Сообщение было успешно отправлено всем участникам группы ✅";
 
+    public static String SEND_COPY_SUCCESSFUL = "Успешно скопировано ✅";
+
+    public static String SEND_SWAP_SUCCESSFUL = "Числитель и знаменатель успешно поменяны ✅";
+
     public static final String ENTER_GROUP_NAME = "Введите название для группы ✍️";
 
     public static final String ENTER_MESSAGE_FOR_ALL =
