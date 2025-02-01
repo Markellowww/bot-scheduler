@@ -32,5 +32,9 @@ public class Keyboard {
     public static final String SET_SCHEDULE = EmojiParser.parseToUnicode("⚙️ Установить расписание");
     public static final String EXCEL_SPREADSHEET = EmojiParser.parseToUnicode("⚙️ Excel-таблицей");
     public static final String MANUAL_MODIFICATION = EmojiParser.parseToUnicode("⚙️ Ручное изменение");
+    public static final String COPY_TO_DENOMINATOR =
+            EmojiParser.parseToUnicode(":closed_book: Скопировать числитель ---> знаменатель");
+    public static final String SWAP_SCHEDULES = EmojiParser.parseToUnicode(":closed_book: " +
+            "Поменять числитель <---> знаменатель");
     public static final String GROUP_HANDLER = EmojiParser.parseToUnicode("⚙️ Управление группой");
 }

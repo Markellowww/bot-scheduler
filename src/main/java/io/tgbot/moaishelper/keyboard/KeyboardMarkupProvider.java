@@ -136,7 +136,6 @@ public class KeyboardMarkupProvider {
 
     public static ReplyKeyboardMarkup setSchedule() {
         ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
         keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
@@ -145,10 +144,15 @@ public class KeyboardMarkupProvider {
         row1.add(Keyboard.MANUAL_MODIFICATION);
 
         KeyboardRow row2 = new KeyboardRow();
-        row2.add(Keyboard.BACK_TO_GROUP_SETTINGS);
+        row2.add(Keyboard.COPY_TO_DENOMINATOR);
+        row2.add(Keyboard.SWAP_SCHEDULES);
+
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add(Keyboard.BACK_TO_GROUP_SETTINGS);
 
         rows.add(row1);
         rows.add(row2);
+        rows.add(row3);
 
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
