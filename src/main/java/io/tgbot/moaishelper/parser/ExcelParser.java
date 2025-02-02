@@ -9,10 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -50,10 +47,10 @@ public class ExcelParser {
                         cellIndex = (short) (1 + 5 * week);
                         currentRow = mySheet.getRow(rowIndex);
                         List<Object> subjectData = new ArrayList<>();
-
-                        String subject = currentRow.getCell(cellIndex++).toString();
-                        String teacher = currentRow.getCell(cellIndex++).toString(); // данные
-                        String auditorium = currentRow.getCell(cellIndex++).toString();
+                        // данные
+                        String subject = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
+                        String teacher = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
+                        String auditorium = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");;
                         try {
                             auditorium = String.valueOf((int) Float.parseFloat(auditorium));
                         } // нормальный вид для целых чисел
@@ -101,10 +98,10 @@ public class ExcelParser {
                 for (int pair = 1; pair < 11; pair++, rowIndex++, cellIndex = 1) {
                     currentRow = mySheet.getRow(rowIndex);
                     List<Object> subjectData = new ArrayList<>();
-
-                    String subject = currentRow.getCell(cellIndex++).toString();
-                    String teacher = currentRow.getCell(cellIndex++).toString(); // данные
-                    String auditorium = currentRow.getCell(cellIndex).toString();
+                    // данные
+                    String subject = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
+                    String teacher = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
+                    String auditorium = Optional.ofNullable(currentRow.getCell(cellIndex).toString()).orElse("");
                     try {
                         auditorium = String.valueOf((int) Float.parseFloat(auditorium));
                     } // нормальный вид для целых чисел
@@ -178,7 +175,7 @@ public class ExcelParser {
             Map<Short, String> timetable = new LinkedHashMap<>();
             for (short pair = 1; pair < 11; pair++) {
                 currentRow = mySheet.getRow(pair);
-                String time = currentRow.getCell(1).toString();
+                String time = Optional.ofNullable(currentRow.getCell(1).toString()).orElse("");
                 if (time.isEmpty())
                     time = "Время не указано";
                 timetable.put(pair, time);
