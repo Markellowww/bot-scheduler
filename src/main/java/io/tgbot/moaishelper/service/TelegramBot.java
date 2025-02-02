@@ -496,7 +496,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                         long groupId = user.getSelectedGroup().getId();
                         boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
                                 user.getId());
-                        int week = DayWeekNumber.getCurrentWeekNumber(zone);
+                        int week = (DayWeekNumber.getCurrentWeekNumber(zone) + 1) % 2;
                         String name = getFilename(week);
                         messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
                                 String.format("<b>Расписание на следующую неделю (%s):</b>\n\n", name).
