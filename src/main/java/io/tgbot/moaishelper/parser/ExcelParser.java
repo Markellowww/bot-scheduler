@@ -48,9 +48,15 @@ public class ExcelParser {
                         currentRow = mySheet.getRow(rowIndex);
                         List<Object> subjectData = new ArrayList<>();
                         // данные
-                        String subject = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
-                        String teacher = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
-                        String auditorium = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");;
+                        String subject = currentRow.getCell(cellIndex) == null ? "" :
+                                currentRow.getCell(cellIndex).toString();
+                        cellIndex++;
+                        String teacher = currentRow.getCell(cellIndex) == null ? "" :
+                                currentRow.getCell(cellIndex).toString();
+                        cellIndex++;
+                        String auditorium = currentRow.getCell(cellIndex) == null ? "" :
+                                currentRow.getCell(cellIndex).toString();
+                        cellIndex++;
                         try {
                             auditorium = String.valueOf((int) Float.parseFloat(auditorium));
                         } // нормальный вид для целых чисел
@@ -99,9 +105,14 @@ public class ExcelParser {
                     currentRow = mySheet.getRow(rowIndex);
                     List<Object> subjectData = new ArrayList<>();
                     // данные
-                    String subject = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
-                    String teacher = Optional.ofNullable(currentRow.getCell(cellIndex++).toString()).orElse("");
-                    String auditorium = Optional.ofNullable(currentRow.getCell(cellIndex).toString()).orElse("");
+                    String subject = currentRow.getCell(cellIndex) == null ? "" :
+                            currentRow.getCell(cellIndex).toString();
+                    cellIndex++;
+                    String teacher = currentRow.getCell(cellIndex) == null ? "" :
+                            currentRow.getCell(cellIndex).toString();
+                    cellIndex++;
+                    String auditorium = currentRow.getCell(cellIndex) == null ? "" :
+                            currentRow.getCell(cellIndex).toString();
                     try {
                         auditorium = String.valueOf((int) Float.parseFloat(auditorium));
                     } // нормальный вид для целых чисел
