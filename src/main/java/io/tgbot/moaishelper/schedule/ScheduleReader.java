@@ -103,7 +103,7 @@ public class ScheduleReader {
      * @param week четность недели (0 - числитель, 1 - знаменатель)
      * @return название недели
      */
-    private static String getFilename(int week) throws IOException {
+    public static String getFilename(int week) throws IOException {
         return week == 0 ? "Числитель" : "Знаменатель";
     }
 }

@@ -4,6 +4,7 @@ import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.parser.TimeParser;
 import io.tgbot.moaishelper.schedule.Day;
+import io.tgbot.moaishelper.schedule.DayWeekNumber;
 import io.tgbot.moaishelper.schedule.Schedule;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
+import static io.tgbot.moaishelper.schedule.ScheduleReader.getFilename;
 import static io.tgbot.moaishelper.service.ScheduleHandler.scheduleFromJson;
 import static io.tgbot.moaishelper.text.Info.*;
 
@@ -482,17 +484,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                         long groupId = user.getSelectedGroup().getId();
                         boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
                                 user.getId());
+                        int week = DayWeekNumber.getCurrentWeekNumber(zone);
+                        String name = getFilename(week);
                         messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                                "<b>Расписание на текущую неделю:</b>\n\n".
-                                        concat(ScheduleReader.thisWeekSchedule(groupId, zone)), showGroupsSettingsMenu(isAdmin));
+                                String.format("<b>Расписание на текущую неделю (%s):</b>\n\n", name).
+                                        concat(ScheduleReader.thisWeekSchedule(groupId, zone)),
+                                showGroupsSettingsMenu(isAdmin));
                         return;
                     }
                     case "NEXT_WEEK": {
                         long groupId = user.getSelectedGroup().getId();
                         boolean isAdmin = user.getSelectedGroup().getAdmins().stream().anyMatch(u -> u.getId() ==
                                 user.getId());
+                        int week = DayWeekNumber.getCurrentWeekNumber(zone);
+                        String name = getFilename(week);
                         messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId,
-                                "<b>Расписание на следующую неделю:</b>\n\n".
+                                String.format("<b>Расписание на следующую неделю (%s):</b>\n\n", name).
                                         concat(ScheduleReader.nextWeekSchedule(groupId, zone)),
                                 showGroupsSettingsMenu(isAdmin));
                         return;
