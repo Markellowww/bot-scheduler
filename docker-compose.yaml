@@ -29,6 +29,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/moaishelper
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: admin123
+    volumes:
+      - app_resources:/app_working_dir/src/main/resources
 
 networks:
   app_network:
@@ -36,3 +38,4 @@ networks:
 
 volumes:
   db:
+  app_resources:
