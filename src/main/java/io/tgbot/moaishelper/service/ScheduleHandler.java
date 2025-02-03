@@ -137,10 +137,11 @@ public class ScheduleHandler {
 
     public void copyToDenominator(long chatId) {
         Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+        User user = userRepository.findByChatId(chatId);
         if (group == null) {
             messageHandler.sendMessage(chatId, GROUP_NOT_SELECTED);
         }
-        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == group.getId())) {
+        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
             messageHandler.sendMessage(chatId, NOT_ADMIN(group));
         }
         else {
@@ -157,10 +158,11 @@ public class ScheduleHandler {
 
     public void swapSchedules(long chatId) {
         Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
+        User user = userRepository.findByChatId(chatId);
         if (group == null) {
             messageHandler.sendMessage(chatId, GROUP_NOT_SELECTED);
         }
-        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == group.getId())) {
+        else if (group.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
             messageHandler.sendMessage(chatId, NOT_ADMIN(group));
         }
         else {
