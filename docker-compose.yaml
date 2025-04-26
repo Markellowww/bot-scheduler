@@ -1,18 +1,19 @@
 version: "3.8"
+
 services:
-  mysqldb:
-    image: mysql:latest
+  postgresdb:
+    image: postgres:latest
     container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: admin123
-      MYSQL_DATABASE: moaishelper
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123"
+      POSTGRES_DB: moaishelper
     networks:
       - app_network
     restart: always
     volumes:
-      - db:/var/lib/mysql
+      - pgdata:/var/lib/postgresql/data
       - ./sql:/docker-entrypoint-initdb.d
-      # или - ./init.sql:/docker-entrypoint-initdb.d/init.sql (если без каталога)
 
   app:
     build:
@@ -22,13 +23,13 @@ services:
     networks:
       - app_network
     depends_on:
-      - mysqldb
+      - postgresdb
     restart: always
     container_name: app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/moaishelper
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: admin123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/moaishelper
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "123"
     volumes:
       - app_resources:/app_working_dir/src/main/resources
 
@@ -37,5 +38,5 @@ networks:
     driver: bridge
 
 volumes:
-  db:
+  pgdata:
   app_resources:

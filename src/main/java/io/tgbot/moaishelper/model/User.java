@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @Authors: Markelloww & YDK
  */
-@Entity
+@Entity(name = "users")
 @Getter
 @NoArgsConstructor
 public class User {
