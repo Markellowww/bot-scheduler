@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.model;
 
+import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

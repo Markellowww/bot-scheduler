@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.model;
 
+import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,9 +26,12 @@ public class Groupe {
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<GroupUser> groupUsers = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "ownerId", referencedColumnName = "id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupFile> groupFiles = new ArrayList<>();
 
     @Column(nullable = false)
     private String name;

@@ -3,7 +3,7 @@ package io.tgbot.moaishelper.service;
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.model.UserSettings;
-import io.tgbot.moaishelper.model.UserSettingsRepository;
+import io.tgbot.moaishelper.repository.UserSettingsRepository;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 
 import java.time.ZoneId;

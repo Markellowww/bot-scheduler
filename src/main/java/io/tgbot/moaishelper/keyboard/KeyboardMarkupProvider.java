@@ -1,6 +1,7 @@
 package io.tgbot.moaishelper.keyboard;
 
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;

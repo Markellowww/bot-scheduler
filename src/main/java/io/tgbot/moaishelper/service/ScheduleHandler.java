@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.model.groupUser.GroupUser;
+import io.tgbot.moaishelper.repository.UserRepository;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;

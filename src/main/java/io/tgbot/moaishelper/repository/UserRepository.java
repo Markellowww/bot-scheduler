@@ -1,5 +1,6 @@
-package io.tgbot.moaishelper.model;
+package io.tgbot.moaishelper.repository;
 
+import io.tgbot.moaishelper.model.User;
 import org.springframework.data.repository.CrudRepository;
 
 /**

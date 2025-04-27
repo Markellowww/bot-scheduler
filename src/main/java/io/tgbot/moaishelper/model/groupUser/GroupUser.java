@@ -1,7 +1,9 @@
-package io.tgbot.moaishelper.model;
+package io.tgbot.moaishelper.model.groupUser;
 
+import io.tgbot.moaishelper.model.AdminScheduleSettings;
+import io.tgbot.moaishelper.model.Groupe;
+import io.tgbot.moaishelper.model.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,16 +16,19 @@ import java.util.Objects;
 @Entity
 @Getter
 public class GroupUser {
+    @EmbeddedId
+    private GroupUserId groupUserId;
+
     @Getter
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "groupId", referencedColumnName = "id", nullable = false)
-    @Id
+    @MapsId("groupId")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn
     private Groupe group;
 
     @Getter
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "userId", nullable = false)
-    @Id
+    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn
     private User user;
 
     @Setter
@@ -37,6 +42,7 @@ public class GroupUser {
     }
 
     public GroupUser(Groupe group, User user, boolean admin) {
+        this.groupUserId = new GroupUserId(group.getId(), user.getId());
         this.group = group;
         this.user = user;
         this.settings = new AdminScheduleSettings();

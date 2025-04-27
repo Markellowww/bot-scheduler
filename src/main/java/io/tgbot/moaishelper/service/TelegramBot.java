@@ -2,7 +2,12 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import io.tgbot.moaishelper.parser.TimeParser;
+import io.tgbot.moaishelper.repository.GroupRepository;
+import io.tgbot.moaishelper.repository.StatusRepository;
+import io.tgbot.moaishelper.repository.UserRepository;
+import io.tgbot.moaishelper.repository.UserSettingsRepository;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.DayWeekNumber;
 import io.tgbot.moaishelper.schedule.Schedule;
@@ -21,7 +26,6 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.sql.Timestamp;
 import java.time.ZoneId;
 import java.util.ArrayList;

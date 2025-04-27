@@ -3,8 +3,8 @@ package io.tgbot.moaishelper.service;
 import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.repository.UserSettingsRepository;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.generics.TelegramBot;
 
 import java.util.Map;
 
