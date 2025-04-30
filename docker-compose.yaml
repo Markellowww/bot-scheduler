@@ -5,8 +5,8 @@ services:
     image: postgres:latest
     container_name: db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "123"
+      POSTGRES_USER: moais
+      POSTGRES_PASSWORD: "moais"
       POSTGRES_DB: moaishelper
     networks:
       - app_network
