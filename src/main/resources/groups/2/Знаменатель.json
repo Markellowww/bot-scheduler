@@ -1,0 +1,25 @@
+{
+  "schedule": {
+    "Понедельник": {
+      "lessonList": []
+    },
+    "Вторник": {
+      "lessonList": []
+    },
+    "Среда": {
+      "lessonList": []
+    },
+    "Четверг": {
+      "lessonList": []
+    },
+    "Пятница": {
+      "lessonList": []
+    },
+    "Суббота": {
+      "lessonList": []
+    },
+    "Воскресенье": {
+      "lessonList": []
+    }
+  }
+}

@@ -227,7 +227,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                     } else if (messageText.equals(Keyboard.CONTACTS)) {
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, TEXT_SUPPORT, inlineGoBackButton());
                     } else if (messageText.equals(Keyboard.ABOUT)) {
-                        System.out.println("OK");
                         messageHandler.sendMessageWithKeyboardMarkupAndParseMode(chatId, ABOUT_SCHEDULES,
                                 startMenu());
                     } else if (messageText.equals(Keyboard.BACK_TO_GROUPS)) {
@@ -235,6 +234,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_MENU(user), groupsMenu(chosen, created));
                     } else if (messageText.equals(Keyboard.LEAVE_GROUP)) {
                         groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
+                    } else if (messageText.equals(Keyboard.ADD_HOMEWORK)) {
+                        scheduleHandler.handeScheduleHomeworkSetCommand(chatId);
                     } else if (messageText.equals(Keyboard.GROUP_HANDLER) ||
                             messageText.equals(Keyboard.BACK_TO_GROUP_SETTINGS)) {
                         boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
@@ -303,6 +304,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                             SCHEDULE_CHANGE(settings.getWeekNum(), settings.getWeekDay()), changeScheduleOption());
                     return;
                 }
+                if (callbackData.length() >= 3 && EnumUtils.isValidEnum(Day.class, callbackData.substring(0, callbackData.length() - 3))) {
+                    GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                            .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                    AdminScheduleSettings settings = groupUser.getSettings();
+
+                    settings.setWeekDay((short) Day.valueOf(callbackData.substring(0, callbackData.length() - 3)).getOrder());
+                    groupRepository.save(user.getSelectedGroup());
+
+                    try {
+                        scheduleHandler.printLessonListHomework(chatId,
+                                settings.getWeekNum(),
+                                settings.getWeekDay(),
+                                user.getSelectedGroup().getId());
+                    } catch (IOException _) {}
+                    return;
+                }
                 switch (callbackData) {
                     case "SEND_LESSON_NAME": {
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, "Введите название предмета:",
@@ -365,6 +382,15 @@ public class TelegramBot extends TelegramLongPollingBot {
                         scheduleHandler.handleScheduleSetCommand(chatId, true);
                         return;
                     }
+                    case "HOMEWORK_SCHEDULE_MODIFICATION": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setWeekDay(null);
+                        groupRepository.save(user.getSelectedGroup());
+                        scheduleHandler.handeScheduleHomeworkSetCommand(chatId);
+                        return;
+                    }
                     case "CHANGE_WEEK_NUM": {
                         GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
                                 .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
@@ -374,6 +400,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                         messageHandler.sendMessageWithKeyboardMarkup(chatId,
                                 SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
                                 chooseDayOfWeek());
+                        return;
+                    }
+                    case "CHANGE_WEEK_NUM_HOMEWORK": {
+                        GroupUser groupUser = user.getSelectedGroup().getGroupUsers()
+                                .stream().filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+                        AdminScheduleSettings settings = groupUser.getSettings();
+                        settings.setWeekNum(!settings.getWeekNum());
+                        groupRepository.save(user.getSelectedGroup());
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                                SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+                                chooseDayOfWeekHomework());
                         return;
                     }
                     case "DENY": {
@@ -618,6 +655,20 @@ public class TelegramBot extends TelegramLongPollingBot {
 
                         messageHandler.sendMessage(chatId, LESSON_REMOVED);
                         scheduleHandler.handleScheduleSetCommand(chatId, true);
+                        break;
+                    }
+                    case 13: { // прикрепление файла к предмету
+                        /*
+                        Callback имеет формат:
+                            13 (номер кода операции)
+                            1 - Числитель, 0 - знаменатель
+                            Порядковый номер дня недели 0 - 6
+                            Номер пары 1 - 10
+                         */
+
+                        /*
+                        Здесь надо реализовать прикрепление файла к предмету
+                         */
                         break;
                     }
                     default: { // что-то невероятное

@@ -204,6 +204,23 @@ public class ScheduleHandler {
         }
     }
 
+    public void printLessonListHomework(final long chatId,
+                                final Boolean weekNum,
+                                final Short weekDay,
+                                final long groupId) throws IOException {
+
+        Schedule schedule = scheduleFromJson(weekNum, groupId);
+
+        if (schedule != null) {
+            String path = String.format("src/main/resources/groups/%d/Время.json", groupId);
+            List<String> lessonNames = schedule.getLessonNames(groupId, Day.values()[weekDay].getTranslation(), path);
+
+            messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                    "Выберите предмет, которому Вы хотите добавить Д/З:",
+                    KeyboardMarkupProvider.chooseHomeworkLesson(lessonNames, weekNum, weekDay));
+        }
+    }
+
     public static Schedule scheduleFromJson(final Boolean weekNum,
                                      final long groupId) throws IOException {
 
@@ -222,6 +239,29 @@ public class ScheduleHandler {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(schedule, writer);
         }
+    }
+
+    protected void handeScheduleHomeworkSetCommand(final long chatId) {
+        User user = userRepository.findByChatId(chatId);
+        Groupe selectedGroup = user.getSelectedGroup();
+
+        if (selectedGroup == null) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, GROUP_NOT_SELECTED,
+                    KeyboardMarkupProvider.inlineContinueButtonToMainMenu());
+            return;
+        }
+        if (selectedGroup.getAdmins().stream().noneMatch(admin -> admin.getId() == user.getId())) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+        GroupUser groupUser = selectedGroup.getGroupUsers().stream()
+                .filter(u -> u.getUser().getChatId() == chatId).findFirst().get();
+        AdminScheduleSettings settings = groupUser.getSettings();
+
+        messageHandler.sendMessageWithKeyboardMarkup(chatId,
+                SCHEDULE_MANUAL_WARNING(settings.getWeekNum()),
+                KeyboardMarkupProvider.chooseDayOfWeekHomework());
     }
 
     protected void handleScheduleSetCommand(final long chatId, final boolean isManual) {

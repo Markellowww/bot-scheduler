@@ -1,0 +1,38 @@
+{
+  "schedule": {
+    "Понедельник": {
+      "lessonList": [
+        {
+          "lessonName": "Депы",
+          "teacher": "Макс Максбетов",
+          "lessonNumber": 1,
+          "auditorium": "228"
+        },
+        {
+          "lessonName": "тест",
+          "teacher": "",
+          "lessonNumber": 10,
+          "auditorium": ""
+        }
+      ]
+    },
+    "Вторник": {
+      "lessonList": []
+    },
+    "Среда": {
+      "lessonList": []
+    },
+    "Четверг": {
+      "lessonList": []
+    },
+    "Пятница": {
+      "lessonList": []
+    },
+    "Суббота": {
+      "lessonList": []
+    },
+    "Воскресенье": {
+      "lessonList": []
+    }
+  }
+}

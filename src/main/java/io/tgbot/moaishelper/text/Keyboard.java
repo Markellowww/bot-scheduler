@@ -17,6 +17,7 @@ public class Keyboard {
     public static final String NOTIFICATION_FOR_ALL = EmojiParser.parseToUnicode(":incoming_envelope: Сообщение группе");
 
     public static final String SHOW_SCHEDULE = EmojiParser.parseToUnicode(":date: К расписанию");
+    public static final String ADD_HOMEWORK = EmojiParser.parseToUnicode("📓 Добавить Д/З");
     public static final String LEAVE_GROUP = EmojiParser.parseToUnicode(":x: Покинуть группу");
     public static final String SHOW_MEMBERS = EmojiParser.parseToUnicode(":memo: Показать участников");
     public static final String DELETE_GROUP = EmojiParser.parseToUnicode("❗Удалить группу");

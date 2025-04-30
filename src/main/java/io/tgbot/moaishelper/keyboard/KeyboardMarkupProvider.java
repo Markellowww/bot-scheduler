@@ -65,6 +65,7 @@ public class KeyboardMarkupProvider {
 
                 KeyboardRow row2 = new KeyboardRow();
                 row2.add(Keyboard.BACK_TO_GROUPS);
+                row2.add(Keyboard.ADD_HOMEWORK);
                 row2.add(Keyboard.LEAVE_GROUP);
 
                 rows.add(row1);
@@ -620,6 +621,26 @@ public class KeyboardMarkupProvider {
         return inlineKeyboardMarkup;
     }
 
+    public static InlineKeyboardMarkup chooseDayOfWeekHomework() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            InlineKeyboardButton button = inlineButtonSetter(Day.values()[i].getTranslation(),
+                    Day.values()[i].name() + "-HW");
+            rows.add(List.of(button));
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_GROUP_MENU");
+        InlineKeyboardButton change = inlineButtonSetter(CHANGE_NUM, "CHANGE_WEEK_NUM_HOMEWORK");
+
+        rows.add(List.of(back, change));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
     public static InlineKeyboardMarkup changeScheduleOption() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -649,13 +670,38 @@ public class KeyboardMarkupProvider {
 
             String[] parts = lessonName.split("\\.");
             String numberBeforeDot = parts.length > 0 ? parts[0].trim() : "";
-            System.out.println(numberBeforeDot);
             InlineKeyboardButton button = inlineButtonSetter(lessonName, signal + numberBeforeDot);
             row.add(button);
             rows.add(row);
         }
 
         InlineKeyboardButton back = inlineButtonSetter(BACK, "MANUAL_SCHEDULE_MODIFICATION");
+        rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+
+        return inlineKeyboardMarkup;
+    }
+
+    public static InlineKeyboardMarkup chooseHomeworkLesson(List<String> lessonNames,
+                                                          final Boolean weekNum,
+                                                          final Short weekDay) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        String signal = "13 " + (weekNum ? "1 " : "0 ") + weekDay + " ";
+
+        for (String lessonName : lessonNames) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+
+            String[] parts = lessonName.split("\\.");
+            String numberBeforeDot = parts.length > 0 ? parts[0].trim() : "";
+            InlineKeyboardButton button = inlineButtonSetter(lessonName, signal + numberBeforeDot);
+            row.add(button);
+            rows.add(row);
+        }
+
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "HOMEWORK_SCHEDULE_MODIFICATION");
         rows.add(List.of(back));
 
         inlineKeyboardMarkup.setKeyboard(rows);
