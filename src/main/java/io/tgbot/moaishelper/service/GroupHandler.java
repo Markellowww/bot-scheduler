@@ -7,6 +7,7 @@ import io.tgbot.moaishelper.parser.ExcelParser;
 import io.tgbot.moaishelper.repository.GroupRepository;
 import io.tgbot.moaishelper.repository.StatusRepository;
 import io.tgbot.moaishelper.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -26,6 +27,7 @@ import static io.tgbot.moaishelper.text.Info.*;
  * @Authors: Markelloww & YDK
  */
 @Component
+@Transactional
 public class GroupHandler {
 
     private final UserRepository userRepository;
@@ -286,8 +288,8 @@ public class GroupHandler {
             return;
         }
         group.removeMember(removedUser);
-        messageHandler.sendMessage(removedUser.getChatId(), NOTIFICATION_KICK_USER(user, group));
         groupRepository.save(group);
+        messageHandler.sendMessage(removedUser.getChatId(), NOTIFICATION_KICK_USER(user, group));
         messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_KICK_SUCCESSFUL(removedUser.getUserName()),
                 KeyboardMarkupProvider.inlineContinueButtonToGroupSettingMenu());
     }

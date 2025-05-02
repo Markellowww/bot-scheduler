@@ -56,6 +56,7 @@ public class Groupe {
             GroupUser groupUser = it.next();
             if (groupUser.getGroup().getId() == this.id && groupUser.getUser().getId() == user.getId()) {
                 it.remove();
+                user.setSelectedGroup(null);
                 return;
             }
         }
