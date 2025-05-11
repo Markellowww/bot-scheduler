@@ -1,7 +1,14 @@
 {
   "schedule": {
     "Понедельник": {
-      "lessonList": []
+      "lessonList": [
+        {
+          "lessonName": "Predmet",
+          "teacher": "Prepod",
+          "lessonNumber": 2,
+          "auditorium": "Audit"
+        }
+      ]
     },
     "Вторник": {
       "lessonList": []

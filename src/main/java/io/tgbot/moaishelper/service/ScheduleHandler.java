@@ -6,6 +6,7 @@ import com.vdurmont.emoji.EmojiParser;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.model.groupUser.GroupUser;
+import io.tgbot.moaishelper.repository.StatusRepository;
 import io.tgbot.moaishelper.repository.UserRepository;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.Schedule;
@@ -23,8 +24,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.changeScheduleOption;
-import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.lessonCreateSettings;
+import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
 import static io.tgbot.moaishelper.text.Info.*;
 
 /**
@@ -36,14 +36,16 @@ public class ScheduleHandler {
     private final UserRepository userRepository;
     private final MessageHandler messageHandler;
     private final ScheduleHandler scheduleHandler;
+    private final StatusRepository statusRepository;
 
     @Autowired
     public ScheduleHandler(UserRepository userRepository,
                            MessageHandler messageHandler,
-                           @Lazy ScheduleHandler scheduleHandler) {
+                           @Lazy ScheduleHandler scheduleHandler, StatusRepository statusRepository) {
         this.userRepository = userRepository;
         this.messageHandler = messageHandler;
         this.scheduleHandler = scheduleHandler;
+        this.statusRepository = statusRepository;
     }
 
     public String getLessonInfo(Schedule schedule, Groupe selectedGroup, String dayOfWeek, AdminScheduleSettings settings) {

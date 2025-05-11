@@ -56,6 +56,7 @@ INSERT INTO public.status (id, description) VALUES (8, 'Teacher name input');
 INSERT INTO public.status (id, description) VALUES (9, 'Auditorium title input');
 INSERT INTO public.status (id, description) VALUES (10, 'Lesson time input');
 INSERT INTO public.status (id, description) VALUES (11, 'Schedule two columns file input');
+INSERT INTO public.status (id, description) VALUES (12, 'Homework file input');
 
 
 

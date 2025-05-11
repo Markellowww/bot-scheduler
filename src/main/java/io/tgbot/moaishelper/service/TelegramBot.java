@@ -1,6 +1,7 @@
 package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
+import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import io.tgbot.moaishelper.parser.TimeParser;
@@ -14,6 +15,7 @@ import io.tgbot.moaishelper.schedule.Schedule;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.apache.commons.lang3.EnumUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -31,6 +33,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider.*;
 import static io.tgbot.moaishelper.schedule.ScheduleReader.getFilename;
@@ -44,6 +48,7 @@ import static io.tgbot.moaishelper.text.Info.*;
 @EnableTransactionManagement
 public class TelegramBot extends TelegramLongPollingBot {
 
+    private final ExecutorService executorService;
     private final UserRepository userRepository;
     private final UserSettingsRepository settingsRepository;
     private final GroupRepository groupRepository;
@@ -71,6 +76,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
         catch (TelegramApiException _) {}
 
+        this.executorService = Executors.newFixedThreadPool(1024);
         this.groupHandler = groupHandler;
         this.messageHandler = messageHandler;
         this.settingsHandler = settingsHandler;
@@ -93,8 +99,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        try {
+        executorService.submit(() -> processUpdate(update));
+    }
 
+    private void processUpdate(Update update) {
+        try {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 long chatId = update.getMessage().getChatId();
                 User user = userRepository.findByChatId(chatId);
@@ -416,7 +425,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     case "DENY": {
                         user.setStatus(statusRepository.findById(1));
                         userRepository.save(user);
-                        messageHandler.sendMessage(chatId, INPUT_DENIED);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, INPUT_DENIED,
+                                KeyboardMarkupProvider.startMenu());
                         return;
                     }
                     case "BACK_TO_SCHEDULE_MENU": {
@@ -658,17 +668,23 @@ public class TelegramBot extends TelegramLongPollingBot {
                         break;
                     }
                     case 13: { // прикрепление файла к предмету
-                        /*
-                        Callback имеет формат:
-                            13 (номер кода операции)
-                            1 - Числитель, 0 - знаменатель
-                            Порядковый номер дня недели 0 - 6
-                            Номер пары 1 - 10
-                         */
+                        user.setStatus(statusRepository.findById(12));
+                        userRepository.save(user);
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ожидание ввода Д/З:",
+                                KeyboardMarkupProvider.denyInput());
+                        for (int i = 0; i < 60; i++) {
+                            //Реализация ввода файла
+                            /*
+                             Callback имеет формат:
+                             13 (номер кода операции)
+                             1 - Числитель, 0 - знаменатель
+                             Порядковый номер дня недели 0 - 6
+                             Номер пары 1 - 10
+                             */
 
-                        /*
-                        Здесь надо реализовать прикрепление файла к предмету
-                         */
+                            Thread.sleep(1000);
+                            System.out.println("Жду " + user.getUserName());
+                        }
                         break;
                     }
                     default: { // что-то невероятное
