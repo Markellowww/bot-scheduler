@@ -30,7 +30,7 @@ public class Groupe {
     @JoinColumn(name = "ownerId", referencedColumnName = "id", nullable = false)
     private User owner;
 
-    @OneToMany(mappedBy = "group", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<GroupFile> groupFiles = new ArrayList<>();
 
     @Column(nullable = false)

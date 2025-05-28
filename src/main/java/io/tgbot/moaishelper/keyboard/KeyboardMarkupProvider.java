@@ -57,27 +57,32 @@ public class KeyboardMarkupProvider {
         keyboardMarkup.setOneTimeKeyboard(true);
         List<KeyboardRow> rows = new ArrayList<>();
 
+        KeyboardRow row1 = new KeyboardRow();
         if (isAdmin) {
-                KeyboardRow row1 = new KeyboardRow();
-                row1.add(Keyboard.GROUP_HANDLER);
-                row1.add(Keyboard.NOTIFICATION_FOR_ALL);
-                row1.add(Keyboard.SHOW_SCHEDULE);
+            row1.add(Keyboard.GROUP_HANDLER);
+            row1.add(Keyboard.NOTIFICATION_FOR_ALL);
+            row1.add(Keyboard.SHOW_SCHEDULE);
 
-                KeyboardRow row2 = new KeyboardRow();
-                row2.add(Keyboard.BACK_TO_GROUPS);
-                row2.add(Keyboard.ADD_HOMEWORK);
-                row2.add(Keyboard.LEAVE_GROUP);
+            KeyboardRow row2 = new KeyboardRow();
+            row2.add(Keyboard.ADD_HOMEWORK);
+            row2.add(Keyboard.GET_HOMEWORK);
+            row2.add(Keyboard.DELETE_HOMEWORK);
 
-                rows.add(row1);
-                rows.add(row2);
+            KeyboardRow row3 = new KeyboardRow();
+            row3.add(Keyboard.BACK_TO_GROUPS);
+            row3.add(Keyboard.LEAVE_GROUP);
+
+            rows.add(row1);
+            rows.add(row2);
+            rows.add(row3);
         }
         else {
-            KeyboardRow row1 = new KeyboardRow();
             row1.add(Keyboard.SHOW_MEMBERS);
             row1.add(Keyboard.SHOW_SCHEDULE);
 
             KeyboardRow row2 = new KeyboardRow();
             row2.add(Keyboard.BACK_TO_GROUPS);
+            row2.add(Keyboard.GET_HOMEWORK);
             row2.add(Keyboard.LEAVE_GROUP);
 
             rows.add(row1);
@@ -181,7 +186,7 @@ public class KeyboardMarkupProvider {
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(takeTemplate, sendTemplate),
-                Arrays.asList(back)
+                List.of(back)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -199,7 +204,7 @@ public class KeyboardMarkupProvider {
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(oneColumn, twoColumn),
-                Arrays.asList(back)
+                List.of(back)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -217,7 +222,7 @@ public class KeyboardMarkupProvider {
 
         List<List<InlineKeyboardButton>> rows = Arrays.asList(
                 Arrays.asList(oneColumn, twoColumn),
-                Arrays.asList(back)
+                List.of(back)
         );
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -368,7 +373,7 @@ public class KeyboardMarkupProvider {
     public static InlineKeyboardMarkup inlineGoBackButton() {
         InlineKeyboardButton button = inlineButtonSetter(BACK, "BACK_TO_MAIN_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
 
@@ -379,14 +384,14 @@ public class KeyboardMarkupProvider {
     public static InlineKeyboardMarkup inlineContinueButtonToMainMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_MAIN_GROUPS_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
 
     public static InlineKeyboardMarkup inlineGoBackButtonToScheduleMenu() {
         InlineKeyboardButton button = inlineButtonSetter(REJECT, "BACK_TO_SCHEDULE_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
 
@@ -397,7 +402,7 @@ public class KeyboardMarkupProvider {
     public static InlineKeyboardMarkup inlineContinueButtonToGroupSettingMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_GROUP_SETTING_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
 
@@ -408,7 +413,7 @@ public class KeyboardMarkupProvider {
     public static InlineKeyboardMarkup inlineContinueButtonToGroupMenu() {
         InlineKeyboardButton button = inlineButtonSetter(CONTINUE, "BACK_TO_GROUP_MENU");
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(Arrays.asList(Arrays.asList(button)));
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
 
@@ -566,8 +571,8 @@ public class KeyboardMarkupProvider {
         // Не выбрана группа + не создана личная группа
         if (!groupChosen && !groupCreated) {
             List<List<InlineKeyboardButton>> rows = Arrays.asList(
-                    Arrays.asList(button1),
-                    Arrays.asList(button3)
+                    List.of(button1),
+                    List.of(button3)
             );
 
             InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
@@ -576,9 +581,9 @@ public class KeyboardMarkupProvider {
             return inlineKeyboardMarkup;
         }
         // Выбрана группа + создана личная группа или не выбрана группа + создана личная группа
-        else if ((groupChosen && groupCreated) || (!groupChosen && groupCreated)) {
+        else if (groupCreated) {
             List<List<InlineKeyboardButton>> rows = Arrays.asList(
-                    Arrays.asList(button2),
+                    List.of(button2),
                     Arrays.asList(button3, button4)
             );
 
@@ -762,6 +767,34 @@ public class KeyboardMarkupProvider {
 
         InlineKeyboardButton back = inlineButtonSetter(BACK, "CHOOSE_ORDER_OF_LESSON");
         rows.add(List.of(back));
+
+        inlineKeyboardMarkup.setKeyboard(rows);
+        return inlineKeyboardMarkup;
+    }
+
+    // клавиатуры файлов группы
+
+    /**
+     * Создает клавиатуру для быбора файла, прикрепленного в группе
+     * @param groupFiles - список файлов, прикрепленных в группе
+     * @param download - скачивать файл или удалять
+     * @return клавиатура для быбора файла, прикрепленного в группе
+     */
+    public static InlineKeyboardMarkup chooseGroupFile(List<GroupFile> groupFiles, boolean download) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int i = 0; i < Math.ceil(groupFiles.size() / 3.0); i++) {
+            List<InlineKeyboardButton> buttons = new ArrayList<>();
+            for (int j = 0; j < 3 && 3 * i + j < groupFiles.size(); j++) {
+                GroupFile groupFile = groupFiles.get(3 * i + j);
+                InlineKeyboardButton button = new InlineKeyboardButton();
+                button.setText(groupFile.getFileName());
+                button.setCallbackData(String.format("%d %d", download ? 14 : 15, groupFile.getId()));
+                buttons.add(button);
+            }
+            rows.add(buttons);
+        }
 
         inlineKeyboardMarkup.setKeyboard(rows);
         return inlineKeyboardMarkup;

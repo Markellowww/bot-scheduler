@@ -18,6 +18,8 @@ public class Keyboard {
 
     public static final String SHOW_SCHEDULE = EmojiParser.parseToUnicode(":date: К расписанию");
     public static final String ADD_HOMEWORK = EmojiParser.parseToUnicode("📓 Добавить Д/З");
+    public static final String GET_HOMEWORK = EmojiParser.parseToUnicode("Скачать Д/З");
+    public static final String DELETE_HOMEWORK = EmojiParser.parseToUnicode(":x: Удалить Д/З");
     public static final String LEAVE_GROUP = EmojiParser.parseToUnicode(":x: Покинуть группу");
     public static final String SHOW_MEMBERS = EmojiParser.parseToUnicode(":memo: Показать участников");
     public static final String DELETE_GROUP = EmojiParser.parseToUnicode("❗Удалить группу");

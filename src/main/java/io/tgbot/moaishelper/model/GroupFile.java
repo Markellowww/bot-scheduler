@@ -1,30 +1,29 @@
 package io.tgbot.moaishelper.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.Objects;
 
 @Entity
-@Getter
 public class GroupFile {
     @Id
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Groupe group;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private User sender;
 
     @Column
     private String fileName;
 
     @Column
-    private Date createdAt;
+    private LocalDate createdAt;
 
     @Column
     private int daysToStore;
@@ -36,26 +35,41 @@ public class GroupFile {
         this.sender = sender;
         this.fileName = fileName;
         this.daysToStore = daysToStore;
-        this.createdAt = new Date();
+        this.createdAt = LocalDate.now();
     }
 
-    public void setGroup(Groupe group) {
-        this.group = group;
+    public Long getId() {
+        return id;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
+    public Groupe getGroup() {
+        return group;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public User getSender() {
+        return sender;
     }
 
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setDaysToStore(int daysToStore) {
-        this.daysToStore = daysToStore;
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public int getDaysToStore() {
+        return daysToStore;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof GroupFile groupFile)) return false;
+        return id == groupFile.id && daysToStore == groupFile.daysToStore && Objects.equals(group, groupFile.group) && Objects.equals(sender, groupFile.sender) && Objects.equals(fileName, groupFile.fileName) && Objects.equals(createdAt, groupFile.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, group, sender, fileName, createdAt, daysToStore);
     }
 }

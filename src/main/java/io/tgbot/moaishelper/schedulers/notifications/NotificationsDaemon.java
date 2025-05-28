@@ -1,10 +1,11 @@
-package io.tgbot.moaishelper.service;
+package io.tgbot.moaishelper.schedulers.notifications;
 
 import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.model.UserSettings;
 import io.tgbot.moaishelper.repository.UserSettingsRepository;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
+import io.tgbot.moaishelper.service.MessageHandler;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

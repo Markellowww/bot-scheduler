@@ -2,20 +2,18 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.config.BotConfig;
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
-import io.tgbot.moaishelper.model.*;
+import io.tgbot.moaishelper.model.AdminScheduleSettings;
+import io.tgbot.moaishelper.model.Groupe;
+import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.model.groupUser.GroupUser;
 import io.tgbot.moaishelper.parser.TimeParser;
-import io.tgbot.moaishelper.repository.GroupRepository;
-import io.tgbot.moaishelper.repository.StatusRepository;
-import io.tgbot.moaishelper.repository.UserRepository;
-import io.tgbot.moaishelper.repository.UserSettingsRepository;
+import io.tgbot.moaishelper.repository.*;
 import io.tgbot.moaishelper.schedule.Day;
 import io.tgbot.moaishelper.schedule.DayWeekNumber;
 import io.tgbot.moaishelper.schedule.Schedule;
 import io.tgbot.moaishelper.schedule.ScheduleReader;
 import io.tgbot.moaishelper.text.Keyboard;
 import org.apache.commons.lang3.EnumUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -53,9 +51,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final UserSettingsRepository settingsRepository;
     private final GroupRepository groupRepository;
     private final StatusRepository statusRepository;
+    private final GroupFileRepository groupFileRepository;
+
     private final GroupHandler groupHandler;
     private final MessageHandler messageHandler;
     private final SettingsHandler settingsHandler;
+    private final GroupFileHandler groupFileHandler;
     private final BotConfig config;
     private final ScheduleHandler scheduleHandler;
 
@@ -64,10 +65,12 @@ public class TelegramBot extends TelegramLongPollingBot {
                        @Lazy MessageHandler messageHandler,
                        @Lazy SettingsHandler settingsHandler,
                        @Lazy ScheduleHandler scheduleHandler,
+                       @Lazy GroupFileHandler groupFileHandler,
                        StatusRepository statusRepository,
                        GroupRepository groupRepository,
                        UserRepository userRepository,
-                       UserSettingsRepository settingsRepository) {
+                       UserSettingsRepository settingsRepository,
+                       GroupFileRepository groupFileRepository) {
         this.config = config;
         List<BotCommand> listOfCommands = new ArrayList<>();
         CommandInitializer.init(listOfCommands);
@@ -80,11 +83,14 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.groupHandler = groupHandler;
         this.messageHandler = messageHandler;
         this.settingsHandler = settingsHandler;
+        this.scheduleHandler = scheduleHandler;
+        this.groupFileHandler = groupFileHandler;
+
         this.statusRepository = statusRepository;
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.settingsRepository = settingsRepository;
-        this.scheduleHandler = scheduleHandler;
+        this.groupFileRepository = groupFileRepository;
     }
 
     @Override
@@ -107,6 +113,7 @@ public class TelegramBot extends TelegramLongPollingBot {
             if (update.hasMessage() && update.getMessage().hasText()) {
                 long chatId = update.getMessage().getChatId();
                 User user = userRepository.findByChatId(chatId);
+
                 String messageText = update.getMessage().getText();
 
                 if (messageText.equals("/start") || user == null) {
@@ -245,7 +252,17 @@ public class TelegramBot extends TelegramLongPollingBot {
                         groupHandler.leaveGroup(chatId, userRepository.findByChatId(chatId).getSelectedGroup());
                     } else if (messageText.equals(Keyboard.ADD_HOMEWORK)) {
                         scheduleHandler.handeScheduleHomeworkSetCommand(chatId);
-                    } else if (messageText.equals(Keyboard.GROUP_HANDLER) ||
+                    } else if (messageText.equals(Keyboard.GET_HOMEWORK)) {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите файл Д/З",
+                                chooseGroupFile(groupFileRepository.findByGroupId(user.getSelectedGroup().getId()),
+                                        true));
+                    }
+                    else if (messageText.equals(Keyboard.DELETE_HOMEWORK)) {
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Выберите файл Д/З",
+                                chooseGroupFile(groupFileRepository.findByGroupId(user.getSelectedGroup().getId()),
+                                        false));
+                    }
+                    else if (messageText.equals(Keyboard.GROUP_HANDLER) ||
                             messageText.equals(Keyboard.BACK_TO_GROUP_SETTINGS)) {
                         boolean isOwner = user.getId() == user.getSelectedGroup().getOwner().getId();
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, "Управление группой",
@@ -672,19 +689,14 @@ public class TelegramBot extends TelegramLongPollingBot {
                         userRepository.save(user);
                         messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ожидание ввода Д/З:",
                                 KeyboardMarkupProvider.denyInput());
-                        for (int i = 0; i < 60; i++) {
-                            //Реализация ввода файла
-                            /*
-                             Callback имеет формат:
-                             13 (номер кода операции)
-                             1 - Числитель, 0 - знаменатель
-                             Порядковый номер дня недели 0 - 6
-                             Номер пары 1 - 10
-                             */
-
-                            Thread.sleep(1000);
-                            System.out.println("Жду " + user.getUserName());
-                        }
+                        break;
+                    }
+                    case 14: { // запрос скачивания файла
+                        groupFileHandler.uploadGroupFile(user, data.get(1));
+                        break;
+                    }
+                    case 15: { // запрос удаления файла
+                        groupFileHandler.deleteGroupFile(user, data.get(1));
                         break;
                     }
                     default: { // что-то невероятное
@@ -694,13 +706,22 @@ public class TelegramBot extends TelegramLongPollingBot {
                 }
             } else if (update.getMessage().getDocument() != null) {
                 long chatId = update.getMessage().getChatId();
-                if (userRepository.findByChatId(chatId).getStatus().getId() == 5) {
+                User user = userRepository.findByChatId(chatId);
+                long statusId = user.getStatus().getId();
+
+                Message message = update.getMessage();
+                if (statusId == 5) {
                     Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
-                    groupHandler.handleScheduleTwoColumnsInput(update.getMessage(), chatId, group);
-                } else if (userRepository.findByChatId(chatId).getStatus().getId() == 11) {
+                    groupHandler.handleScheduleTwoColumnsInput(message, chatId, group);
+                }
+                else if (statusId == 11) {
                     Groupe group = userRepository.findByChatId(chatId).getSelectedGroup();
-                    groupHandler.handleScheduleOneColumnInput(update.getMessage(), chatId, group);
-                } else {
+                    groupHandler.handleScheduleOneColumnInput(message, chatId, group);
+                }
+                else if (statusId == 12) {
+                    groupFileHandler.handleGroupFileInput(user, message);
+                }
+                else {
                     userError(chatId);
                 }
             }

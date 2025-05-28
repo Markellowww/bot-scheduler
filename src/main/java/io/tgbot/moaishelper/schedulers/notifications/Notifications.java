@@ -1,8 +1,9 @@
-package io.tgbot.moaishelper.service;
+package io.tgbot.moaishelper.schedulers.notifications;
 
 import io.tgbot.moaishelper.model.*;
 import io.tgbot.moaishelper.repository.UserRepository;
 import io.tgbot.moaishelper.repository.UserSettingsRepository;
+import io.tgbot.moaishelper.service.MessageHandler;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,9 +15,9 @@ import java.util.List;
 @Service
 class Notifications {
 
-    final MessageHandler messageHandler;
-    final UserRepository userRepository;
-    final UserSettingsRepository settingsRepository;
+    private final MessageHandler messageHandler;
+    private final UserRepository userRepository;
+    private final UserSettingsRepository settingsRepository;
 
     private Notifications(@Lazy MessageHandler messageHandler, @Lazy UserRepository userRepository,
                           @Lazy UserSettingsRepository settingsRepository) {
@@ -31,5 +32,4 @@ class Notifications {
                 messageHandler, settingsRepository);
         daemon.start();
     }
-
 }

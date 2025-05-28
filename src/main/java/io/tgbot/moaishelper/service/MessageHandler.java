@@ -38,7 +38,7 @@ public class MessageHandler {
      * @param chatId идентификатор чата
      * @param firstName имя человека
      */
-    protected void startCommandReceived(long chatId, String firstName) {
+    public void startCommandReceived(long chatId, String firstName) {
         String answer = EmojiParser.parseToUnicode("Привет:v:, " + firstName + ", это МОАИС-Helper!\n" +
                 "Для начала работы ознакомьтесь с руководством:closed_book:");
         sendMessageWithKeyboardMarkup(chatId, answer, KeyboardMarkupProvider.startMenu());
@@ -51,7 +51,7 @@ public class MessageHandler {
      * @param textToSend текст сообщения, которое нужно отправить
      * @param keyboardMarkup клавиатура, прикрепляемая к сообщению
      */
-    protected void sendMessageWithKeyboardMarkup(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
+    public void sendMessageWithKeyboardMarkup(long chatId, String textToSend, ReplyKeyboard keyboardMarkup) {
         SendMessage message = createSendMassage(chatId, textToSend);
         message.setReplyMarkup(keyboardMarkup);
         try {
@@ -59,7 +59,7 @@ public class MessageHandler {
         } catch (TelegramApiException _) {}
     }
 
-    protected void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend,
+    public void sendMessageWithKeyboardMarkupAndParseMode(long chatId, String textToSend,
                                                              ReplyKeyboard keyboardMarkup) {
         if (textToSend.length() >= 4096) {
             int index = textToSend.length() / 2;
@@ -93,7 +93,7 @@ public class MessageHandler {
      * @param textToSend текст сообщения, которое нужно отправить
      * @return объект SendMessage, настроенный с указанными параметрами
      */
-    protected SendMessage createSendMassage(long chatId, String textToSend) {
+    public SendMessage createSendMassage(long chatId, String textToSend) {
         SendMessage message =  new SendMessage();
         message.setChatId(String.valueOf(chatId));
         message.setText(textToSend);
@@ -105,7 +105,7 @@ public class MessageHandler {
      * @param chatId идентификатор чата пользователя
      * @param groupId идентификатор группы с расписанием
      */
-    protected void uploadSchedule(long chatId, long groupId) {
+    public void uploadSchedule(long chatId, long groupId) {
         File scheduleFile = new File(String.format("src/main/resources/groups/%d/Schedule.xlsx", groupId));
         if (scheduleFile.exists()) {
             SendDocument schedule = new SendDocument();
@@ -119,9 +119,8 @@ public class MessageHandler {
         sendMessage(chatId, "Расписание не заполнено");
     }
 
-    protected void uploadScheduleTemplateTwoColumns(long chatId) {
+    public void uploadScheduleTemplateTwoColumns(long chatId) {
         File scheduleFile = new File("src/main/resources/Schedule.xlsx");
-        System.out.println(scheduleFile.getAbsolutePath());
         SendDocument schedule = new SendDocument();
         schedule.setDocument(new InputFile(scheduleFile, "ScheduleTemplate.xlsx"));
         schedule.setChatId(chatId);
@@ -130,9 +129,9 @@ public class MessageHandler {
         } catch (TelegramApiException _) {}
     }
 
-    protected void uploadScheduleTemplateOneColumn(long chatId) {
+    public void uploadScheduleTemplateOneColumn(long chatId) {
         File scheduleFile = new File("src/main/resources/ScheduleOne.xlsx");
-        System.out.println(scheduleFile.getAbsolutePath());
+
         SendDocument schedule = new SendDocument();
         schedule.setDocument(new InputFile(scheduleFile, "ScheduleTemplate.xlsx"));
         schedule.setChatId(chatId);
@@ -145,7 +144,7 @@ public class MessageHandler {
      * Извлекает из сообщения файл с расписанием и сохраняет в группу
      * @param message сообщение с прикрепленным файлом
      */
-    protected boolean downloadSchedule(Message message, long groupId) {
+    public boolean downloadSchedule(Message message, long groupId) {
         Document document = message.getDocument();
         long chatId = message.getChatId();
         if (document.getFileName().endsWith(".xlsx")) {
@@ -172,14 +171,14 @@ public class MessageHandler {
      * @param chatId идентификатор чата, в который будет отправлено сообщение
      * @param textToSend текст сообщения, которое нужно отправить
      */
-    protected void sendMessage(long chatId, String textToSend) {
+    public void sendMessage(long chatId, String textToSend) {
         SendMessage message = createSendMassage(chatId, textToSend);
         try {
             bot.execute(message);
         } catch (TelegramApiException _) {}
     }
 
-    protected void sendMessageForAll(Iterable<User> users, String textToSend) {
+    public void sendMessageForAll(Iterable<User> users, String textToSend) {
         for (User user : users) {
             SendMessage message = createSendMassage(user.getChatId(), textToSend);
             try {
@@ -194,7 +193,7 @@ public class MessageHandler {
      * @param chatId идентификатор чата, где находится сообщение
      * @param messageId идентификатор удаляемого сообщения
      */
-    protected void deleteMessage(long chatId, Integer messageId) {
+    public void deleteMessage(long chatId, Integer messageId) {
         try {
             bot.execute(new DeleteMessage(String.valueOf(chatId), messageId));
         } catch (TelegramApiException _) {}
@@ -206,7 +205,7 @@ public class MessageHandler {
      * @param message исходное сообщение, которое необходимо проверить
      * @return строку без начального '@', если он присутствует, иначе исходную строку
      */
-    protected String checkForAtInMessage(String message) {
+    public String checkForAtInMessage(String message) {
         if (message.charAt(0) == '@') {
             return message.substring(1);
         }
