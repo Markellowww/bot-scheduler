@@ -687,7 +687,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                     case 13: { // прикрепление файла к предмету
                         user.setStatus(statusRepository.findById(12));
                         userRepository.save(user);
-                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ожидание ввода Д/З:",
+                        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Ожидание ввода Д/З:\n" +
+                                        "❗ Для присоединения файла 📎 --> Файл",
                                 KeyboardMarkupProvider.denyInput());
                         break;
                     }

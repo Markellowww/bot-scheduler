@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface GroupFileRepository extends CrudRepository<GroupFile, Long> {
     public List<GroupFile> findByGroupId(Long groupId);
+    List<GroupFile> findAll();
 }

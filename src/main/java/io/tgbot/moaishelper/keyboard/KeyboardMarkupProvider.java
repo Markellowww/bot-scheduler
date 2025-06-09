@@ -789,12 +789,15 @@ public class KeyboardMarkupProvider {
             for (int j = 0; j < 3 && 3 * i + j < groupFiles.size(); j++) {
                 GroupFile groupFile = groupFiles.get(3 * i + j);
                 InlineKeyboardButton button = new InlineKeyboardButton();
-                button.setText(groupFile.getFileName());
+                button.setText(String.format("%s (от %s, %s)", groupFile.getFileName(),
+                        groupFile.getSender().getUserName(), groupFile.getCreatedAt()));
                 button.setCallbackData(String.format("%d %d", download ? 14 : 15, groupFile.getId()));
                 buttons.add(button);
             }
             rows.add(buttons);
         }
+        InlineKeyboardButton back = inlineButtonSetter(BACK, "BACK_TO_GROUP_MENU");
+        rows.add(List.of(back));
 
         inlineKeyboardMarkup.setKeyboard(rows);
         return inlineKeyboardMarkup;

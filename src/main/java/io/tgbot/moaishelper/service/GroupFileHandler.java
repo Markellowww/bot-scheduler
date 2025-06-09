@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
-@org.springframework.transaction.annotation.Transactional
+@Transactional
 public class GroupFileHandler {
     private final TelegramBot bot;
     private final GroupFileRepository groupFileRepository;
@@ -38,7 +38,6 @@ public class GroupFileHandler {
         this.userRepository = userRepository;
     }
 
-    @Transactional
     public void deleteGroupFile(User user, long fileId) {
         long chatId = user.getChatId();
         GroupFile groupFile = groupFileRepository.findById(fileId).orElse(null);
@@ -50,7 +49,6 @@ public class GroupFileHandler {
         }
 
         File scheduleFile = getFile(groupFile);
-        System.out.println(fileId);
         groupFileRepository.deleteById(fileId);
 
         scheduleFile.delete();
@@ -63,7 +61,7 @@ public class GroupFileHandler {
         Document document = message.getDocument();
         long chatId = user.getChatId();
 
-        GroupFile groupFile = new GroupFile(user.getSelectedGroup(), user, document.getFileName(), 14);
+        GroupFile groupFile = new GroupFile(user.getSelectedGroup(), user, document.getFileName(), 365);
         groupFile = groupFileRepository.save(groupFile);
         try {
             GetFile getFile = new GetFile();
@@ -85,7 +83,8 @@ public class GroupFileHandler {
             return;
         }
 
-        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Файл успешно сохранен",
+        messageHandler.sendMessageWithKeyboardMarkup(chatId, "Файл успешно сохранен.\n" +
+                        "❗ Срок хранения - 365 дней",
                 KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
     }
 
@@ -100,7 +99,6 @@ public class GroupFileHandler {
         }
 
         File requiredFile = getFile(groupFile);
-        System.out.println(requiredFile.getAbsolutePath());
         SendDocument file = new SendDocument();
         file.setDocument(new InputFile(requiredFile, groupFile.getFileName()));
         file.setChatId(chatId);
@@ -109,7 +107,7 @@ public class GroupFileHandler {
         } catch (TelegramApiException _) {}
     }
 
-    private File getFile(GroupFile groupFile) {
+    public static File getFile(GroupFile groupFile) {
         String fileName = groupFile.getId() + "." + Arrays.stream(groupFile.getFileName().split("\\."))
                 .skip(1)
                 .collect(Collectors.joining("."));
