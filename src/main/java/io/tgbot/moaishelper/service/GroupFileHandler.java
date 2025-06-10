@@ -2,6 +2,7 @@ package io.tgbot.moaishelper.service;
 
 import io.tgbot.moaishelper.keyboard.KeyboardMarkupProvider;
 import io.tgbot.moaishelper.model.GroupFile;
+import io.tgbot.moaishelper.model.Groupe;
 import io.tgbot.moaishelper.model.User;
 import io.tgbot.moaishelper.repository.GroupFileRepository;
 import io.tgbot.moaishelper.repository.StatusRepository;
@@ -19,6 +20,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.File;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import static io.tgbot.moaishelper.text.Info.USER_IS_NOT_ADMIN;
 
 @Component
 @Transactional
@@ -40,6 +43,14 @@ public class GroupFileHandler {
 
     public void deleteGroupFile(User user, long fileId) {
         long chatId = user.getChatId();
+
+        Groupe selectedGroup = user.getSelectedGroup();
+        if (!selectedGroup.isAdmin(user)) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+
         GroupFile groupFile = groupFileRepository.findById(fileId).orElse(null);
 
         if (groupFile == null) {
@@ -60,8 +71,15 @@ public class GroupFileHandler {
     public void handleGroupFileInput(User user, Message message) {
         Document document = message.getDocument();
         long chatId = user.getChatId();
+        Groupe selectedGroup = user.getSelectedGroup();
 
-        GroupFile groupFile = new GroupFile(user.getSelectedGroup(), user, document.getFileName(), 365);
+        if (!selectedGroup.isAdmin(user)) {
+            messageHandler.sendMessageWithKeyboardMarkup(chatId, USER_IS_NOT_ADMIN(user.getUserName()),
+                    KeyboardMarkupProvider.inlineContinueButtonToGroupMenu());
+            return;
+        }
+
+        GroupFile groupFile = new GroupFile(selectedGroup, user, document.getFileName(), 365);
         groupFile = groupFileRepository.save(groupFile);
         try {
             GetFile getFile = new GetFile();

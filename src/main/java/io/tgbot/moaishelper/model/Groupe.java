@@ -46,6 +46,10 @@ public class Groupe {
         addMember(creator, true);
     }
 
+    public boolean isAdmin(User user) {
+        return getAdmins().stream().anyMatch(admin -> admin.getId() == user.getId());
+    }
+
     public void addMember(User user, boolean admin) {
         GroupUser groupUser = new GroupUser(this, user, admin);
         groupUsers.add(groupUser);
