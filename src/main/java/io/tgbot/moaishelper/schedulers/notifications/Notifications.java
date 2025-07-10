@@ -28,8 +28,8 @@ class Notifications {
 
     @Scheduled(cron = "0 0/15 * * * *")
     private void notifyUsers() {
-        NotificationsDaemon daemon = new NotificationsDaemon((List<User>) userRepository.findAll(),
+        NotificationsThread thread = new NotificationsThread((List<User>) userRepository.findAll(),
                 messageHandler, settingsRepository);
-        daemon.start();
+        thread.start();
     }
 }

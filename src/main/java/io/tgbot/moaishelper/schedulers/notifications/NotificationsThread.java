@@ -11,11 +11,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public class NotificationsDaemon extends Thread {
-    public NotificationsDaemon(List<User> users, MessageHandler messageHandler,
+public class NotificationsThread extends Thread {
+    public NotificationsThread(List<User> users, MessageHandler messageHandler,
                                UserSettingsRepository settingsRepository) {
         super(new DaemonTask(users, messageHandler, settingsRepository));
-        setDaemon(true);
     }
 
     private record DaemonTask(List<User> users, MessageHandler messageHandler,

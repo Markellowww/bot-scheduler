@@ -21,12 +21,12 @@ public class GroupFilesCleaner {
         this.groupFileRepository = groupFileRepository;
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 30 12 * * *")
     private void cleanGroupFiles() {
         List<GroupFile> expiredFiles = findExpiredFiles();
         logger.info("found {} expired files. Start clearing", expiredFiles.size());
-        GroupFilesDaemon daemon = new GroupFilesDaemon(expiredFiles, groupFileRepository);
-        daemon.start();
+        GroupFilesThread thread = new GroupFilesThread(expiredFiles, groupFileRepository);
+        thread.start();
     }
 
     private List<GroupFile> findExpiredFiles() {

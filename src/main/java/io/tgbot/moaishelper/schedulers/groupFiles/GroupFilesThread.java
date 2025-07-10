@@ -8,10 +8,9 @@ import java.util.List;
 
 import static io.tgbot.moaishelper.service.GroupFileHandler.getFile;
 
-public class GroupFilesDaemon extends Thread {
-    public GroupFilesDaemon(List<GroupFile> files, GroupFileRepository fileRepository) {
+public class GroupFilesThread extends Thread {
+    public GroupFilesThread(List<GroupFile> files, GroupFileRepository fileRepository) {
         super(new DaemonTask(files, fileRepository));
-        setDaemon(true);
     }
 
     private record DaemonTask(List<GroupFile> files, GroupFileRepository groupFileRepository) implements Runnable {
