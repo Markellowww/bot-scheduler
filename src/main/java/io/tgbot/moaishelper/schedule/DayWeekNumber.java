@@ -1,5 +1,6 @@
 package io.tgbot.moaishelper.schedule;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -17,9 +18,16 @@ public class DayWeekNumber {
     public static short getCurrentWeekNumber(ZoneId zone) {
         ZonedDateTime today = ZonedDateTime.now(zone);
 
-        LocalDate september2 = today.getMonthValue() >= 9 ? LocalDate.of(today.getYear(), 9, 2) :
-                LocalDate.of(today.getYear() - 1, 9, 2);
+        // Опорная дата: понедельник, 1 сентября 2025
+        LocalDate baseMonday = LocalDate.of(2025, 9, 1);
 
-        return (short) (september2.until(today, ChronoUnit.DAYS) / 7 % 2);
+        // Текущий понедельник недели
+        LocalDate currentWeekMonday = today.toLocalDate().with(DayOfWeek.MONDAY);
+
+        // Количество недель между базовым понедельником и текущим понедельником
+        long weeksBetween = ChronoUnit.WEEKS.between(baseMonday, currentWeekMonday);
+
+        // Возвращаем 0 или 1 в зависимости от четности недели
+        return (short) (weeksBetween % 2);
     }
 }
